@@ -54,7 +54,7 @@ export interface Order {
 
 export const checkoutApi = createApi({
   reducerPath: "checkoutApi",
-  baseQuery: fetchBaseQuery({ baseUrl: "https://elvevier-backend-production.up.railway.app/api" }),
+  baseQuery: fetchBaseQuery({ baseUrl: "/api" }),
   endpoints: (builder) => ({
     placeOrder: builder.mutation<CheckoutResponse, CheckoutRequest>({
       query: (order) => ({
