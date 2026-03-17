@@ -45,8 +45,9 @@ export async function POST(request: Request) {
       { message: "Order placed successfully!", orderId: result.insertedId },
       { status: 201 }
     );
-  } catch (err) {
-    console.error("Checkout error:", err);
-    return NextResponse.json({ error: "Failed to place order. Please try again." }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("Checkout error:", message);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
