@@ -1,4 +1,4 @@
-# Evlevier – Clothing Brand Website
+# Private Room – Clothing Brand Website
 
 A cozy, full-featured e-commerce site for a clothing brand (inspired by [Lama Retail](https://pk.lamaretail.com/)), built with **Next.js 16**, TypeScript, and Tailwind CSS.
 
@@ -35,9 +35,4 @@ npm start
 - `src/types/` – TypeScript types
 
 Replace mock data in `src/data/products.ts` and connect to your CMS or API when ready.
-# Evlevier
-# elvevier
-# elvevier
-# elvevierweb
-# elvevierweb
-# elvevier-user-web
+# secretcraving
