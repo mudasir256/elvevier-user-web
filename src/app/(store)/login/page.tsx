@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Login – Evlevier",
-  description: "Sign in to your Evlevier account.",
+  title: "Login – Empulse",
+  description: "Sign in to your Empulse account.",
 };
 
 export default function LoginPage() {

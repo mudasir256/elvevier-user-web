@@ -4,9 +4,9 @@ import Image from "next/image";
 import { assets } from "@/data/assets";
 
 export const metadata: Metadata = {
-  title: "About Us – Evlevier",
+  title: "About Us – Empulse",
   description:
-    "Learn about Evlevier – cozy fashion for everyone. Meet our CEO Arsal Ali. Quality clothing, shoes and accessories for men, women and kids.",
+    "Learn about Empulse – cozy fashion for everyone. Meet our CEO Arsal Ali. Quality clothing, shoes and accessories for men, women and kids.",
 };
 
 export default function AboutPage() {
@@ -20,7 +20,7 @@ export default function AboutPage() {
         <div className="relative max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <p className="text-sm uppercase tracking-[0.25em] text-[var(--accent)] font-medium mb-4 animate-fade-down">Our Story</p>
           <h1 className="section-heading text-4xl md:text-5xl font-semibold animate-fade-up">
-            About Evlevier
+            About Empulse
           </h1>
           <p className="mt-5 text-lg text-[var(--muted)] max-w-xl mx-auto leading-relaxed animate-fade-up animation-delay-100">
             Built around one idea: cozy, always. We believe everyone
@@ -67,7 +67,7 @@ export default function AboutPage() {
             <div className="relative w-full sm:w-52 aspect-square rounded-2xl overflow-hidden bg-[var(--cream)] shrink-0 shadow-md shadow-[var(--shadow-warm)]">
               <Image
                 src={assets.ceo}
-                alt="Arsal Ali – CEO, Evlevier"
+                alt="Arsal Ali – CEO, Empulse"
                 fill
                 className="object-cover"
                 sizes="(max-width: 640px) 100vw, 208px"
@@ -81,8 +81,8 @@ export default function AboutPage() {
               </h3>
               <p className="text-sm text-[var(--accent)] mt-1 font-medium">Chief Executive Officer</p>
               <p className="text-[var(--muted)] leading-relaxed mt-5 text-sm">
-                Arsal Ali leads Evlevier from Lahore, bringing a clear vision for
-                accessible, quality fashion. Under his leadership, Evlevier has grown
+                Arsal Ali leads Empulse from Lahore, bringing a clear vision for
+                accessible, quality fashion. Under his leadership, Empulse has grown
                 around the idea of cozy, always — offering thoughtful clothing,
                 shoes and accessories for men, women and kids.
               </p>

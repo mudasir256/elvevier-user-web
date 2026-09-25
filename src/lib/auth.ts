@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { NextResponse } from "next/server";
 
-const JWT_SECRET = process.env.JWT_SECRET || "elvevier-admin-secret-2026";
+const JWT_SECRET = process.env.JWT_SECRET || "empulse-admin-secret-2026";
 
 export interface AdminPayload {
   email: string;

@@ -37,7 +37,7 @@ export default function AdminLoginPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-amber-500 text-white text-2xl font-bold mb-4 shadow-lg shadow-amber-500/30">
             E
           </div>
-          <h1 className="text-2xl font-bold text-white">Elvevier Admin</h1>
+          <h1 className="text-2xl font-bold text-white">Empulse Admin</h1>
           <p className="text-gray-400 text-sm mt-1">
             Sign in to manage your store
           </p>
@@ -74,7 +74,7 @@ export default function AdminLoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoFocus
-                placeholder="admin@elvevier.com"
+                placeholder="admin@empulse.com"
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 transition-all"
               />
             </div>
@@ -132,7 +132,7 @@ export default function AdminLoginPage() {
         </div>
 
         <p className="text-center text-gray-500 text-xs mt-6">
-          Elvevier Store Admin Panel
+          Empulse Store Admin Panel
         </p>
       </div>
     </div>

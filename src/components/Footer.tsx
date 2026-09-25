@@ -34,10 +34,10 @@ export function Footer() {
             <Link href="/" className="inline-block transition-transform duration-300 hover:scale-105">
               <Image
                 src={assets.logo}
-                alt="Evlevier"
-                width={130}
-                height={44}
-                className="h-10 w-auto object-contain brightness-0 invert opacity-90"
+                alt="Empulse"
+                width={1473}
+                height={388}
+                className="h-9 w-auto object-contain brightness-0 invert opacity-90"
                 unoptimized
               />
             </Link>
@@ -125,7 +125,7 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="mt-14 pt-8 border-t border-white/8 flex flex-col sm:flex-row justify-between items-center gap-4 animate-fade-up animation-delay-300">
           <p className="text-xs text-[var(--muted)]">
-            &copy; {new Date().getFullYear()} Evlevier. All rights reserved.
+            &copy; {new Date().getFullYear()} Empulse. All rights reserved.
           </p>
           <div className="flex items-center gap-6 text-xs text-[var(--muted)]">
             <Link href="/privacy" className="hover:text-[var(--accent-soft)] transition-colors">Privacy</Link>

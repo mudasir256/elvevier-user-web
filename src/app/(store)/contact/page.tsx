@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Contact Us – Evlevier",
-  description: "Get in touch with Evlevier. We're here to help with orders, returns and questions.",
+  title: "Contact Us – Empulse",
+  description: "Get in touch with Empulse. We're here to help with orders, returns and questions.",
 };
 
 export default function ContactPage() {
@@ -29,7 +29,7 @@ export default function ContactPage() {
               {
                 icon: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z",
                 title: "Email",
-                text: "support@evlevier.com",
+                text: "support@empulse.com",
               },
               {
                 icon: "M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z",

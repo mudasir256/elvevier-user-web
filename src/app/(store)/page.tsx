@@ -243,7 +243,7 @@ export default function HomePage() {
       <section className="relative h-[50vh] md:h-[60vh] overflow-hidden">
         <Image
           src={assets.fashion}
-          alt="Evlevier lifestyle"
+          alt="Empulse lifestyle"
           fill
           className="object-cover"
           sizes="100vw"
@@ -252,7 +252,7 @@ export default function HomePage() {
         <div className="absolute inset-0 flex items-center">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
             <div className="max-w-lg animate-fade-up">
-              <p className="text-sm uppercase tracking-[0.2em] text-[var(--cream)]/80 mb-3">The Evlevier Way</p>
+              <p className="text-sm uppercase tracking-[0.2em] text-[var(--cream)]/80 mb-3">The Empulse Way</p>
               <h2 className="section-heading text-3xl md:text-5xl font-semibold text-[var(--cream)] leading-tight">
                 Fashion that feels like home
               </h2>

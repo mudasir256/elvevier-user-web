@@ -88,14 +88,14 @@ export function Header() {
           <Link
             href="/"
             className="absolute left-1/2 -translate-x-1/2 flex items-center transition-all duration-300 hover:scale-105"
-            aria-label="Evlevier home"
+            aria-label="Empulse home"
           >
             <Image
               src={assets.logo}
-              alt="Evlevier"
-              width={140}
-              height={48}
-              className="h-9 w-auto md:h-11 object-contain"
+              alt="Empulse"
+              width={1473}
+              height={388}
+              className="h-8 w-auto md:h-10 object-contain"
               priority
               unoptimized
             />

@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "elvevier-admin-secret-2026";
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@elvevier.com";
+const JWT_SECRET = process.env.JWT_SECRET || "empulse-admin-secret-2026";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@empulse.com";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Admin@123";
 
 export async function POST(request: Request) {

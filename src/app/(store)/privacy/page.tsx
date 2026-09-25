@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy – Evlevier",
-  description: "How Evlevier collects, uses and protects your personal information.",
+  title: "Privacy Policy – Empulse",
+  description: "How Empulse collects, uses and protects your personal information.",
 };
 
 const sections = [

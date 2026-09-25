@@ -1,11 +1,11 @@
 /**
- * All images from src/assets, served from public/Evlevier after copy.
+ * All images from src/assets, served from public/Empulse after copy.
  * Use these paths across the site so every asset is used.
  */
 const K = "/kairo";
 
 export const assets = {
-  logo: `${K}/logo.png`,
+  logo: `${K}/empulselogo.png`,
   ceo: `${K}/CEO.jpg`,
   // Hero & marketing
   hero: `${K}/image.webp`,

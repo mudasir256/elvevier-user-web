@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "FAQs – Evlevier",
+  title: "FAQs – Empulse",
   description: "Frequently asked questions about orders, shipping, returns and more.",
 };
 
