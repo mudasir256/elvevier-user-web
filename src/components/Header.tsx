@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import { navCategories } from "@/data/categories";
 import { assets } from "@/data/assets";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export function Header() {
   const { itemCount, openCart } = useCart();
@@ -13,25 +13,36 @@ export function Header() {
   const [openNavId, setOpenNavId] = useState<string | null>(null);
   const [openMobileSubId, setOpenMobileSubId] = useState<string | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const itemHover = scrolled
+    ? "text-white/85 hover:!text-white hover:bg-white/10"
+    : "text-[var(--foreground)] hover:!text-[var(--foreground)] hover:bg-[var(--cream)]";
+  const iconHover = scrolled
+    ? "text-white hover:bg-white/10"
+    : "text-[var(--foreground)] hover:bg-[var(--cream)]";
 
   return (
-    <header className="sticky top-0 z-40 bg-[var(--background)]/90 backdrop-blur-xl border-b border-[var(--border)]/60 transition-all duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        {/* Promo bar */}
-        <div className="hidden sm:flex items-center justify-center py-2 text-xs tracking-wide text-[var(--muted)] animate-fade-down">
-          <span className="flex items-center gap-1.5">
-            <svg className="w-3.5 h-3.5 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-            </svg>
-            Free shipping on orders above Rs. 2,500
-          </span>
-        </div>
-
-        <div className="flex items-center justify-between h-16 md:h-[72px] animate-fade-down animation-delay-100">
+    <header className="sticky top-0 z-40 px-3 sm:px-4 md:px-6 pt-3 md:pt-4">
+      <div
+        className={`rounded-2xl transition-colors duration-300 ${
+          scrolled
+            ? "bg-[#161616] text-white shadow-[0_10px_40px_rgba(0,0,0,0.18)]"
+            : "bg-white text-[var(--foreground)] shadow-[0_8px_30px_rgba(44,40,37,0.08)] border border-[var(--border)]"
+        }`}
+      >
+        <div className="relative flex items-center justify-between h-[64px] md:h-[72px] px-3 md:px-5 gap-3">
           {/* Mobile hamburger */}
           <button
             type="button"
-            className="md:hidden p-2 -ml-2 rounded-lg hover:bg-[var(--cream)] transition-colors"
+            className={`md:hidden p-2 -ml-1 rounded-lg transition-colors ${iconHover}`}
             onClick={() => setMenuOpen((o) => !o)}
             aria-label="Menu"
           >
@@ -60,7 +71,7 @@ export function Header() {
               >
                 <Link
                   href={`/${cat.slug}`}
-                  className="px-3.5 py-2 text-[14px] font-medium text-[var(--foreground)] hover:text-[var(--accent)] rounded-lg hover:bg-[var(--cream)]/60 transition-all duration-200"
+                  className={`px-3.5 py-2 text-[14px] font-medium rounded-lg transition-all duration-200 ${itemHover}`}
                 >
                   {cat.name}
                 </Link>
@@ -84,10 +95,11 @@ export function Header() {
             ))}
           </nav>
 
-          {/* Logo */}
           <Link
             href="/"
-            className="absolute left-1/2 -translate-x-1/2 flex items-center transition-all duration-300 hover:scale-105"
+            className={`absolute left-1/2 -translate-x-1/2 z-10 flex items-center rounded-xl px-2.5 md:px-3 py-1.5 transition-all duration-300 hover:scale-[1.02] ${
+              scrolled ? "bg-white" : "bg-transparent"
+            }`}
             aria-label="Empulse home"
           >
             <Image
@@ -95,23 +107,23 @@ export function Header() {
               alt="Empulse"
               width={1473}
               height={388}
-              className="h-8 w-auto md:h-10 object-contain"
+              className="h-7 w-auto md:h-8 object-contain"
               priority
               unoptimized
             />
           </Link>
 
           {/* Desktop actions */}
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden md:flex items-center gap-1 shrink-0">
             <Link
               href="/login"
-              className="px-3 py-2 text-sm font-medium text-[var(--foreground)] hover:text-[var(--accent)] rounded-lg hover:bg-[var(--cream)]/60 transition-all duration-200"
+              className={`px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${itemHover}`}
             >
               Login
             </Link>
             <Link
               href="/search"
-              className="p-2.5 rounded-xl hover:bg-[var(--cream)] transition-colors duration-200"
+              className={`p-2.5 rounded-xl transition-colors duration-200 ${iconHover}`}
               aria-label="Search"
             >
               <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -120,7 +132,7 @@ export function Header() {
             </Link>
             <button
               type="button"
-              className="relative p-2.5 rounded-xl hover:bg-[var(--cream)] transition-colors duration-200"
+              className={`relative p-2.5 rounded-xl transition-colors duration-200 ${iconHover}`}
               onClick={openCart}
               aria-label="Cart"
             >
@@ -128,11 +140,17 @@ export function Header() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
               {itemCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-[18px] h-[18px] rounded-full bg-[var(--accent)] text-white text-[10px] font-semibold flex items-center justify-center ring-2 ring-[var(--background)]">
+                <span className={`absolute -top-0.5 -right-0.5 w-[18px] h-[18px] rounded-full bg-[var(--accent)] text-white text-[10px] font-semibold flex items-center justify-center ring-2 ${scrolled ? "ring-[#161616]" : "ring-white"}`}>
                   {itemCount > 99 ? "99+" : itemCount}
                 </span>
               )}
             </button>
+            <Link
+              href="/women"
+              className="ml-1 inline-flex items-center px-4 py-2.5 rounded-lg bg-[var(--accent)] text-white text-sm font-semibold hover:bg-[var(--accent-hover)] hover:!text-white transition-colors"
+            >
+              Shop now
+            </Link>
           </div>
 
           {/* Mobile profile */}
@@ -140,7 +158,7 @@ export function Header() {
             <button
               type="button"
               onClick={() => setProfileOpen((o) => !o)}
-              className="p-2 rounded-lg hover:bg-[var(--cream)] transition-colors duration-200"
+              className={`p-2 rounded-lg transition-colors duration-200 ${iconHover}`}
               aria-label="Account"
               aria-expanded={profileOpen}
               aria-haspopup="true"
@@ -194,11 +212,11 @@ export function Header() {
         {menuOpen && (
           <>
             <div
-              className="fixed inset-0 top-16 bg-black/30 backdrop-blur-sm z-40 md:hidden"
+              className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 md:hidden"
               aria-hidden
               onClick={() => setMenuOpen(false)}
             />
-            <div className="fixed top-16 left-0 right-0 z-50 md:hidden max-h-[70vh] overflow-y-auto bg-[var(--card)] border-b border-[var(--border)] shadow-xl animate-fade-down rounded-b-2xl">
+            <div className={`relative z-50 md:hidden max-h-[70vh] overflow-y-auto border-t animate-fade-down rounded-b-2xl ${scrolled ? "border-white/10" : "border-[var(--border)]"}`}>
               <nav className="py-3 px-4 space-y-0.5">
                 {navCategories.map((cat) => {
                   const isSubOpen = openMobileSubId === cat.id;
@@ -210,12 +228,12 @@ export function Header() {
                           <button
                             type="button"
                             onClick={() => setOpenMobileSubId((id) => (id === cat.id ? null : cat.id))}
-                            className="flex items-center justify-between w-full py-3 px-2 font-medium text-left rounded-lg hover:bg-[var(--cream)] transition-colors"
+                            className={`flex items-center justify-between w-full py-3 px-2 font-medium text-left rounded-lg transition-colors ${itemHover}`}
                             aria-expanded={isSubOpen}
                           >
                             {cat.name}
                             <svg
-                              className={`w-4 h-4 text-[var(--muted)] transition-transform duration-200 ${isSubOpen ? "rotate-180" : ""}`}
+                              className={`w-4 h-4 transition-transform duration-200 ${isSubOpen ? "rotate-180" : ""} ${scrolled ? "text-white/60" : "text-[var(--muted)]"}`}
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
@@ -230,7 +248,7 @@ export function Header() {
                                   <Link
                                     key={child.slug}
                                     href={`/${child.slug}`}
-                                    className="block py-2 px-3 text-sm text-[var(--muted)] hover:text-[var(--accent)] hover:bg-[var(--cream)] rounded-lg transition-colors"
+                                    className={`block py-2 px-3 text-sm rounded-lg transition-colors ${itemHover}`}
                                     onClick={() => setMenuOpen(false)}
                                   >
                                     {child.name}
@@ -243,7 +261,7 @@ export function Header() {
                       ) : (
                         <Link
                           href={`/${cat.slug}`}
-                          className="block py-3 px-2 font-medium rounded-lg hover:bg-[var(--cream)] transition-colors"
+                          className={`block py-3 px-2 font-medium rounded-lg transition-colors ${itemHover}`}
                           onClick={() => setMenuOpen(false)}
                         >
                           {cat.name}
