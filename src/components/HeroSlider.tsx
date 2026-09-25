@@ -6,51 +6,94 @@ import { useCallback, useEffect, useState } from "react";
 import { assets } from "@/data/assets";
 
 const slides = [
-  { src: assets.hero, alt: "Empulse spring collection" },
-  { src: assets.fashion, alt: "Burgundy knit dress" },
-  { src: assets.paris, alt: "Empulse street style" },
-  { src: assets.saleBanner1, alt: "Empulse women collection" },
+  { src: assets.fashion, alt: "Knit dress" },
+  { src: assets.menSneakers, alt: "Sneakers" },
+  { src: assets.oaklandBag, alt: "Top handle bag" },
+  { src: assets.saleBanner2, alt: "Shirt dress" },
+  { src: assets.denimVest, alt: "Denim vest" },
+  { src: assets.loafers1, alt: "Loafers" },
+  { src: assets.khakiTrousers, alt: "Pleated trousers" },
+  { src: assets.beigeSafari, alt: "Safari shirt" },
+  { src: assets.lotusBag, alt: "Crossbody bag" },
 ];
 
 export function HeroSlider() {
   const [index, setIndex] = useState(0);
+  const [animate, setAnimate] = useState(true);
   const count = slides.length;
+  const loop = [...slides, ...slides];
 
-  const go = useCallback((next: number) => {
-    setIndex((next + count) % count);
+  const advance = useCallback(() => {
+    setAnimate(true);
+    setIndex((current) => current + 1);
+  }, []);
+
+  const go = useCallback((target: number) => {
+    setAnimate(true);
+    setIndex(((target % count) + count) % count);
   }, [count]);
 
-  const next = useCallback(() => go(index + 1), [go, index]);
-  const prev = useCallback(() => go(index - 1), [go, index]);
+  const prev = useCallback(() => {
+    if (index === 0) {
+      setAnimate(false);
+      setIndex(count);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setAnimate(true);
+          setIndex(count - 1);
+        });
+      });
+      return;
+    }
+    setAnimate(true);
+    setIndex((current) => current - 1);
+  }, [count, index]);
 
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      setIndex((current) => (current + 1) % count);
-    }, 5000);
+    if (index !== count) return;
+    const reset = window.setTimeout(() => {
+      setAnimate(false);
+      setIndex(0);
+    }, 700);
+    return () => window.clearTimeout(reset);
+  }, [index, count]);
+
+  useEffect(() => {
+    const timer = window.setInterval(advance, 5000);
     return () => window.clearInterval(timer);
-  }, [count, index]);
+  }, [advance, index]);
 
   return (
     <section className="px-3 sm:px-4 md:px-6 pt-3 md:pt-4 pb-3 md:pb-5">
       <div className="relative min-h-[78vh] md:min-h-[82vh] rounded-[28px] overflow-hidden">
-        {slides.map((slide, i) => (
+        <div className="absolute inset-0 overflow-hidden">
           <div
-            key={slide.src}
-            className={`absolute inset-0 transition-opacity duration-700 ${
-              i === index ? "opacity-100" : "opacity-0"
-            }`}
-            aria-hidden={i !== index}
+            className={`flex h-full md:hidden ${animate ? "transition-transform duration-700 ease-in-out" : ""}`}
+            style={{
+              width: `${loop.length * 100}%`,
+              transform: `translateX(-${index * (100 / loop.length)}%)`,
+            }}
           >
-            <Image
-              src={slide.src}
-              alt={slide.alt}
-              fill
-              className="object-cover"
-              priority={i === 0}
-              sizes="100vw"
-            />
+            {loop.map((slide, i) => (
+              <div key={`m-${slide.src}-${i}`} className="relative h-full shrink-0" style={{ width: `${100 / loop.length}%` }}>
+                <Image src={slide.src} alt={slide.alt} fill className="object-cover object-center" priority={i === 0} sizes="100vw" />
+              </div>
+            ))}
           </div>
-        ))}
+          <div
+            className={`hidden h-full md:flex ${animate ? "transition-transform duration-700 ease-in-out" : ""}`}
+            style={{
+              width: `${(loop.length / 3) * 100}%`,
+              transform: `translateX(-${index * (100 / loop.length)}%)`,
+            }}
+          >
+            {loop.map((slide, i) => (
+              <div key={`d-${slide.src}-${i}`} className="relative h-full shrink-0" style={{ width: `${100 / loop.length}%` }}>
+                <Image src={slide.src} alt={slide.alt} fill className="object-cover object-center" priority={i < 3} sizes="34vw" />
+              </div>
+            ))}
+          </div>
+        </div>
 
         <div className="absolute inset-0 bg-gradient-to-b from-[var(--foreground)]/30 via-[var(--foreground)]/40 to-[var(--foreground)]/50" />
 
@@ -94,7 +137,7 @@ export function HeroSlider() {
         </button>
         <button
           type="button"
-          onClick={next}
+          onClick={advance}
           className="absolute right-3 md:right-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/90 text-[var(--foreground)] flex items-center justify-center hover:bg-white transition-colors"
           aria-label="Next image"
         >
@@ -110,7 +153,7 @@ export function HeroSlider() {
               type="button"
               onClick={() => go(i)}
               className={`h-2 rounded-full transition-all ${
-                i === index ? "w-6 bg-white" : "w-2 bg-white/55 hover:bg-white/80"
+                i === index % count ? "w-6 bg-white" : "w-2 bg-white/55 hover:bg-white/80"
               }`}
               aria-label={`Show image ${i + 1}`}
             />
