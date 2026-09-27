@@ -30,8 +30,15 @@ export function Header() {
     : "text-[#4a142a] hover:bg-[#4a142a]/10";
 
   return (
-    <header className="sticky top-0 z-40">
-      <div className="overflow-hidden bg-[#161616] text-white">
+    <header className="sticky top-0 z-50">
+      {menuOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm md:hidden"
+          aria-hidden
+          onClick={() => setMenuOpen(false)}
+        />
+      )}
+      <div className="relative z-50 overflow-hidden bg-[#161616] text-white">
         <p className="mx-auto hidden max-w-7xl items-center justify-center gap-x-2.5 px-3 py-2 text-[11px] font-medium uppercase tracking-[0.16em] md:flex">
           <span>Free shipping across Pakistan</span>
           <span className="text-[#c989a3]" aria-hidden="true">•</span>
@@ -55,9 +62,9 @@ export function Header() {
           ))}
         </div>
       </div>
-      <div className="px-3 sm:px-4 md:px-6 pt-3 md:pt-4">
+      <div className="relative z-50 px-3 sm:px-4 md:px-6 pt-3 md:pt-4">
       <div
-        className={`rounded-2xl transition-colors duration-300 ${
+        className={`overflow-hidden rounded-2xl transition-colors duration-300 ${
           scrolled
             ? "bg-black/40 text-white backdrop-blur-md border border-white/15"
             : "bg-white text-[var(--foreground)] shadow-[0_8px_30px_rgba(44,40,37,0.08)] border border-[var(--border)]"
@@ -235,13 +242,7 @@ export function Header() {
 
         {/* Mobile menu */}
         {menuOpen && (
-          <>
-            <div
-              className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 md:hidden"
-              aria-hidden
-              onClick={() => setMenuOpen(false)}
-            />
-            <div className={`relative z-50 md:hidden max-h-[70vh] overflow-y-auto border-t animate-fade-down rounded-b-2xl ${scrolled ? "border-white/10 bg-black/75 backdrop-blur-md" : "border-[var(--border)] bg-white"}`}>
+            <div className={`relative z-50 md:hidden max-h-[70vh] overflow-y-auto border-t animate-fade-down ${scrolled ? "border-white/10 bg-black/75 backdrop-blur-md" : "border-[var(--border)] bg-white"}`}>
               <nav className="py-3 px-4 space-y-0.5">
                 {navCategories.map((cat) => {
                   const isSubOpen = openMobileSubId === cat.id;
@@ -297,7 +298,6 @@ export function Header() {
                 })}
               </nav>
             </div>
-          </>
         )}
       </div>
       </div>

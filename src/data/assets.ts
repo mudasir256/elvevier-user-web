@@ -9,7 +9,7 @@ export const assets = {
   ceo: `${K}/CEO.jpg`,
   // Hero & marketing
   hero: `${K}/c1ab8546-33d2-4453-8707-d17d5d439ae9.png`,
-  heroMobile: `${K}/b098bca6-3eaf-4ca8-944f-7cd044a0f371.png`,
+  heroMobile: `${K}/mobilehero.png`,
   saleBanner1: `${K}/Lama-Sale-End-of-Season-2-683x1024.webp`,
   saleBanner2: `${K}/Lama-Sale-End-of-Season-4-683x1024.webp`,
   fashion: `${K}/F81162s.jpg`,

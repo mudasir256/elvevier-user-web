@@ -6,7 +6,7 @@ export function HeroSlider() {
   return (
     <>
     <section className="px-3 sm:px-4 md:px-6 pt-3 md:pt-4 pb-3 md:pb-5">
-      <div className="relative mx-auto h-[calc(100dvh-13.25rem)] w-full overflow-hidden rounded-[28px] bg-[#ececec] md:h-auto md:aspect-[1959/803]">
+      <div className="relative mx-auto aspect-[1122/1402] h-auto w-full overflow-hidden rounded-[28px] bg-[#ececec] md:aspect-[1959/803]">
         <Image
           src={assets.heroMobile}
           alt="Empulse end of season sale, up to 50% off on selected items"
