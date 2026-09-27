@@ -77,7 +77,7 @@ export default function CheckoutPage() {
         </p>
         <Link
           href="/"
-          className="inline-block mt-6 px-6 py-3 bg-[var(--foreground)] text-[var(--cream)] font-medium rounded-lg hover:opacity-90 transition"
+          className="inline-block mt-6 px-6 py-3 bg-[#4a142a] text-white font-medium rounded-lg hover:bg-[#350e1e] transition"
         >
           Continue shopping
         </Link>
@@ -113,7 +113,7 @@ export default function CheckoutPage() {
           )}
           <Link
             href="/"
-            className="inline-block px-6 py-3 bg-[var(--foreground)] text-[var(--cream)] font-medium rounded-lg hover:opacity-90 transition"
+            className="inline-block px-6 py-3 bg-[#4a142a] text-white font-medium rounded-lg hover:bg-[#350e1e] transition"
           >
             Continue shopping
           </Link>
@@ -245,7 +245,7 @@ export default function CheckoutPage() {
                 <div className="flex gap-4">
                   <label className={`flex-1 flex items-center justify-center gap-2 p-4 rounded-xl border-2 cursor-pointer transition ${paymentMethod === "card" ? "border-[var(--accent)] bg-[var(--accent)]/5 text-[var(--accent)]" : "border-[var(--border)] hover:border-[var(--muted)]"}`}>
                     <input type="radio" name="paymentMethod" value="card" checked={paymentMethod === "card"} onChange={() => setPaymentMethod("card")} className="sr-only" />
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+                    <svg className="w-5 h-5 text-[#4a142a]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
                     <span className="font-medium">Card</span>
                   </label>
                   <label className={`flex-1 flex items-center justify-center gap-2 p-4 rounded-xl border-2 cursor-pointer transition ${paymentMethod === "cod" ? "border-[var(--accent)] bg-[var(--accent)]/5 text-[var(--accent)]" : "border-[var(--border)] hover:border-[var(--muted)]"}`}>

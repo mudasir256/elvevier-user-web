@@ -4,16 +4,16 @@
   --background: #faf8f5;
   --foreground: #2c2825;
   --muted: #6b6560;
-  --accent: #a67c52;
-  --accent-soft: #c9a882;
-  --accent-hover: #8d6841;
+  --accent: #4a142a;
+  --accent-soft: #c989a3;
+  --accent-hover: #350e1e;
   --cream: #f5f0e8;
   --cream-dark: #ebe4d8;
   --border: #e8e2d9;
   --card: #ffffff;
   --card-hover: #fdfcfa;
-  --shadow-warm: rgba(166, 124, 82, 0.08);
-  --shadow-warm-md: rgba(166, 124, 82, 0.12);
+  --shadow-warm: rgba(74, 20, 42, 0.08);
+  --shadow-warm-md: rgba(74, 20, 42, 0.12);
   --radius: 12px;
   --radius-lg: 20px;
 }
@@ -23,6 +23,15 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-dm-sans);
   --font-serif: var(--font-cormorant);
+  --color-amber-50: #f8f1f4;
+  --color-amber-100: #f0e0e7;
+  --color-amber-200: #e0c2cf;
+  --color-amber-300: #c48aa3;
+  --color-amber-400: #8d4a66;
+  --color-amber-500: #4a142a;
+  --color-amber-600: #3d1023;
+  --color-amber-700: #320d1c;
+  --color-amber-800: #2a0b18;
 }
 
 * {
@@ -126,8 +135,8 @@ img {
   justify-content: center;
   gap: 8px;
   padding: 14px 32px;
-  background: var(--foreground);
-  color: var(--cream);
+  background: #4a142a;
+  color: white;
   font-weight: 500;
   border-radius: var(--radius);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -143,9 +152,10 @@ img {
   transition: opacity 0.3s ease;
 }
 .btn-primary:hover {
+  background: #350e1e;
+  color: white;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(44, 40, 37, 0.2);
-  color: var(--cream);
+  box-shadow: 0 4px 12px rgba(74, 20, 42, 0.28);
 }
 .btn-primary:hover::before {
   opacity: 1;
@@ -187,7 +197,7 @@ img {
   background: var(--accent-hover);
   color: white;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(166, 124, 82, 0.3);
+  box-shadow: 0 4px 12px rgba(74, 20, 42, 0.3);
 }
 
 /* Input styling */
@@ -208,7 +218,7 @@ img {
 .input-warm:focus {
   outline: none;
   border-color: var(--accent-soft);
-  box-shadow: 0 0 0 3px rgba(166, 124, 82, 0.1);
+  box-shadow: 0 0 0 3px rgba(74, 20, 42, 0.1);
 }
 
 /* Subtle grain texture overlay */

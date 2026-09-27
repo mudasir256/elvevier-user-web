@@ -10,7 +10,7 @@ export function AddToCartButton({ product }: { product: Product }) {
     <button
       type="button"
       onClick={() => addToCart(product)}
-      className="w-full md:w-auto px-10 py-4 bg-[var(--foreground)] text-[var(--cream)] font-medium rounded-lg hover:opacity-90 transition"
+      className="w-full md:w-auto px-10 py-4 bg-[#4a142a] text-white font-medium rounded-lg hover:bg-[#350e1e] transition"
     >
       Add to cart
     </button>

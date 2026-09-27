@@ -35,8 +35,8 @@ export function Footer() {
               <Image
                 src={assets.logo}
                 alt="Empulse"
-                width={1473}
-                height={388}
+                width={1472}
+                height={391}
                 className="h-9 w-auto object-contain brightness-0 invert opacity-90"
                 unoptimized
               />
@@ -51,7 +51,7 @@ export function Footer() {
                 href="https://instagram.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-[var(--muted)] hover:text-[var(--accent-soft)] hover:border-[var(--accent-soft)] transition-all duration-200"
+                className="w-10 h-10 rounded-full bg-white border border-[#4a142a]/20 flex items-center justify-center text-[#4a142a] hover:bg-[#4a142a] hover:text-white transition-all duration-200"
                 aria-label="Instagram"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -62,7 +62,7 @@ export function Footer() {
                 href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-[var(--muted)] hover:text-[var(--accent-soft)] hover:border-[var(--accent-soft)] transition-all duration-200"
+                className="w-10 h-10 rounded-full bg-white border border-[#4a142a]/20 flex items-center justify-center text-[#4a142a] hover:bg-[#4a142a] hover:text-white transition-all duration-200"
                 aria-label="Facebook"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -73,7 +73,7 @@ export function Footer() {
                 href="https://tiktok.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-[var(--muted)] hover:text-[var(--accent-soft)] hover:border-[var(--accent-soft)] transition-all duration-200"
+                className="w-10 h-10 rounded-full bg-white border border-[#4a142a]/20 flex items-center justify-center text-[#4a142a] hover:bg-[#4a142a] hover:text-white transition-all duration-200"
                 aria-label="TikTok"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">

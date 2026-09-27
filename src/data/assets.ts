@@ -5,11 +5,12 @@
 const K = "/kairo";
 
 export const assets = {
-  logo: `${K}/empulselogo.png`,
+  logo: `${K}/LOGOEMP.png`,
   ceo: `${K}/CEO.jpg`,
   // Hero & marketing
   hero: `${K}/image.webp`,
   heroAlt: `${K}/9_IMG_5540-1.jpeg`,
+  heroVideo: `${K}/herobgvideo.mp4`,
   saleBanner1: `${K}/Lama-Sale-End-of-Season-2-683x1024.webp`,
   saleBanner2: `${K}/Lama-Sale-End-of-Season-4-683x1024.webp`,
   fashion: `${K}/F81162s.jpg`,

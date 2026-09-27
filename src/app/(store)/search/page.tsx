@@ -44,9 +44,9 @@ export default function SearchPage() {
           <Link
             key={product.id}
             href={`/product/${product.slug}`}
-            className="group block"
+            className="group flex h-full flex-col"
           >
-            <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-[var(--cream)]">
+            <div className="relative aspect-[3/4] shrink-0 overflow-hidden rounded-xl bg-[var(--cream)]">
               <Image
                 src={product.image}
                 alt={product.name}
@@ -55,11 +55,11 @@ export default function SearchPage() {
                 sizes="(max-width: 640px) 50vw, 33vw"
               />
             </div>
-            <p className="mt-2 text-sm text-[var(--muted)]">{product.color}</p>
-            <p className="font-medium line-clamp-2 group-hover:text-[var(--accent)]">
+            <p className="mt-2 h-5 truncate text-sm text-[var(--muted)]">{product.color}</p>
+            <p className="h-12 overflow-hidden font-medium leading-6 line-clamp-2 group-hover:text-[var(--accent)]">
               {product.name}
             </p>
-            <p className="text-sm font-medium">{formatPrice(product.price)}</p>
+            <p className="mt-auto pt-1 text-sm font-medium">{formatPrice(product.price)}</p>
           </Link>
         ))}
       </div>

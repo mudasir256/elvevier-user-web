@@ -26,7 +26,7 @@ export default function CartPage() {
         </p>
         <Link
           href="/"
-          className="inline-block mt-6 px-6 py-3 bg-[var(--foreground)] text-[var(--cream)] font-medium rounded-lg hover:opacity-90"
+          className="inline-block mt-6 px-6 py-3 bg-[#4a142a] text-white font-medium rounded-lg hover:bg-[#350e1e]"
         >
           Continue shopping
         </Link>
@@ -118,7 +118,7 @@ export default function CartPage() {
             </div>
             <Link
               href="/checkout"
-              className="block w-full mt-6 py-4 bg-[var(--foreground)] text-[var(--cream)] font-medium rounded-lg hover:opacity-90 transition text-center"
+              className="block w-full mt-6 py-4 bg-[#4a142a] text-white font-medium rounded-lg hover:bg-[#350e1e] transition text-center"
             >
               Check out
             </Link>

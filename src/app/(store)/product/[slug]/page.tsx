@@ -92,9 +92,9 @@ export default async function ProductPage({ params }: Props) {
               <Link
                 key={p.id}
                 href={`/product/${p.slug}`}
-                className="group block"
+                className="group flex h-full flex-col"
               >
-                <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-[var(--cream)]">
+                <div className="relative aspect-[3/4] shrink-0 overflow-hidden rounded-xl bg-[var(--cream)]">
                   <Image
                     src={p.image}
                     alt={p.name}
@@ -103,11 +103,11 @@ export default async function ProductPage({ params }: Props) {
                     sizes="25vw"
                   />
                 </div>
-                <p className="mt-2 text-sm text-[var(--muted)]">{p.color}</p>
-                <p className="font-medium line-clamp-2 group-hover:text-[var(--accent)]">
+                <p className="mt-2 h-5 truncate text-sm text-[var(--muted)]">{p.color}</p>
+                <p className="h-12 overflow-hidden font-medium leading-6 line-clamp-2 group-hover:text-[var(--accent)]">
                   {p.name}
                 </p>
-                <p className="text-sm font-medium">{formatPrice(p.price)}</p>
+                <p className="mt-auto pt-1 text-sm font-medium">{formatPrice(p.price)}</p>
               </Link>
             ))}
           </div>

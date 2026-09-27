@@ -60,11 +60,7 @@ export function BottomTab() {
             <Link
               key={tab.href}
               href={tab.href}
-              className={`flex flex-col items-center justify-center gap-0.5 flex-1 h-full min-w-0 px-2 transition-colors duration-200 ${
-                active
-                  ? "text-[var(--accent)]"
-                  : "text-[var(--muted)] active:text-[var(--foreground)]"
-              }`}
+              className="flex flex-col items-center justify-center gap-0.5 flex-1 h-full min-w-0 px-2 text-[#4a142a] transition-colors duration-200"
               aria-current={active ? "page" : undefined}
               aria-label={tab.label}
             >

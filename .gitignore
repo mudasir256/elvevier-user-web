@@ -177,6 +177,9 @@ storybook-static/
 *.sqlite3
 *.db
 
+# source video is too large for GitHub; the site uses the compressed mp4
+public/kairo/herobgvideo.mov
+
 # secrets & credentials
 *.key
 *.cert

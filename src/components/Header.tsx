@@ -24,10 +24,10 @@ export function Header() {
 
   const itemHover = scrolled
     ? "text-white/85 hover:!text-white hover:bg-white/10"
-    : "text-[var(--foreground)] hover:!text-[var(--foreground)] hover:bg-[var(--cream)]";
+    : "text-[var(--foreground)] hover:!text-[#4a142a] hover:bg-[#f4e6ec]";
   const iconHover = scrolled
-    ? "text-white hover:bg-white/10"
-    : "text-[var(--foreground)] hover:bg-[var(--cream)]";
+    ? "text-[#4a142a] bg-white hover:bg-white"
+    : "text-[#4a142a] hover:bg-[#4a142a]/10";
 
   return (
     <header className="sticky top-0 z-40 px-3 sm:px-4 md:px-6 pt-3 md:pt-4">
@@ -82,7 +82,7 @@ export function Header() {
                         <Link
                           key={child.slug}
                           href={`/${child.slug}`}
-                          className="flex items-center px-4 py-2.5 text-sm text-[var(--foreground)] hover:bg-[var(--cream)] hover:text-[var(--accent)] transition-colors rounded-lg mx-1"
+                          className="flex items-center px-4 py-2.5 text-sm text-[var(--foreground)] hover:bg-[#f4e6ec] hover:text-[#4a142a] transition-colors rounded-lg mx-1"
                           onClick={() => setOpenNavId(null)}
                         >
                           {child.name}
@@ -105,8 +105,8 @@ export function Header() {
             <Image
               src={assets.logo}
               alt="Empulse"
-              width={1473}
-              height={388}
+              width={1472}
+              height={391}
               className="h-7 w-auto md:h-8 object-contain"
               priority
               unoptimized
@@ -176,7 +176,7 @@ export function Header() {
                     className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--cream)] hover:text-[var(--accent)] rounded-lg mx-1 transition-colors"
                     onClick={() => setProfileOpen(false)}
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-[#4a142a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                     </svg>
                     Login
@@ -186,7 +186,7 @@ export function Header() {
                     className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--cream)] hover:text-[var(--accent)] rounded-lg mx-1 transition-colors"
                     onClick={() => setProfileOpen(false)}
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-[#4a142a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                     </svg>
                     Sign up
@@ -197,7 +197,7 @@ export function Header() {
                     className="flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--muted)] hover:bg-[var(--cream)] rounded-lg mx-1 transition-colors"
                     onClick={() => setProfileOpen(false)}
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-[#4a142a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                     </svg>
                     Logout
@@ -233,7 +233,7 @@ export function Header() {
                           >
                             {cat.name}
                             <svg
-                              className={`w-4 h-4 transition-transform duration-200 ${isSubOpen ? "rotate-180" : ""} ${scrolled ? "text-white/60" : "text-[var(--muted)]"}`}
+                              className={`w-4 h-4 text-[#4a142a] transition-transform duration-200 ${isSubOpen ? "rotate-180" : ""}`}
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
