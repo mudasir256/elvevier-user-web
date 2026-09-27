@@ -30,11 +30,36 @@ export function Header() {
     : "text-[#4a142a] hover:bg-[#4a142a]/10";
 
   return (
-    <header className="sticky top-0 z-40 px-3 sm:px-4 md:px-6 pt-3 md:pt-4">
+    <header className="sticky top-0 z-40">
+      <div className="overflow-hidden bg-[#161616] text-white">
+        <p className="mx-auto hidden max-w-7xl items-center justify-center gap-x-2.5 px-3 py-2 text-[11px] font-medium uppercase tracking-[0.16em] md:flex">
+          <span>Free shipping across Pakistan</span>
+          <span className="text-[#c989a3]" aria-hidden="true">•</span>
+          <span>7 days return</span>
+          <span className="text-[#c989a3]" aria-hidden="true">•</span>
+          <span>First check then pay</span>
+        </p>
+        <div className="ticker-scroll-ltr flex w-max py-2 md:hidden">
+          {[0, 1].map((copy) => (
+            <p
+              key={copy}
+              className="flex items-center px-4 text-[11px] font-medium uppercase tracking-[0.16em] whitespace-nowrap"
+            >
+              <span>Free shipping across Pakistan</span>
+              <span className="mx-2.5 text-[#c989a3]" aria-hidden="true">•</span>
+              <span>7 days return</span>
+              <span className="mx-2.5 text-[#c989a3]" aria-hidden="true">•</span>
+              <span>First check then pay</span>
+              <span className="mx-2.5 text-[#c989a3]" aria-hidden="true">•</span>
+            </p>
+          ))}
+        </div>
+      </div>
+      <div className="px-3 sm:px-4 md:px-6 pt-3 md:pt-4">
       <div
         className={`rounded-2xl transition-colors duration-300 ${
           scrolled
-            ? "bg-[#161616] text-white shadow-[0_10px_40px_rgba(0,0,0,0.18)]"
+            ? "bg-black/40 text-white backdrop-blur-md border border-white/15"
             : "bg-white text-[var(--foreground)] shadow-[0_8px_30px_rgba(44,40,37,0.08)] border border-[var(--border)]"
         }`}
       >
@@ -140,7 +165,7 @@ export function Header() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
               {itemCount > 0 && (
-                <span className={`absolute -top-0.5 -right-0.5 w-[18px] h-[18px] rounded-full bg-[var(--accent)] text-white text-[10px] font-semibold flex items-center justify-center ring-2 ${scrolled ? "ring-[#161616]" : "ring-white"}`}>
+                <span className={`absolute -top-0.5 -right-0.5 w-[18px] h-[18px] rounded-full bg-[var(--accent)] text-white text-[10px] font-semibold flex items-center justify-center ring-2 ${scrolled ? "ring-transparent" : "ring-white"}`}>
                   {itemCount > 99 ? "99+" : itemCount}
                 </span>
               )}
@@ -216,7 +241,7 @@ export function Header() {
               aria-hidden
               onClick={() => setMenuOpen(false)}
             />
-            <div className={`relative z-50 md:hidden max-h-[70vh] overflow-y-auto border-t animate-fade-down rounded-b-2xl ${scrolled ? "border-white/10" : "border-[var(--border)]"}`}>
+            <div className={`relative z-50 md:hidden max-h-[70vh] overflow-y-auto border-t animate-fade-down rounded-b-2xl ${scrolled ? "border-white/10 bg-black/75 backdrop-blur-md" : "border-[var(--border)] bg-white"}`}>
               <nav className="py-3 px-4 space-y-0.5">
                 {navCategories.map((cat) => {
                   const isSubOpen = openMobileSubId === cat.id;
@@ -274,6 +299,7 @@ export function Header() {
             </div>
           </>
         )}
+      </div>
       </div>
     </header>
   );

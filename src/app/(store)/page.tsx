@@ -45,7 +45,7 @@ export default function HomePage() {
       </section>
 
       {/* Shoes */}
-      <section className="bg-warm-radial py-20">
+      <section className="bg-[radial-gradient(ellipse_at_top,#f4e6ec_0%,var(--background)_70%)] py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-end justify-between mb-10 animate-fade-up">
             <div>
@@ -120,7 +120,7 @@ export default function HomePage() {
       </section>
 
       {/* Categories strip */}
-      <section className="py-14 bg-[var(--cream)] border-y border-[var(--border)]">
+      <section className="py-14 bg-[#f4e6ec] border-y border-[#e7d0da]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <p className="text-center text-sm uppercase tracking-[0.2em] text-[var(--muted)] mb-8 animate-fade-up">Browse by Category</p>
           <div className="flex flex-wrap justify-center gap-3 md:gap-4 animate-fade-up animation-delay-100">

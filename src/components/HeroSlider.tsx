@@ -1,72 +1,84 @@
-"use client";
-
-import Link from "next/link";
-import { useEffect, useRef } from "react";
+import Image from "next/image";
 import { assets } from "@/data/assets";
+import { BrandPartners } from "@/components/BrandPartners";
 
 export function HeroSlider() {
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    video.muted = true;
-    video.defaultMuted = true;
-    video.loop = true;
-    const play = () => {
-      video.play().catch(() => {});
-    };
-    play();
-    video.addEventListener("canplay", play);
-    return () => video.removeEventListener("canplay", play);
-  }, []);
-
   return (
+    <>
     <section className="px-3 sm:px-4 md:px-6 pt-3 md:pt-4 pb-3 md:pb-5">
-      <div className="relative min-h-[78vh] md:min-h-[82vh] rounded-[28px] overflow-hidden">
-        <video
-          ref={videoRef}
-          className="absolute inset-0 h-full w-full object-cover pointer-events-none"
-          src={assets.heroVideo}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          aria-hidden="true"
-          tabIndex={-1}
+      <div className="relative mx-auto h-[calc(100dvh-13.25rem)] w-full overflow-hidden rounded-[28px] bg-[#ececec] md:h-auto md:aspect-[1959/803]">
+        <Image
+          src={assets.heroMobile}
+          alt="Empulse end of season sale, up to 50% off on selected items"
+          fill
+          priority
+          className="object-cover object-center md:hidden"
+          sizes="100vw"
         />
-
-        <div className="absolute inset-0 bg-gradient-to-b from-[var(--foreground)]/30 via-[var(--foreground)]/40 to-[var(--foreground)]/50" />
-
-        <div className="relative z-10 flex flex-col justify-center items-center w-full min-h-[78vh] md:min-h-[82vh] p-6 sm:p-8 md:p-12 lg:p-14 text-center">
-          <div className="max-w-xl">
-            <p className="text-sm uppercase tracking-[0.22em] text-[var(--cream)]/80 mb-4">
-              Spring / Summer 2026
-            </p>
-            <h1 className="section-heading text-5xl md:text-6xl lg:text-7xl font-semibold text-white">
-              Cozy, always
-            </h1>
-            <p className="mt-5 text-base md:text-lg text-[var(--cream)]/90 max-w-md mx-auto leading-relaxed">
-              New arrivals crafted for comfort — timeless pieces for everyone.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3 justify-center">
-              <Link
-                href="/women"
-                className="px-6 py-3 bg-[#4a142a] text-white font-medium rounded-lg hover:bg-[#350e1e] hover:!text-white transition-colors"
-              >
-                Shop Women
-              </Link>
-              <Link
-                href="/men"
-                className="px-6 py-3 border border-[var(--cream)]/80 text-[var(--cream)] font-medium rounded-lg hover:bg-[var(--cream)] hover:!text-[var(--foreground)] transition-colors"
-              >
-                Shop Men
-              </Link>
-            </div>
-          </div>
-        </div>
+        <Image
+          src={assets.hero}
+          alt="Empulse end of season sale, up to 50% off on selected items"
+          fill
+          priority
+          className="hidden object-cover object-center md:block"
+          sizes="100vw"
+        />
       </div>
     </section>
+    <OfferTicker />
+    <BrandPartners />
+    </>
+  );
+}
+
+const offers: { label: string; icon?: "shoe" | "truck"; sale?: boolean }[] = [
+  { label: "100% original" },
+  { label: "First check then pay", icon: "shoe" },
+  { label: "Nationwide delivery", icon: "truck" },
+  { label: "Save 30% off", sale: true },
+];
+
+function OfferTicker() {
+  const loop = [...offers, ...offers, ...offers, ...offers];
+  return (
+    <div className="overflow-hidden border-y border-white/10 bg-[#161616] text-white">
+      <div className="ticker-scroll flex w-max items-center py-2.5">
+        {[0, 1].map((copy) => (
+          <div key={copy} className="flex items-center">
+            {loop.map((item, i) => (
+              <span key={`${copy}-${i}`} className="flex items-center">
+                <span className="mx-3 h-1 w-1 shrink-0 rounded-full bg-white/35" aria-hidden="true" />
+                {item.sale ? (
+                  <span className="mr-2 rounded bg-[#4a142a] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider">
+                    Sale
+                  </span>
+                ) : null}
+                {item.icon === "shoe" ? <ShoeIcon /> : null}
+                {item.icon === "truck" ? <TruckIcon /> : null}
+                <span className="text-[11px] font-medium uppercase tracking-[0.16em] sm:text-xs">
+                  {item.label}
+                </span>
+              </span>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ShoeIcon() {
+  return (
+    <svg className="mr-2 h-4 w-4 text-[#c989a3]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M3 16.5c0-.4.2-.8.6-1l4.2-2.2c.5-.3 1.1-.2 1.5.2l1.2 1.3c.3.3.7.5 1.1.5h7.1c.7 0 1.3.6 1.3 1.3v.4c0 .8-.7 1.5-1.5 1.5H4.5A1.5 1.5 0 0 1 3 17v-.5Zm5.2-4.4 1.6-3.2c.3-.6.9-1 1.6-1h2.1c.4 0 .7.2.9.5l2.4 4.2" />
+    </svg>
+  );
+}
+
+function TruckIcon() {
+  return (
+    <svg className="mr-2 h-4 w-4 text-[#c989a3]" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M3 7h11v8H3V7Zm11 3h4l3 3v2h-7v-5ZM7 18a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Zm10 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />
+    </svg>
   );
 }

@@ -291,6 +291,37 @@ img {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.7; }
 }
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes ticker-scroll-ltr {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+
+.ticker-scroll {
+  animation: ticker-scroll 36s linear infinite;
+}
+.ticker-scroll:hover {
+  animation-play-state: paused;
+}
+.ticker-scroll-ltr {
+  animation: ticker-scroll-ltr 16s linear infinite;
+}
+.partners-scroll {
+  animation: ticker-scroll 42s linear infinite;
+}
+.partners-scroll:hover {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ticker-scroll,
+  .ticker-scroll-ltr,
+  .partners-scroll {
+    animation: none;
+  }
+}
 
 /* Animation utility classes */
 .animate-fade-in {
