@@ -1,12 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { useForgotPasswordMutation } from "@/store/authApi";
+import { apiError } from "@/store/apiError";
 
 export function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState(false);
+  const [forgotPassword] = useForgotPasswordMutation();
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -14,19 +17,10 @@ export function ForgotPasswordForm() {
     setMessage("");
     setPending(true);
     try {
-      const response = await fetch("/api/auth/forgot-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        setError(data.error || "Could not send the reset link.");
-        return;
-      }
+      const data = await forgotPassword({ email }).unwrap();
       setMessage(data.message);
-    } catch {
-      setError("Could not send the reset link.");
+    } catch (err) {
+      setError(apiError(err, "Could not send the reset link."));
     } finally {
       setPending(false);
     }

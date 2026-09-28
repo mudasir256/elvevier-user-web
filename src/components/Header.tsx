@@ -8,6 +8,14 @@ import { assets } from "@/data/assets";
 import { useEffect, useRef, useState } from "react";
 import { clearCustomerSession, readCustomerSession, type CustomerSession } from "@/lib/customerSession";
 
+const helpLinks = [
+  { name: "About Us", href: "/about" },
+  { name: "FAQs", href: "/faqs" },
+  { name: "Returns / Exchanges", href: "/returns" },
+  { name: "Contact Us", href: "/contact" },
+  { name: "Privacy Policy", href: "/privacy" },
+];
+
 export function Header() {
   const { itemCount, openCart } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -143,6 +151,35 @@ export function Header() {
                 )}
               </div>
             ))}
+            <div
+              className="relative"
+              onMouseEnter={() => setOpenNavId("help")}
+              onMouseLeave={() => setOpenNavId(null)}
+            >
+              <button
+                type="button"
+                className={`px-3.5 py-2 text-[14px] font-medium rounded-lg transition-all duration-200 ${itemHover}`}
+                aria-expanded={openNavId === "help"}
+              >
+                Help
+              </button>
+              {openNavId === "help" && (
+                <div className="absolute left-0 top-full z-50 pt-2 animate-scale-in">
+                  <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-lg shadow-[var(--shadow-warm)] py-2 min-w-[220px]">
+                    {helpLinks.map((link) => (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        className="flex items-center px-4 py-2.5 text-sm text-[var(--foreground)] hover:bg-[#f4e6ec] hover:text-[#4a142a] transition-colors rounded-lg mx-1"
+                        onClick={() => setOpenNavId(null)}
+                      >
+                        {link.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </nav>
 
           <Link
@@ -305,6 +342,21 @@ export function Header() {
                     </div>
                   );
                 })}
+                <div className="mt-3 border-t border-[var(--border)] pt-3">
+                  <p className="px-2 pb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#4a142a]">
+                    Customer Service
+                  </p>
+                  {helpLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className={`block py-2.5 px-2 text-sm font-medium rounded-lg transition-colors ${itemHover}`}
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      {link.name}
+                    </Link>
+                  ))}
+                </div>
               </nav>
             </div>
         )}

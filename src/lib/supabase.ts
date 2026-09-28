@@ -9,5 +9,8 @@ export function getSupabase() {
   }
   return createClient(url, serviceKey, {
     auth: { persistSession: false, autoRefreshToken: false, flowType: "implicit" },
+    global: {
+      fetch: (input, init) => fetch(input, { ...init, cache: "no-store" }),
+    },
   });
 }

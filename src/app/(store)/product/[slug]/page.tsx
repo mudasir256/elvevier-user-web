@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { getProductBySlug, products } from "@/data/products";
-import { AddToCartButton } from "./AddToCartButton";
+import { getActiveProducts, getProductBySlug } from "@/lib/catalog";
+import { ProductDetail } from "./ProductDetail";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -12,11 +12,11 @@ function formatPrice(price: number) {
 
 export default async function ProductPage({ params }: Props) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getProductBySlug(slug);
   if (!product) notFound();
 
-  const related = products
-    .filter((p) => p.categoryId === product.categoryId && p.id !== product.id)
+  const related = (await getActiveProducts())
+    .filter((item) => item.categoryId === product.categoryId && item.id !== product.id)
     .slice(0, 4);
 
   return (
@@ -36,51 +36,7 @@ export default async function ProductPage({ params }: Props) {
         <span>{product.name}</span>
       </nav>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16">
-        <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-[var(--cream)]">
-          <Image
-            src={product.image}
-            alt={product.name}
-            fill
-            className="object-cover"
-            priority
-            sizes="(max-width: 768px) 100vw, 50vw"
-          />
-          {product.new && (
-            <span className="absolute top-4 left-4 px-3 py-1 text-sm font-medium bg-[var(--foreground)] text-[var(--cream)] rounded">
-              New
-            </span>
-          )}
-        </div>
-
-        <div>
-          <p className="text-[var(--muted)] text-sm uppercase tracking-wider">
-            {product.color}
-          </p>
-          <h1 className="font-serif text-3xl md:text-4xl font-semibold mt-2">
-            {product.name}
-          </h1>
-          <div className="mt-4 flex items-baseline gap-3">
-            <span className="text-xl font-semibold">
-              {formatPrice(product.price)}
-            </span>
-            {product.compareAtPrice && (
-              <span className="text-[var(--muted)] line-through">
-                {formatPrice(product.compareAtPrice)}
-              </span>
-            )}
-          </div>
-          {product.description && (
-            <p className="mt-6 text-[var(--muted)]">{product.description}</p>
-          )}
-          <div className="mt-8">
-            <AddToCartButton product={product} />
-          </div>
-          <p className="mt-4 text-sm text-[var(--muted)]">
-            Free shipping on orders above Rs. 2,500. Easy returns.
-          </p>
-        </div>
-      </div>
+      <ProductDetail product={product} />
 
       {related.length > 0 && (
         <section className="mt-20 pt-16 border-t border-[var(--border)]">
@@ -117,6 +73,7 @@ export default async function ProductPage({ params }: Props) {
   );
 }
 
-export function generateStaticParams() {
-  return products.map((p) => ({ slug: p.slug }));
+export async function generateStaticParams() {
+  const products = await getActiveProducts();
+  return products.map((product) => ({ slug: product.slug }));
 }

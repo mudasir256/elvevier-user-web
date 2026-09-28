@@ -1,14 +1,8 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
-  type ReactNode,
-} from "react";
-import { API_BASE_URL } from "@/lib/config";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import { useAdminLoginMutation, useLazyAdminMeQuery } from "@/store/adminApi";
+import { apiError } from "@/store/apiError";
 
 interface Admin {
   email: string;
@@ -29,6 +23,8 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [admin, setAdmin] = useState<Admin | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [loginRequest] = useAdminLoginMutation();
+  const [loadMe] = useLazyAdminMeQuery();
 
   useEffect(() => {
     const saved = localStorage.getItem("admin_token");
@@ -36,13 +32,8 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
       return;
     }
-    fetch(`${API_BASE_URL}/admin/me`, {
-      headers: { Authorization: `Bearer ${saved}` },
-    })
-      .then((r) => {
-        if (!r.ok) throw new Error();
-        return r.json();
-      })
+    loadMe()
+      .unwrap()
       .then((data) => {
         setAdmin({ email: data.email, name: data.name });
         setToken(saved);
@@ -51,25 +42,22 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
         localStorage.removeItem("admin_token");
       })
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [loadMe]);
 
-  const login = useCallback(async (email: string, password: string) => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/admin/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json();
-      if (!res.ok) return data.error || "Login failed";
-      localStorage.setItem("admin_token", data.token);
-      setToken(data.token);
-      setAdmin(data.admin);
-      return null;
-    } catch {
-      return "Network error. Is the server running?";
-    }
-  }, []);
+  const login = useCallback(
+    async (email: string, password: string) => {
+      try {
+        const data = await loginRequest({ email, password }).unwrap();
+        localStorage.setItem("admin_token", data.token);
+        setToken(data.token);
+        setAdmin(data.admin);
+        return null;
+      } catch (err) {
+        return apiError(err, "Network error. Is the server running?");
+      }
+    },
+    [loginRequest]
+  );
 
   const logout = useCallback(() => {
     localStorage.removeItem("admin_token");

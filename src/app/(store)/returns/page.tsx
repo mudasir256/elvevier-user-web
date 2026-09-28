@@ -34,7 +34,7 @@ export default function ReturnsPage() {
   return (
     <div className="bg-warm-radial">
       {/* Header */}
-      <section className="bg-[var(--cream)] py-16 md:py-20 border-b border-[var(--border)]">
+      <section className="bg-[#f4e6ec] py-16 md:py-20 border-b border-[#e7d0da]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <p className="text-sm uppercase tracking-[0.25em] text-[var(--accent)] font-medium mb-3 animate-fade-down">Easy Returns</p>
           <h1 className="section-heading text-4xl md:text-5xl font-semibold animate-fade-up">

@@ -1,20 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PasswordField } from "@/components/PasswordField";
 import { readCustomerSession, saveCustomerSession } from "@/lib/customerSession";
 import { Skeleton } from "@/components/Skeleton";
-
-type OrderItem = { name: string; quantity: number; price: number; size?: string };
-type AccountOrder = {
-  _id: string;
-  status: string;
-  total: number;
-  createdAt: string;
-  orderItems: OrderItem[];
-};
+import { useChangePasswordMutation, useGetAccountQuery, useUpdateAccountMutation } from "@/store/accountApi";
+import { apiError } from "@/store/apiError";
 
 const statusLabel: Record<string, string> = {
   pending: "Placed",
@@ -27,18 +20,28 @@ const statusLabel: Record<string, string> = {
 
 export function AccountView() {
   const router = useRouter();
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [address, setAddress] = useState("");
+  const [apartment, setApartment] = useState("");
+  const [city, setCity] = useState("");
+  const [stateName, setStateName] = useState("");
+  const [postalCode, setPostalCode] = useState("");
+  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [orders, setOrders] = useState<AccountOrder[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [nameMessage, setNameMessage] = useState("");
-  const [nameError, setNameError] = useState("");
+  const [sessionReady, setSessionReady] = useState(false);
+  const [detailsMessage, setDetailsMessage] = useState("");
+  const [detailsError, setDetailsError] = useState("");
   const [passwordMessage, setPasswordMessage] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [savingName, setSavingName] = useState(false);
-  const [savingPassword, setSavingPassword] = useState(false);
+  const { data, isLoading, error } = useGetAccountQuery(undefined, { skip: !sessionReady });
+  const [updateAccount, { isLoading: savingDetails }] = useUpdateAccountMutation();
+  const [changePassword, { isLoading: savingPassword }] = useChangePasswordMutation();
+  const orders = data?.orders ?? [];
+  const loading = !sessionReady || isLoading;
+  const filled = useRef(false);
 
   useEffect(() => {
     const session = readCustomerSession();
@@ -46,50 +49,56 @@ export function AccountView() {
       router.replace("/login");
       return;
     }
-    setName(session.name);
     setEmail(session.email);
-    fetch("/api/account", { headers: { Authorization: `Bearer ${session.token}` } })
-      .then(async (response) => {
-        if (response.status === 401) {
-          router.replace("/login");
-          return;
-        }
-        const data = await response.json();
-        if (response.ok) {
-          setOrders(data.orders ?? []);
-          if (data.user?.name) setName(data.user.name);
-        }
-      })
-      .finally(() => setLoading(false));
+    const [savedFirst, ...savedRest] = session.name.split(" ");
+    setFirstName(savedFirst || "");
+    setLastName(savedRest.join(" "));
+    setSessionReady(true);
   }, [router]);
 
-  async function saveName(event: React.FormEvent) {
+  useEffect(() => {
+    if (error && typeof error === "object" && "status" in error && error.status === 401) {
+      router.replace("/login");
+    }
+  }, [error, router]);
+
+  useEffect(() => {
+    const user = data?.user;
+    if (!user || filled.current) return;
+    filled.current = true;
+    if (user.firstName || user.lastName) {
+      setFirstName(user.firstName || "");
+      setLastName(user.lastName || "");
+    }
+    setAddress(user.address || "");
+    setApartment(user.apartment || "");
+    setCity(user.city || "");
+    setStateName(user.state || "");
+    setPostalCode(user.postalCode || "");
+    setPhone(user.phone || "");
+  }, [data]);
+
+  async function saveDetails(event: React.FormEvent) {
     event.preventDefault();
     const session = readCustomerSession();
     if (!session) return;
-    setNameError("");
-    setNameMessage("");
-    setSavingName(true);
+    setDetailsError("");
+    setDetailsMessage("");
     try {
-      const response = await fetch("/api/account", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.token}`,
-        },
-        body: JSON.stringify({ name }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        setNameError(data.error || "Could not update your name.");
-        return;
-      }
+      const data = await updateAccount({
+        firstName,
+        lastName,
+        address,
+        apartment,
+        city,
+        state: stateName,
+        postalCode,
+        phone,
+      }).unwrap();
       saveCustomerSession({ ...session, name: data.user.name });
-      setNameMessage("Name updated.");
-    } catch {
-      setNameError("Could not update your name.");
-    } finally {
-      setSavingName(false);
+      setDetailsMessage("Details saved. Checkout will use these next time.");
+    } catch (err) {
+      setDetailsError(apiError(err, "Could not save your details."));
     }
   }
 
@@ -99,28 +108,13 @@ export function AccountView() {
     if (!session) return;
     setPasswordError("");
     setPasswordMessage("");
-    setSavingPassword(true);
     try {
-      const response = await fetch("/api/account/password", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.token}`,
-        },
-        body: JSON.stringify({ currentPassword, newPassword }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        setPasswordError(data.error || "Could not update the password.");
-        return;
-      }
+      await changePassword({ currentPassword, newPassword }).unwrap();
       setCurrentPassword("");
       setNewPassword("");
       setPasswordMessage("Password updated.");
-    } catch {
-      setPasswordError("Could not update the password.");
-    } finally {
-      setSavingPassword(false);
+    } catch (err) {
+      setPasswordError(apiError(err, "Could not update the password."));
     }
   }
 
@@ -152,16 +146,51 @@ export function AccountView() {
       </div>
 
       <section className="card-warm p-6 md:p-8">
-        <h2 className="text-lg font-semibold mb-4">Name</h2>
-        <form className="space-y-4" onSubmit={saveName}>
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium mb-1.5">Full name</label>
-            <input id="name" className="input-warm" value={name} onChange={(event) => setName(event.target.value)} required />
+        <h2 className="text-lg font-semibold mb-1">Delivery details</h2>
+        <p className="text-sm text-[var(--muted)] mb-4">These details fill in automatically at checkout.</p>
+        <form className="space-y-4" onSubmit={saveDetails}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="firstName" className="block text-sm font-medium mb-1.5">First name</label>
+              <input id="firstName" className="input-warm" value={firstName} onChange={(event) => setFirstName(event.target.value)} required />
+            </div>
+            <div>
+              <label htmlFor="lastName" className="block text-sm font-medium mb-1.5">Last name</label>
+              <input id="lastName" className="input-warm" value={lastName} onChange={(event) => setLastName(event.target.value)} required />
+            </div>
           </div>
-          {nameError ? <p className="text-sm text-red-700">{nameError}</p> : null}
-          {nameMessage ? <p className="text-sm text-[var(--foreground)]">{nameMessage}</p> : null}
-          <button type="submit" className="btn-primary" disabled={savingName}>
-            {savingName ? "Saving…" : "Save name"}
+          <div>
+            <label htmlFor="address" className="block text-sm font-medium mb-1.5">Address</label>
+            <input id="address" className="input-warm" value={address} onChange={(event) => setAddress(event.target.value)} required />
+          </div>
+          <div>
+            <label htmlFor="apartment" className="block text-sm font-medium mb-1.5">Apartment, suite, etc. (optional)</label>
+            <input id="apartment" className="input-warm" value={apartment} onChange={(event) => setApartment(event.target.value)} />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="city" className="block text-sm font-medium mb-1.5">City</label>
+              <input id="city" className="input-warm" value={city} onChange={(event) => setCity(event.target.value)} required />
+            </div>
+            <div>
+              <label htmlFor="state" className="block text-sm font-medium mb-1.5">State / Province</label>
+              <input id="state" className="input-warm" value={stateName} onChange={(event) => setStateName(event.target.value)} />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="postalCode" className="block text-sm font-medium mb-1.5">Postal code</label>
+              <input id="postalCode" className="input-warm" value={postalCode} onChange={(event) => setPostalCode(event.target.value)} />
+            </div>
+            <div>
+              <label htmlFor="phone" className="block text-sm font-medium mb-1.5">Phone</label>
+              <input id="phone" className="input-warm" value={phone} onChange={(event) => setPhone(event.target.value)} required placeholder="03XX XXXXXXX" />
+            </div>
+          </div>
+          {detailsError ? <p className="text-sm text-red-700">{detailsError}</p> : null}
+          {detailsMessage ? <p className="text-sm text-[var(--foreground)]">{detailsMessage}</p> : null}
+          <button type="submit" className="btn-primary" disabled={savingDetails}>
+            {savingDetails ? "Saving…" : "Save details"}
           </button>
         </form>
       </section>

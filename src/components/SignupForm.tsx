@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { saveCustomerSession } from "@/lib/customerSession";
 import { PasswordField } from "@/components/PasswordField";
+import { useSignupMutation } from "@/store/authApi";
+import { apiError } from "@/store/apiError";
 
 export function SignupForm() {
   const router = useRouter();
@@ -12,22 +14,14 @@ export function SignupForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+  const [signup] = useSignupMutation();
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
     setError("");
     setPending(true);
     try {
-      const response = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        setError(data.error || "Could not create the account.");
-        return;
-      }
+      const data = await signup({ name, email, password }).unwrap();
       if (data.token && data.user) {
         saveCustomerSession({ ...data.user, token: data.token });
         router.push("/");
@@ -35,8 +29,8 @@ export function SignupForm() {
         return;
       }
       router.push("/login");
-    } catch {
-      setError("Could not create the account.");
+    } catch (err) {
+      setError(apiError(err, "Could not create the account."));
     } finally {
       setPending(false);
     }

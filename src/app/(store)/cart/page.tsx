@@ -15,7 +15,16 @@ export default function CartPage() {
     updateQuantity,
     itemCount,
     total,
+    ready,
   } = useCart();
+
+  if (!ready && items.length === 0) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-20 text-center">
+        <p className="text-[var(--muted)]">Loading your cart…</p>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (

@@ -4,7 +4,7 @@ import { ProductCard } from "@/components/ProductCard";
 import {
   getProductsByCategoryAndSubcategory,
   getProductsByCategory,
-} from "@/data/products";
+} from "@/lib/catalog";
 import { categories } from "@/data/categories";
 import { navCategories } from "@/data/categories";
 
@@ -74,8 +74,8 @@ export default async function SubcategoryPage({ params }: Props) {
 
   const list =
     cat === "shoes"
-      ? getProductsByCategory("shoes")
-      : getProductsByCategoryAndSubcategory(category.id, sub);
+      ? await getProductsByCategory("shoes")
+      : await getProductsByCategoryAndSubcategory(category.id, sub);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">

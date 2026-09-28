@@ -32,6 +32,7 @@ export interface Product {
   description?: string;
   featured?: boolean;
   new?: boolean;
+  active?: boolean;
 }
 
 export interface CartItem {

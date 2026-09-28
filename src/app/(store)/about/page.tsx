@@ -13,7 +13,7 @@ export default function AboutPage() {
   return (
     <div className="bg-warm-radial">
       {/* Hero banner */}
-      <section className="relative overflow-hidden bg-[var(--cream)] py-20 md:py-28">
+      <section className="relative overflow-hidden bg-[#f4e6ec] py-20 md:py-28">
         <div className="absolute inset-0 opacity-[0.03]">
           <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-[var(--accent)]" />
         </div>

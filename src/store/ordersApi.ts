@@ -1,15 +1,5 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { API_BASE_URL } from "@/lib/config";
-
-const baseQuery = fetchBaseQuery({
-  baseUrl: API_BASE_URL,
-  prepareHeaders: (headers) => {
-    const token =
-      typeof window !== "undefined" ? localStorage.getItem("admin_token") : null;
-    if (token) headers.set("Authorization", `Bearer ${token}`);
-    return headers;
-  },
-});
+import { createApi } from "@reduxjs/toolkit/query/react";
+import { adminBaseQuery } from "./baseQuery";
 
 export interface OrderItem {
   name: string;
@@ -87,8 +77,11 @@ export interface AnalyticsData {
 
 export const ordersApi = createApi({
   reducerPath: "ordersApi",
-  baseQuery,
+  baseQuery: adminBaseQuery,
   tagTypes: ["Order", "Stats", "Customer", "Analytics"],
+  refetchOnFocus: true,
+  refetchOnReconnect: true,
+  keepUnusedDataFor: 120,
   endpoints: (builder) => ({
     getOrders: builder.query<Order[], { status?: string; search?: string }>({
       query: ({ status, search } = {}) => {
@@ -179,6 +172,12 @@ export const ordersApi = createApi({
       query: () => "/analytics/revenue",
       providesTags: ["Analytics"],
     }),
+    exportOrders: builder.query<string, { status?: string }>({
+      query: ({ status } = {}) => ({
+        url: `/orders/export${status && status !== "all" ? `?status=${encodeURIComponent(status)}` : ""}`,
+        responseHandler: "text",
+      }),
+    }),
   }),
 });
 
@@ -194,4 +193,5 @@ export const {
   useGetCustomersQuery,
   useGetCustomerQuery,
   useGetAnalyticsQuery,
+  useLazyExportOrdersQuery,
 } = ordersApi;

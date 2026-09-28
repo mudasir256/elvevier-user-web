@@ -8,6 +8,7 @@ import {
   useUpdateOrderStatusMutation,
   useDeleteOrderMutation,
   useBulkUpdateStatusMutation,
+  useLazyExportOrdersQuery,
 } from "@/store/ordersApi";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 
@@ -47,6 +48,7 @@ export default function OrdersPage() {
   const [updateStatus, { isLoading: isUpdating }] = useUpdateOrderStatusMutation();
   const [deleteOrder, { isLoading: isDeleting }] = useDeleteOrderMutation();
   const [bulkUpdateStatus, { isLoading: isBulkUpdating }] = useBulkUpdateStatusMutation();
+  const [exportOrders] = useLazyExportOrdersQuery();
 
   const handleSearch = useCallback((value: string) => {
     setSearch(value);
@@ -88,10 +90,15 @@ export default function OrdersPage() {
     setBulkStatus("");
   };
 
-  const handleExport = () => {
-    const params = new URLSearchParams();
-    if (statusFilter !== "all") params.set("status", statusFilter);
-    window.open(`/api/orders/export?${params.toString()}`, "_blank");
+  const handleExport = async () => {
+    const csv = await exportOrders({ status: statusFilter }).unwrap();
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "orders.csv";
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   return (

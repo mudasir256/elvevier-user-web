@@ -3,18 +3,16 @@ import Image from "next/image";
 import { HeroSlider } from "@/components/HeroSlider";
 import { ProductCard } from "@/components/ProductCard";
 import {
-  getFeaturedProducts,
   getNewProducts,
   getProductsByCategory,
-} from "@/data/products";
+} from "@/lib/catalog";
 import { navCategories } from "@/data/categories";
 import { assets } from "@/data/assets";
 
-export default function HomePage() {
-  const featured = getFeaturedProducts();
-  const newProducts = getNewProducts();
-  const shoes = getProductsByCategory("shoes").slice(0, 5);
-  const bags = getProductsByCategory("bags").slice(0, 5);
+export default async function HomePage() {
+  const newProducts = await getNewProducts();
+  const shoes = (await getProductsByCategory("shoes")).slice(0, 5);
+  const bags = (await getProductsByCategory("bags")).slice(0, 5);
 
   return (
     <div className="grain-overlay">

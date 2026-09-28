@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { saveCustomerSession } from "@/lib/customerSession";
 import { PasswordField } from "@/components/PasswordField";
+import { useLoginMutation } from "@/store/authApi";
+import { apiError } from "@/store/apiError";
 
 export function LoginForm() {
   const router = useRouter();
@@ -12,27 +14,23 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+  const [login] = useLoginMutation();
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
     setError("");
     setPending(true);
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        setError(data.error || "Could not sign in.");
+      const data = await login({ email, password }).unwrap();
+      if (!data.token || !data.user) {
+        setError("Could not sign in.");
         return;
       }
       saveCustomerSession({ ...data.user, token: data.token });
       router.push("/");
       router.refresh();
-    } catch {
-      setError("Could not sign in.");
+    } catch (err) {
+      setError(apiError(err, "Could not sign in."));
     } finally {
       setPending(false);
     }

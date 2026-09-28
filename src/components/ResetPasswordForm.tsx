@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PasswordField } from "@/components/PasswordField";
 import { saveCustomerSession } from "@/lib/customerSession";
+import { useResetPasswordMutation } from "@/store/authApi";
+import { apiError } from "@/store/apiError";
 
 export function ResetPasswordForm() {
   const router = useRouter();
@@ -13,6 +15,7 @@ export function ResetPasswordForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+  const [resetPassword] = useResetPasswordMutation();
 
   useEffect(() => {
     const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
@@ -27,23 +30,14 @@ export function ResetPasswordForm() {
     setError("");
     setPending(true);
     try {
-      const response = await fetch("/api/auth/reset-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, password }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        setError(data.error || "Could not update the password.");
-        return;
-      }
+      const data = await resetPassword({ token, password }).unwrap();
       if (data.token && data.user) {
         saveCustomerSession({ ...data.user, token: data.token });
       }
       router.push("/");
       router.refresh();
-    } catch {
-      setError("Could not update the password.");
+    } catch (err) {
+      setError(apiError(err, "Could not update the password."));
     } finally {
       setPending(false);
     }

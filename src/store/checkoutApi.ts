@@ -1,5 +1,5 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { API_BASE_URL } from "@/lib/config";
+import { createApi } from "@reduxjs/toolkit/query/react";
+import { publicBaseQuery } from "./baseQuery";
 
 interface OrderItem {
   name: string;
@@ -57,10 +57,11 @@ export interface Order {
 
 export const checkoutApi = createApi({
   reducerPath: "checkoutApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: API_BASE_URL,
-  }),
+  baseQuery: publicBaseQuery,
   tagTypes: ["Order"],
+  refetchOnFocus: true,
+  refetchOnReconnect: true,
+  keepUnusedDataFor: 120,
   endpoints: (builder) => ({
     placeOrder: builder.mutation<CheckoutResponse, CheckoutRequest>({
       query: (order) => ({

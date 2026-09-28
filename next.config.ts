@@ -1,8 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // The dev badge sits on the mobile Home tab. Keep it off so the tab bar stays clear.
   devIndicators: false,
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "fvpukvbdvtfqlnvlijqa.supabase.co",
+        pathname: "/storage/v1/object/public/**",
+      },
+    ],
+  },
 };
 
 export default nextConfig;

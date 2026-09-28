@@ -4,7 +4,7 @@ import { ProductCard } from "@/components/ProductCard";
 import {
   getProductsByCategory,
   getProductsByCategoryNew,
-} from "@/data/products";
+} from "@/lib/catalog";
 import { categories } from "@/data/categories";
 
 type Props = {
@@ -25,8 +25,8 @@ export default async function CategoryPage({ params, searchParams }: Props) {
 
   const list =
     filter === "new"
-      ? getProductsByCategoryNew(category.id)
-      : getProductsByCategory(category.id);
+      ? await getProductsByCategoryNew(category.id)
+      : await getProductsByCategory(category.id);
 
   const isNewFilter = filter === "new";
 
