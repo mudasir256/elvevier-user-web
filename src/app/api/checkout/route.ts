@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getDb } from "@/lib/mongodb";
+import { getSupabase } from "@/lib/supabase";
 
 export async function POST(request: Request) {
   try {
@@ -17,32 +17,33 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Cart is empty." }, { status: 400 });
     }
 
-    const order = {
-      contact: { email: email.toLowerCase().trim() },
-      deliveryAddress: {
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .from("orders")
+      .insert({
+        email: email.toLowerCase().trim(),
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
         address: address.trim(),
         apartment: (apartment || "").trim(),
         city: city.trim(),
         state: (state || "").trim(),
-        postalCode: (postalCode || "").trim(),
+        postal_code: (postalCode || "").trim(),
         phone: phone.trim(),
-      },
-      orderItems,
-      subtotal: Number(subtotal),
-      shipping: shipping || "Free",
-      total: Number(total),
-      paymentMethod: paymentMethod || "cod",
-      status: "pending",
-      notes: [],
-      createdAt: new Date(),
-    };
+        order_items: orderItems,
+        subtotal: Number(subtotal),
+        shipping: shipping || "Free",
+        total: Number(total),
+        payment_method: paymentMethod || "cod",
+        status: "pending",
+      })
+      .select("id")
+      .single();
 
-    const db = await getDb();
-    const result = await db.collection("orders").insertOne(order);
+    if (error) throw error;
+
     return NextResponse.json(
-      { message: "Order placed successfully!", orderId: result.insertedId },
+      { message: "Order placed successfully!", orderId: data.id },
       { status: 201 }
     );
   } catch (err: unknown) {

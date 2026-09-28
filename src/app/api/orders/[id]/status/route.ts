@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
-import { ObjectId } from "mongodb";
-import { getDb } from "@/lib/mongodb";
+import { isUuid } from "@/lib/orders";
+import { getSupabase } from "@/lib/supabase";
 import { verifyAdmin, unauthorizedResponse } from "@/lib/auth";
+
+const validStatuses = ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"];
 
 export async function PATCH(
   request: Request,
@@ -16,16 +18,18 @@ export async function PATCH(
   try {
     const { id } = await params;
     const { status } = await request.json();
-    const validStatuses = ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"];
     if (!validStatuses.includes(status)) {
       return NextResponse.json({ error: "Invalid status." }, { status: 400 });
     }
-    const db = await getDb();
-    const result = await db.collection("orders").updateOne(
-      { _id: new ObjectId(id) },
-      { $set: { status, updatedAt: new Date() } }
-    );
-    if (result.matchedCount === 0) return NextResponse.json({ error: "Order not found." }, { status: 404 });
+    if (!isUuid(id)) return NextResponse.json({ error: "Order not found." }, { status: 404 });
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .from("orders")
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq("id", id)
+      .select("id");
+    if (error) throw error;
+    if (!data?.length) return NextResponse.json({ error: "Order not found." }, { status: 404 });
     return NextResponse.json({ message: "Status updated.", status });
   } catch (err) {
     console.error("Update status error:", err);

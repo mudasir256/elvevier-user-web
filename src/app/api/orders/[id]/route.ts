@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { ObjectId } from "mongodb";
-import { getDb } from "@/lib/mongodb";
+import { getOrder, isUuid } from "@/lib/orders";
+import { getSupabase } from "@/lib/supabase";
 import { verifyAdmin, unauthorizedResponse } from "@/lib/auth";
 
 export async function GET(
@@ -15,8 +15,8 @@ export async function GET(
 
   try {
     const { id } = await params;
-    const db = await getDb();
-    const order = await db.collection("orders").findOne({ _id: new ObjectId(id) });
+    if (!isUuid(id)) return NextResponse.json({ error: "Order not found." }, { status: 404 });
+    const order = await getOrder(id);
     if (!order) return NextResponse.json({ error: "Order not found." }, { status: 404 });
     return NextResponse.json(order);
   } catch (err) {
@@ -37,9 +37,11 @@ export async function DELETE(
 
   try {
     const { id } = await params;
-    const db = await getDb();
-    const result = await db.collection("orders").deleteOne({ _id: new ObjectId(id) });
-    if (result.deletedCount === 0) return NextResponse.json({ error: "Order not found." }, { status: 404 });
+    if (!isUuid(id)) return NextResponse.json({ error: "Order not found." }, { status: 404 });
+    const supabase = getSupabase();
+    const { data, error } = await supabase.from("orders").delete().eq("id", id).select("id");
+    if (error) throw error;
+    if (!data?.length) return NextResponse.json({ error: "Order not found." }, { status: 404 });
     return NextResponse.json({ message: "Order deleted." });
   } catch (err) {
     console.error("Delete order error:", err);

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { ObjectId } from "mongodb";
-import { getDb } from "@/lib/mongodb";
+import { isUuid } from "@/lib/orders";
+import { getSupabase } from "@/lib/supabase";
 import { verifyAdmin, unauthorizedResponse } from "@/lib/auth";
 
 export async function DELETE(
@@ -15,13 +15,18 @@ export async function DELETE(
 
   try {
     const { id, noteId } = await params;
-    const db = await getDb();
-    const result = await db.collection("orders").updateOne(
-      { _id: new ObjectId(id) },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      { $pull: { notes: { _id: new ObjectId(noteId) } } } as any
-    );
-    if (result.matchedCount === 0) return NextResponse.json({ error: "Order not found." }, { status: 404 });
+    if (!isUuid(id) || !isUuid(noteId)) {
+      return NextResponse.json({ error: "Order not found." }, { status: 404 });
+    }
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .from("order_notes")
+      .delete()
+      .eq("id", noteId)
+      .eq("order_id", id)
+      .select("id");
+    if (error) throw error;
+    if (!data?.length) return NextResponse.json({ error: "Order not found." }, { status: 404 });
     return NextResponse.json({ message: "Note deleted." });
   } catch (err) {
     console.error("Delete note error:", err);

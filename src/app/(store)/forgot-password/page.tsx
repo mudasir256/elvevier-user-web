@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ForgotPasswordForm } from "@/components/ForgotPasswordForm";
 
 export const metadata: Metadata = {
   title: "Forgot password – Empulse",
@@ -25,25 +26,7 @@ export default function ForgotPasswordPage() {
         </div>
 
         <div className="card-warm p-8 animate-fade-up animation-delay-100">
-          <form className="space-y-5" action="#" method="post">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-[var(--foreground)] mb-1.5">
-                Email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                autoComplete="email"
-                className="input-warm"
-                placeholder="you@example.com"
-              />
-            </div>
-            <button type="submit" className="btn-primary w-full justify-center">
-              Send Reset Link
-            </button>
-          </form>
+          <ForgotPasswordForm />
         </div>
 
         <p className="mt-8 text-center animate-fade-up animation-delay-200">

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { LoginForm } from "@/components/LoginForm";
 
 export const metadata: Metadata = {
   title: "Login – Empulse",
@@ -21,44 +22,7 @@ export default function LoginPage() {
         </div>
 
         <div className="card-warm p-8 animate-fade-up animation-delay-100">
-          <form className="space-y-5" action="#" method="post">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-[var(--foreground)] mb-1.5">
-                Email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                autoComplete="email"
-                className="input-warm"
-                placeholder="you@example.com"
-              />
-            </div>
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label htmlFor="password" className="block text-sm font-medium text-[var(--foreground)]">
-                  Password
-                </label>
-                <Link href="/forgot-password" className="text-xs text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors">
-                  Forgot password?
-                </Link>
-              </div>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                autoComplete="current-password"
-                className="input-warm"
-                placeholder="Enter your password"
-              />
-            </div>
-            <button type="submit" className="btn-primary w-full justify-center">
-              Sign In
-            </button>
-          </form>
+          <LoginForm />
         </div>
 
         <p className="mt-8 text-center text-[var(--muted)] text-sm animate-fade-up animation-delay-200">

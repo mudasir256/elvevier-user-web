@@ -1,14 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useCart } from "@/context/CartContext";
+import { readCustomerSession } from "@/lib/customerSession";
 
 const tabs = [
   { href: "/", label: "Home", icon: HomeIcon },
   { href: "/search", label: "Search", icon: SearchIcon },
   { href: "/cart", label: "Cart", icon: CartIcon },
-  { href: "/login", label: "Account", icon: AccountIcon },
+  { href: "/account", label: "Account", icon: AccountIcon },
 ];
 
 function HomeIcon({ active }: { active: boolean }) {
@@ -46,6 +48,18 @@ function AccountIcon({ active }: { active: boolean }) {
 export function BottomTab() {
   const pathname = usePathname();
   const { itemCount } = useCart();
+  const [signedIn, setSignedIn] = useState(false);
+
+  useEffect(() => {
+    const sync = () => setSignedIn(Boolean(readCustomerSession()));
+    sync();
+    window.addEventListener("empulse-customer", sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener("empulse-customer", sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
 
   return (
     <nav
@@ -54,12 +68,13 @@ export function BottomTab() {
     >
       <div className="flex items-center justify-around h-14 max-w-lg mx-auto">
         {tabs.map((tab) => {
-          const active = tab.href === "/" ? pathname === "/" : pathname.startsWith(tab.href);
+          const href = tab.href === "/account" && !signedIn ? "/login" : tab.href;
+          const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
           const isCart = tab.href === "/cart";
           return (
             <Link
-              key={tab.href}
-              href={tab.href}
+              key={tab.label}
+              href={href}
               className="flex flex-col items-center justify-center gap-0.5 flex-1 h-full min-w-0 px-2 text-[#4a142a] transition-colors duration-200"
               aria-current={active ? "page" : undefined}
               aria-label={tab.label}

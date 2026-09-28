@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SignupForm } from "@/components/SignupForm";
 
 export const metadata: Metadata = {
   title: "Sign up – Empulse",
@@ -21,57 +22,7 @@ export default function SignupPage() {
         </div>
 
         <div className="card-warm p-8 animate-fade-up animation-delay-100">
-          <form className="space-y-5" action="#" method="post">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-[var(--foreground)] mb-1.5">
-                Full Name
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                required
-                autoComplete="name"
-                className="input-warm"
-                placeholder="Your name"
-              />
-            </div>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-[var(--foreground)] mb-1.5">
-                Email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                autoComplete="email"
-                className="input-warm"
-                placeholder="you@example.com"
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-[var(--foreground)] mb-1.5">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                autoComplete="new-password"
-                minLength={8}
-                className="input-warm"
-                placeholder="At least 8 characters"
-              />
-              <p className="mt-1.5 text-xs text-[var(--muted)]">
-                Must be at least 8 characters.
-              </p>
-            </div>
-            <button type="submit" className="btn-primary w-full justify-center">
-              Create Account
-            </button>
-          </form>
+          <SignupForm />
         </div>
 
         <p className="mt-8 text-center text-[var(--muted)] text-sm animate-fade-up animation-delay-200">

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { ObjectId } from "mongodb";
-import { getDb } from "@/lib/mongodb";
+import { isUuid } from "@/lib/orders";
+import { getSupabase } from "@/lib/supabase";
 import { verifyAdmin, unauthorizedResponse } from "@/lib/auth";
 
 export async function POST(
@@ -19,15 +19,26 @@ export async function POST(
     if (!note || !note.trim()) {
       return NextResponse.json({ error: "Note cannot be empty." }, { status: 400 });
     }
-    const noteObj = { _id: new ObjectId(), text: note.trim(), createdAt: new Date() };
-    const db = await getDb();
-    const result = await db.collection("orders").updateOne(
-      { _id: new ObjectId(id) },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      { $push: { notes: noteObj }, $set: { updatedAt: new Date() } } as any
+    if (!isUuid(id)) return NextResponse.json({ error: "Order not found." }, { status: 404 });
+
+    const supabase = getSupabase();
+    const existing = await supabase.from("orders").select("id").eq("id", id).maybeSingle();
+    if (existing.error) throw existing.error;
+    if (!existing.data) return NextResponse.json({ error: "Order not found." }, { status: 404 });
+
+    const { data, error } = await supabase
+      .from("order_notes")
+      .insert({ order_id: id, text: note.trim() })
+      .select("id, text, created_at")
+      .single();
+    if (error) throw error;
+
+    await supabase.from("orders").update({ updated_at: new Date().toISOString() }).eq("id", id);
+
+    return NextResponse.json(
+      { message: "Note added.", note: { _id: data.id, text: data.text, createdAt: data.created_at } },
+      { status: 201 }
     );
-    if (result.matchedCount === 0) return NextResponse.json({ error: "Order not found." }, { status: 404 });
-    return NextResponse.json({ message: "Note added.", note: noteObj }, { status: 201 });
   } catch (err) {
     console.error("Add note error:", err);
     return NextResponse.json({ error: "Failed to add note." }, { status: 500 });

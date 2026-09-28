@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getDb } from "@/lib/mongodb";
+import { listOrders } from "@/lib/orders";
 import { verifyAdmin, unauthorizedResponse } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
@@ -11,17 +11,12 @@ export async function GET(request: NextRequest) {
 
   try {
     const { searchParams } = new URL(request.url);
-    const status = searchParams.get("status");
-    const filter: Record<string, unknown> = {};
-    if (status && status !== "all") filter.status = status;
-
-    const db = await getDb();
-    const orders = await db.collection("orders").find(filter).sort({ createdAt: -1 }).toArray();
+    const orders = await listOrders({ status: searchParams.get("status") });
 
     const header = "Order ID,Customer Name,Email,Phone,Address,City,State,Postal Code,Items,Subtotal,Shipping,Total,Status,Date\n";
     const rows = orders
       .map((o) => {
-        const items = (o.orderItems || []).map((i: { name: string; quantity: number }) => `${i.name} x${i.quantity}`).join(" | ");
+        const items = (o.orderItems || []).map((i) => `${i.name} x${i.quantity}`).join(" | ");
         const d = new Date(o.createdAt).toISOString().split("T")[0];
         return [
           o._id,

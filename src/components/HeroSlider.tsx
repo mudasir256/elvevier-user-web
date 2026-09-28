@@ -1,29 +1,11 @@
-import Image from "next/image";
-import { assets } from "@/data/assets";
 import { BrandPartners } from "@/components/BrandPartners";
+import { HeroMedia } from "@/components/HeroMedia";
 
 export function HeroSlider() {
   return (
     <>
     <section className="px-3 sm:px-4 md:px-6 pt-3 md:pt-4 pb-3 md:pb-5">
-      <div className="relative mx-auto aspect-[1122/1402] h-auto w-full overflow-hidden rounded-[28px] bg-[#ececec] md:aspect-[1958/803]">
-        <Image
-          src={assets.heroMobile}
-          alt="Empulse, we sell all original brands, coming soon"
-          fill
-          priority
-          className="object-cover object-center md:hidden"
-          sizes="100vw"
-        />
-        <Image
-          src={assets.hero}
-          alt="Empulse, we sell all original brands, coming soon"
-          fill
-          priority
-          className="hidden object-cover object-center md:block"
-          sizes="100vw"
-        />
-      </div>
+      <HeroMedia />
     </section>
     <OfferTicker />
     <BrandPartners />

@@ -28,9 +28,9 @@ export function Footer() {
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-14 md:py-20">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-8">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-12 md:gap-8">
           {/* Brand */}
-          <div className="md:col-span-4 animate-fade-up">
+          <div className="col-span-2 md:col-span-4 animate-fade-up">
             <Link href="/" className="inline-block transition-transform duration-300 hover:scale-105">
               <Image
                 src={assets.logo}
@@ -124,9 +124,22 @@ export function Footer() {
 
         {/* Bottom bar */}
         <div className="mt-14 pt-8 border-t border-white/8 flex flex-col sm:flex-row justify-between items-center gap-4 animate-fade-up animation-delay-300">
-          <p className="text-xs text-[var(--muted)]">
-            &copy; {new Date().getFullYear()} Empulse. All rights reserved.
-          </p>
+          <div className="text-center sm:text-left">
+            <p className="text-xs text-[var(--muted)]">
+              &copy; {new Date().getFullYear()} Empulse. All rights reserved.
+            </p>
+            <p className="mt-1.5 text-xs text-[var(--muted)]">
+              Powered by{" "}
+              <a
+                href="https://www.clapit.solutions/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--cream)]/80 hover:text-[var(--accent-soft)] transition-colors"
+              >
+                Clapit Solutions
+              </a>
+            </p>
+          </div>
           <div className="flex items-center gap-6 text-xs text-[var(--muted)]">
             <Link href="/privacy" className="hover:text-[var(--accent-soft)] transition-colors">Privacy</Link>
             <Link href="/returns" className="hover:text-[var(--accent-soft)] transition-colors">Returns</Link>

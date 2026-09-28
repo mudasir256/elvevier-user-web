@@ -5,7 +5,8 @@ import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import { navCategories } from "@/data/categories";
 import { assets } from "@/data/assets";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { clearCustomerSession, readCustomerSession, type CustomerSession } from "@/lib/customerSession";
 
 export function Header() {
   const { itemCount, openCart } = useCart();
@@ -13,7 +14,21 @@ export function Header() {
   const [openNavId, setOpenNavId] = useState<string | null>(null);
   const [openMobileSubId, setOpenMobileSubId] = useState<string | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [profileAnchor, setProfileAnchor] = useState({ top: 0, right: 12 });
+  const profileButtonRef = useRef<HTMLButtonElement>(null);
   const [scrolled, setScrolled] = useState(false);
+  const [customer, setCustomer] = useState<CustomerSession | null>(null);
+
+  useEffect(() => {
+    const sync = () => setCustomer(readCustomerSession());
+    sync();
+    window.addEventListener("empulse-customer", sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener("empulse-customer", sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -75,7 +90,10 @@ export function Header() {
           <button
             type="button"
             className={`md:hidden p-2 -ml-1 rounded-lg transition-colors ${iconHover}`}
-            onClick={() => setMenuOpen((o) => !o)}
+            onClick={() => {
+              setProfileOpen(false);
+              setMenuOpen((o) => !o);
+            }}
             aria-label="Menu"
           >
             <svg
@@ -147,12 +165,30 @@ export function Header() {
 
           {/* Desktop actions */}
           <div className="hidden md:flex items-center gap-1 shrink-0">
-            <Link
-              href="/login"
-              className={`px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${itemHover}`}
-            >
-              Login
-            </Link>
+            {customer ? (
+              <>
+                <Link
+                  href="/account"
+                  className={`px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${itemHover}`}
+                >
+                  {customer.name.split(" ")[0]}
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => clearCustomerSession()}
+                  className={`px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${itemHover}`}
+                >
+                  Log out
+                </button>
+              </>
+            ) : (
+              <Link
+                href="/login"
+                className={`px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${itemHover}`}
+              >
+                Login
+              </Link>
+            )}
             <Link
               href="/search"
               className={`p-2.5 rounded-xl transition-colors duration-200 ${iconHover}`}
@@ -186,10 +222,21 @@ export function Header() {
           </div>
 
           {/* Mobile profile */}
-          <div className="relative md:hidden">
+          <div className="md:hidden">
             <button
+              ref={profileButtonRef}
               type="button"
-              onClick={() => setProfileOpen((o) => !o)}
+              onClick={() => {
+                const rect = profileButtonRef.current?.getBoundingClientRect();
+                if (rect) {
+                  setProfileAnchor({
+                    top: rect.bottom + 8,
+                    right: Math.max(12, window.innerWidth - rect.right),
+                  });
+                }
+                setMenuOpen(false);
+                setProfileOpen((open) => !open);
+              }}
               className={`p-2 rounded-lg transition-colors duration-200 ${iconHover}`}
               aria-label="Account"
               aria-expanded={profileOpen}
@@ -199,44 +246,6 @@ export function Header() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </button>
-            {profileOpen && (
-              <>
-                <div className="fixed inset-0 z-40" aria-hidden onClick={() => setProfileOpen(false)} />
-                <div className="absolute right-0 top-full mt-2 z-50 w-52 py-2 bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-lg shadow-[var(--shadow-warm)] animate-scale-in">
-                  <Link
-                    href="/login"
-                    className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--cream)] hover:text-[var(--accent)] rounded-lg mx-1 transition-colors"
-                    onClick={() => setProfileOpen(false)}
-                  >
-                    <svg className="w-4 h-4 text-[#4a142a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                    </svg>
-                    Login
-                  </Link>
-                  <Link
-                    href="/signup"
-                    className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--cream)] hover:text-[var(--accent)] rounded-lg mx-1 transition-colors"
-                    onClick={() => setProfileOpen(false)}
-                  >
-                    <svg className="w-4 h-4 text-[#4a142a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                    </svg>
-                    Sign up
-                  </Link>
-                  <div className="my-1 mx-3 border-t border-[var(--border)]" />
-                  <Link
-                    href="/"
-                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--muted)] hover:bg-[var(--cream)] rounded-lg mx-1 transition-colors"
-                    onClick={() => setProfileOpen(false)}
-                  >
-                    <svg className="w-4 h-4 text-[#4a142a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
-                    Logout
-                  </Link>
-                </div>
-              </>
-            )}
           </div>
         </div>
 
@@ -301,6 +310,61 @@ export function Header() {
         )}
       </div>
       </div>
+      {profileOpen && (
+        <div className="md:hidden">
+          <div className="fixed inset-0 z-[60]" aria-hidden onClick={() => setProfileOpen(false)} />
+          <div
+            className="fixed z-[70] w-52 py-2 bg-white text-[var(--foreground)] border border-[var(--border)] rounded-xl shadow-lg shadow-[var(--shadow-warm)]"
+            style={{ top: profileAnchor.top, right: profileAnchor.right }}
+          >
+            {customer ? (
+              <>
+                <Link
+                  href="/account"
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--cream)] hover:text-[var(--accent)] rounded-lg mx-1 transition-colors"
+                  onClick={() => setProfileOpen(false)}
+                >
+                  Profile
+                </Link>
+                <p className="px-4 pb-1 text-xs text-[var(--muted)]">{customer.name}</p>
+                <button
+                  type="button"
+                  className="flex w-[calc(100%-0.5rem)] items-center gap-3 mx-1 px-4 py-2.5 text-sm text-[var(--muted)] hover:bg-[var(--cream)] rounded-lg transition-colors"
+                  onClick={() => {
+                    clearCustomerSession();
+                    setProfileOpen(false);
+                  }}
+                >
+                  Log out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--cream)] hover:text-[var(--accent)] rounded-lg mx-1 transition-colors"
+                  onClick={() => setProfileOpen(false)}
+                >
+                  <svg className="w-4 h-4 text-[#4a142a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                  </svg>
+                  Login
+                </Link>
+                <Link
+                  href="/signup"
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--cream)] hover:text-[var(--accent)] rounded-lg mx-1 transition-colors"
+                  onClick={() => setProfileOpen(false)}
+                >
+                  <svg className="w-4 h-4 text-[#4a142a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                  </svg>
+                  Sign up
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 }

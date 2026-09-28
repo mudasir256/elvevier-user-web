@@ -315,10 +315,16 @@ img {
 .partners-scroll:hover {
   animation-play-state: paused;
 }
+.skeleton {
+  background: linear-gradient(90deg, #f4e6ec 0%, #fbf7f8 45%, #f4e6ec 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
 @media (prefers-reduced-motion: reduce) {
   .ticker-scroll,
   .ticker-scroll-ltr,
-  .partners-scroll {
+  .partners-scroll,
+  .skeleton {
     animation: none;
   }
 }
