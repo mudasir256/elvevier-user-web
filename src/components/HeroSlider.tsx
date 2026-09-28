@@ -6,10 +6,10 @@ export function HeroSlider() {
   return (
     <>
     <section className="px-3 sm:px-4 md:px-6 pt-3 md:pt-4 pb-3 md:pb-5">
-      <div className="relative mx-auto aspect-[1122/1402] h-auto w-full overflow-hidden rounded-[28px] bg-[#ececec] md:aspect-[1959/803]">
+      <div className="relative mx-auto aspect-[1122/1402] h-auto w-full overflow-hidden rounded-[28px] bg-[#ececec] md:aspect-[1958/803]">
         <Image
           src={assets.heroMobile}
-          alt="Empulse end of season sale, up to 50% off on selected items"
+          alt="Empulse, we sell all original brands, coming soon"
           fill
           priority
           className="object-cover object-center md:hidden"
@@ -17,7 +17,7 @@ export function HeroSlider() {
         />
         <Image
           src={assets.hero}
-          alt="Empulse end of season sale, up to 50% off on selected items"
+          alt="Empulse, we sell all original brands, coming soon"
           fill
           priority
           className="hidden object-cover object-center md:block"

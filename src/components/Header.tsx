@@ -64,7 +64,7 @@ export function Header() {
       </div>
       <div className="relative z-50 px-3 sm:px-4 md:px-6 pt-3 md:pt-4">
       <div
-        className={`overflow-hidden rounded-2xl transition-colors duration-300 ${
+        className={`overflow-hidden rounded-2xl transition-colors duration-300 md:overflow-visible ${
           scrolled
             ? "bg-black/40 text-white backdrop-blur-md border border-white/15"
             : "bg-white text-[var(--foreground)] shadow-[0_8px_30px_rgba(44,40,37,0.08)] border border-[var(--border)]"
@@ -108,7 +108,7 @@ export function Header() {
                   {cat.name}
                 </Link>
                 {openNavId === cat.id && (
-                  <div className="absolute left-0 top-full pt-2 animate-scale-in">
+                  <div className="absolute left-0 top-full z-50 pt-2 animate-scale-in">
                     <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-lg shadow-[var(--shadow-warm)] py-2 min-w-[220px]">
                       {cat.children.map((child) => (
                         <Link
