@@ -36,16 +36,19 @@ export default function CheckoutPage() {
   const [placeOrder, { isLoading: loading }] = usePlaceOrderMutation();
   const [updateAccount] = useUpdateAccountMutation();
   const [sessionToken, setSessionToken] = useState<string | null>(null);
+  const [sessionChecked, setSessionChecked] = useState(false);
   const { data: account } = useGetAccountQuery(undefined, { skip: !sessionToken });
 
   useEffect(() => {
     const session = readCustomerSession();
-    if (!session) return;
-    setSessionToken(session.token);
-    setEmail(session.email);
-    const [savedFirst, ...savedRest] = session.name.split(" ");
-    setFirstName((current) => current || savedFirst || "");
-    setLastName((current) => current || savedRest.join(" "));
+    if (session) {
+      setSessionToken(session.token);
+      setEmail(session.email);
+      const [savedFirst, ...savedRest] = session.name.split(" ");
+      setFirstName((current) => current || savedFirst || "");
+      setLastName((current) => current || savedRest.join(" "));
+    }
+    setSessionChecked(true);
   }, []);
 
   useEffect(() => {
@@ -85,6 +88,7 @@ export default function CheckoutPage() {
         price: item.product.price,
         quantity: item.quantity,
         size: item.size || "",
+        image: item.product.image,
       })),
       subtotal: total,
       shipping: shippingCost === 0 ? "Free" : `Rs. ${shippingCost}`,
@@ -207,6 +211,21 @@ export default function CheckoutPage() {
                   onChange={(event) => setEmail(event.target.value)}
                   placeholder="you@example.com"
                 />
+                {sessionChecked && (
+                  <p className="mt-2 text-sm text-[var(--muted)]">
+                    {sessionToken ? (
+                      "You are signed in. This order is saved to your account."
+                    ) : (
+                      <>
+                        Place this order as a guest, or{" "}
+                        <Link href="/login" className="text-[#4a142a] font-medium hover:text-[#350e1e]">
+                          sign in
+                        </Link>{" "}
+                        to keep it on your account.
+                      </>
+                    )}
+                  </p>
+                )}
               </div>
             </section>
 

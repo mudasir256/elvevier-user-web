@@ -11,6 +11,7 @@ create table if not exists public.orders (
   state text not null default '',
   postal_code text not null default '',
   phone text not null,
+  user_id uuid references auth.users (id) on delete set null,
   order_items jsonb not null default '[]'::jsonb,
   subtotal numeric not null,
   shipping text not null default 'Free',
@@ -29,6 +30,7 @@ create table if not exists public.order_notes (
 );
 
 create index if not exists orders_email_idx on public.orders (email);
+create index if not exists orders_user_id_idx on public.orders (user_id);
 create index if not exists orders_status_idx on public.orders (status);
 create index if not exists orders_created_at_idx on public.orders (created_at desc);
 create index if not exists order_notes_order_id_idx on public.order_notes (order_id);

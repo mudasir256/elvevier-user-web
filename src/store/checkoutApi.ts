@@ -1,5 +1,5 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { publicBaseQuery } from "./baseQuery";
+import { customerBaseQuery } from "./baseQuery";
 
 interface OrderItem {
   name: string;
@@ -57,7 +57,7 @@ export interface Order {
 
 export const checkoutApi = createApi({
   reducerPath: "checkoutApi",
-  baseQuery: publicBaseQuery,
+  baseQuery: customerBaseQuery,
   tagTypes: ["Order"],
   refetchOnFocus: true,
   refetchOnReconnect: true,

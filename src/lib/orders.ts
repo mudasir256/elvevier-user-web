@@ -6,6 +6,7 @@ export type OrderItem = {
   price: number;
   quantity: number;
   size?: string;
+  image?: string;
 };
 
 type NoteRow = {
@@ -95,9 +96,30 @@ export async function listOrders(filter?: { status?: string | null; search?: str
   return (data as OrderRow[]).map(toOrder);
 }
 
+export async function withProductImages(items: OrderItem[]) {
+  if (items.every((item) => item.image)) return items;
+  const names = [...new Set(items.map((item) => item.name).filter(Boolean))];
+  if (!names.length) return items;
+
+  const supabase = getSupabase();
+  const { data, error } = await supabase.from("products").select("name, color, image").in("name", names);
+  if (error || !data) return items;
+
+  return items.map((item) => {
+    if (item.image) return item;
+    const matches = data.filter((product) => product.name === item.name && product.image);
+    const colored = matches.find((product) => item.variant && product.color === item.variant);
+    const image = (colored || matches[0])?.image;
+    return image ? { ...item, image } : item;
+  });
+}
+
 export async function getOrder(id: string) {
   const supabase = getSupabase();
   const { data, error } = await supabase.from("orders").select(ORDER_SELECT).eq("id", id).maybeSingle();
   if (error) throw error;
-  return data ? toOrder(data as OrderRow) : null;
+  if (!data) return null;
+  const order = toOrder(data as OrderRow);
+  order.orderItems = await withProductImages(order.orderItems);
+  return order;
 }

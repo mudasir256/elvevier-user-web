@@ -4,9 +4,18 @@ import { customerBaseQuery } from "./baseQuery";
 export type AccountOrder = {
   _id: string;
   status: string;
+  subtotal: number;
+  shipping: string;
   total: number;
   createdAt: string;
-  orderItems: { name: string; quantity: number; price: number; size?: string }[];
+  orderItems: {
+    name: string;
+    quantity: number;
+    price: number;
+    variant?: string;
+    size?: string;
+    image?: string;
+  }[];
 };
 
 export type AccountUser = {

@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
+import { getCustomer } from "@/lib/customerAuth";
 import { getSupabase } from "@/lib/supabase";
 
 export async function POST(request: Request) {
   try {
+    const customer = await getCustomer(request);
     const {
       email, firstName, lastName, address, apartment,
       city, state, postalCode, phone, orderItems,
@@ -30,6 +32,7 @@ export async function POST(request: Request) {
         state: (state || "").trim(),
         postal_code: (postalCode || "").trim(),
         phone: phone.trim(),
+        user_id: customer?.id ?? null,
         order_items: orderItems,
         subtotal: Number(subtotal),
         shipping: shipping || "Free",

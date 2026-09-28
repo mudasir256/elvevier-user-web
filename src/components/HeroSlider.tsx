@@ -13,11 +13,11 @@ export function HeroSlider() {
   );
 }
 
-const offers: { label: string; icon?: "shoe" | "truck"; sale?: boolean }[] = [
+const offers: { label: string; icon?: "shoe" | "truck" }[] = [
   { label: "100% original" },
   { label: "First check then pay", icon: "shoe" },
   { label: "Nationwide delivery", icon: "truck" },
-  { label: "Save 30% off", sale: true },
+  { label: "Coming soon" },
 ];
 
 function OfferTicker() {
@@ -30,11 +30,6 @@ function OfferTicker() {
             {loop.map((item, i) => (
               <span key={`${copy}-${i}`} className="flex items-center">
                 <span className="mx-3 h-1 w-1 shrink-0 rounded-full bg-white/35" aria-hidden="true" />
-                {item.sale ? (
-                  <span className="mr-2 rounded bg-[#4a142a] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider">
-                    Sale
-                  </span>
-                ) : null}
                 {item.icon === "shoe" ? <ShoeIcon /> : null}
                 {item.icon === "truck" ? <TruckIcon /> : null}
                 <span className="text-[11px] font-medium uppercase tracking-[0.16em] sm:text-xs">

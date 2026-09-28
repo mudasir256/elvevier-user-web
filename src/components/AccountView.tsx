@@ -2,12 +2,17 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { PasswordField } from "@/components/PasswordField";
 import { readCustomerSession, saveCustomerSession } from "@/lib/customerSession";
 import { Skeleton } from "@/components/Skeleton";
 import { useChangePasswordMutation, useGetAccountQuery, useUpdateAccountMutation } from "@/store/accountApi";
 import { apiError } from "@/store/apiError";
+
+function formatPrice(price: number) {
+  return `Rs. ${Number(price).toLocaleString("en-PK")}`;
+}
 
 const statusLabel: Record<string, string> = {
   pending: "Placed",
@@ -245,15 +250,42 @@ export function AccountView() {
                     <p className="text-sm font-medium">
                       {new Date(order.createdAt).toLocaleDateString("en-PK", { day: "numeric", month: "short", year: "numeric" })}
                     </p>
-                    <p className="mt-1 text-sm text-[var(--muted)]">
-                      {order.orderItems.map((item) => `${item.name} × ${item.quantity}`).join(", ")}
-                    </p>
+                    <p className="mt-0.5 text-xs text-[var(--muted)]">Order #{order._id.slice(-6)}</p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-semibold">Rs. {Number(order.total).toLocaleString()}</p>
-                    <p className="mt-1 text-xs uppercase tracking-wider text-[#4a142a]">
-                      {statusLabel[order.status] ?? order.status}
-                    </p>
+                  <p className="text-xs uppercase tracking-wider text-[#4a142a]">
+                    {statusLabel[order.status] ?? order.status}
+                  </p>
+                </div>
+                <ul className="mt-4 divide-y divide-[var(--border)]">
+                  {order.orderItems.map((item, index) => (
+                    <li key={`${item.name}-${index}`} className="flex items-center gap-3 py-3 first:pt-0">
+                      <div className="relative h-16 w-14 shrink-0 overflow-hidden rounded-lg bg-[var(--cream)]">
+                        {item.image ? (
+                          <Image src={item.image} alt={item.name} fill className="object-cover" sizes="56px" loading="eager" />
+                        ) : null}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium">{item.name}</p>
+                        <p className="mt-0.5 text-xs text-[var(--muted)]">
+                          {[item.variant, item.size ? `Size ${item.size}` : "", `Qty ${item.quantity}`].filter(Boolean).join(" · ")}
+                        </p>
+                      </div>
+                      <p className="text-sm font-medium">{formatPrice(item.price * item.quantity)}</p>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-3 space-y-1.5 border-t border-[var(--border)] pt-3 text-sm">
+                  <div className="flex justify-between text-[var(--muted)]">
+                    <span>Subtotal</span>
+                    <span>{formatPrice(order.subtotal)}</span>
+                  </div>
+                  <div className="flex justify-between text-[var(--muted)]">
+                    <span>Shipping</span>
+                    <span>{order.shipping}</span>
+                  </div>
+                  <div className="flex justify-between font-semibold">
+                    <span>Total</span>
+                    <span>{formatPrice(order.total)}</span>
                   </div>
                 </div>
                 <Link href={`/order/${order._id}`} className="inline-block mt-3 text-sm font-medium text-[var(--accent)]">

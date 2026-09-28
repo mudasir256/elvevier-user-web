@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCustomer, unauthorized } from "@/lib/customerAuth";
 import { getSupabase } from "@/lib/supabase";
-import { toOrder, type OrderRow } from "@/lib/orders";
+import { toOrder, withProductImages, type OrderRow } from "@/lib/orders";
 
 export async function GET(request: Request) {
   const customer = await getCustomer(request);
@@ -9,22 +9,40 @@ export async function GET(request: Request) {
 
   try {
     const supabase = getSupabase();
-    const { data, error } = await supabase
-      .from("orders")
-      .select("*")
-      .eq("email", customer.email)
-      .order("created_at", { ascending: false });
-    if (error) throw error;
+    const email = customer.email.toLowerCase();
+    const [owned, byEmail] = await Promise.all([
+      supabase.from("orders").select("*").eq("user_id", customer.id).order("created_at", { ascending: false }),
+      supabase.from("orders").select("*").eq("email", email).order("created_at", { ascending: false }),
+    ]);
+    if (owned.error) throw owned.error;
+    if (byEmail.error) throw byEmail.error;
 
-    const orders = ((data ?? []) as OrderRow[]).map((row) => {
+    const seen = new Set<string>();
+    const rows = [...(owned.data ?? []), ...(byEmail.data ?? [])].filter((row) => {
+      if (seen.has(row.id)) return false;
+      seen.add(row.id);
+      return true;
+    }) as OrderRow[];
+    rows.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+    const prepared = rows.map((row) => {
       const order = toOrder(row);
       return {
         _id: order._id,
         status: order.status,
+        subtotal: order.subtotal,
+        shipping: order.shipping,
         total: order.total,
         createdAt: order.createdAt,
         orderItems: order.orderItems,
       };
+    });
+    const images = await withProductImages(prepared.flatMap((order) => order.orderItems));
+    let cursor = 0;
+    const orders = prepared.map((order) => {
+      const orderItems = images.slice(cursor, cursor + order.orderItems.length);
+      cursor += order.orderItems.length;
+      return { ...order, orderItems };
     });
 
     const { data: profile } = await supabase
