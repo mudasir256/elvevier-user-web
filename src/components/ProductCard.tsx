@@ -78,7 +78,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
 
   return (
     <article className={`group flex h-full flex-col animate-fade-up ${delayClass}`}>
-      <div ref={frameRef} className="relative aspect-[3/4] overflow-hidden rounded-[1.7rem] bg-[#f4e6ec]">
+      <div ref={frameRef} className="relative aspect-[3/4] overflow-hidden rounded-[1.7rem] bg-[#e4e4e4]" style={{ backgroundColor: "#e4e4e4" }}>
         <Link href={`/product/${product.slug}`} className="absolute inset-0" aria-label={product.name}>
           {!imageReady ? <div className="skeleton absolute inset-0 z-10" aria-hidden /> : null}
           <Image

@@ -39,9 +39,9 @@ export async function generateMetadata(): Promise<Metadata> {
   description: siteDescription,
   applicationName: "Empulse",
   icons: {
-    icon: [{ url: "/favicon.png?v=2", type: "image/png", sizes: "512x512" }],
-    apple: [{ url: "/apple-icon.png?v=2", sizes: "180x180" }],
-    shortcut: "/favicon.ico?v=2",
+    icon: [{ url: "/favicon.png?v=4", type: "image/png", sizes: "512x512" }],
+    apple: [{ url: "/apple-icon.png?v=4", sizes: "180x180" }],
+    shortcut: "/favicon.ico?v=4",
   },
   openGraph: {
     title: siteTitle,
@@ -50,7 +50,7 @@ export async function generateMetadata(): Promise<Metadata> {
     type: "website",
     images: [
       {
-        url: "/og.png?v=2",
+        url: "/og.png?v=4",
         width: 1200,
         height: 630,
         alt: "Empulse",
@@ -61,7 +61,7 @@ export async function generateMetadata(): Promise<Metadata> {
     card: "summary_large_image",
     title: siteTitle,
     description: siteDescription,
-    images: ["/og.png?v=2"],
+    images: ["/og.png?v=4"],
   },
   };
 }

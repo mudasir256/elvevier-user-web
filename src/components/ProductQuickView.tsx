@@ -67,7 +67,7 @@ export function ProductQuickView({ product, onClose }: { product: Product; onClo
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={`relative z-10 grid max-h-[min(92vh,860px)] w-full max-w-4xl grid-cols-1 overflow-y-auto rounded-[1.4rem] bg-[var(--background)] shadow-2xl md:grid-cols-2 ${
+        className={`relative z-10 grid max-h-[min(94vh,980px)] w-full max-w-6xl grid-cols-1 overflow-y-auto rounded-[1.4rem] bg-[var(--background)] shadow-2xl md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] ${
           closing ? "quick-view-panel-out" : "quick-view-panel"
         }`}
       >
@@ -82,10 +82,10 @@ export function ProductQuickView({ product, onClose }: { product: Product; onClo
           </svg>
         </button>
 
-        <div className="bg-[#f4e6ec] p-4 sm:p-5">
-          <div className="relative aspect-[3/4] overflow-hidden rounded-[1.2rem] bg-[#f4e6ec]">
+        <div className="bg-[#e4e4e4] p-4 sm:p-6" style={{ backgroundColor: "#e4e4e4" }}>
+          <div className="relative aspect-square overflow-hidden rounded-[1.2rem] bg-[#e4e4e4]" style={{ backgroundColor: "#e4e4e4" }}>
             {current ? (
-              <Image src={current} alt={product.name} fill className="object-cover" sizes="(max-width: 768px) 100vw, 40vw" />
+              <Image src={current} alt={product.name} fill className="object-contain" sizes="(max-width: 768px) 100vw, 56vw" style={{ backgroundColor: "#e4e4e4" }} />
             ) : null}
             {product.new ? (
               <span className="absolute top-3 left-3 rounded-full bg-[#f4e6ec] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#4a142a]">
@@ -131,13 +131,13 @@ export function ProductQuickView({ product, onClose }: { product: Product; onClo
                   key={`${photo}-${index}`}
                   type="button"
                   onClick={() => setActive(index)}
-                  className={`relative h-16 w-14 shrink-0 overflow-hidden rounded-xl border-2 bg-[#f4e6ec] ${
+                  className={`relative h-16 w-14 shrink-0 overflow-hidden rounded-xl border-2 bg-[#e4e4e4] ${
                     index === active ? "border-[#4a142a]" : "border-transparent"
                   }`}
                   aria-label={`Show image ${index + 1}`}
                   aria-pressed={index === active}
                 >
-                  <Image src={photo} alt="" fill className="object-cover" sizes="80px" loading="eager" />
+                  <Image src={photo} alt="" fill className="object-contain" sizes="80px" loading="eager" />
                 </button>
               ))}
             </div>

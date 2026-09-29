@@ -15,16 +15,16 @@ export function ProductDetail({ product }: { product: Product }) {
   const current = photos[active] ?? photos[0];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16">
-      <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-[var(--cream)]">
+    <div className="grid grid-cols-1 items-start gap-10 md:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)] lg:gap-16">
+      <div className="relative aspect-square overflow-hidden rounded-2xl bg-[#e4e4e4]">
         {current ? (
           <Image
             src={current}
             alt={product.name}
             fill
-            className="object-cover"
+            className="object-contain"
             priority
-            sizes="(max-width: 768px) 100vw, 50vw"
+            sizes="(max-width: 768px) 100vw, 60vw"
           />
         ) : null}
         {product.new ? (
@@ -46,19 +46,19 @@ export function ProductDetail({ product }: { product: Product }) {
         {product.description ? <p className="mt-6 text-[var(--muted)]">{product.description}</p> : null}
 
         {photos.length > 1 ? (
-          <div className="mt-8 flex gap-3 overflow-x-auto">
+          <div className="mt-8 flex gap-3 overflow-x-auto pb-3">
             {photos.map((photo, index) => (
               <button
                 key={`${photo}-${index}`}
                 type="button"
                 onClick={() => setActive(index)}
-                className={`relative h-24 w-20 shrink-0 overflow-hidden rounded-xl border-2 bg-[var(--cream)] ${
+                className={`relative h-24 w-24 shrink-0 overflow-hidden rounded-xl border-2 bg-[#e4e4e4] ${
                   index === active ? "border-[#4a142a]" : "border-[var(--border)]"
                 }`}
                 aria-label={`Show image ${index + 1}`}
                 aria-pressed={index === active}
               >
-                <Image src={photo} alt="" fill className="object-cover" sizes="80px" />
+                <Image src={photo} alt="" fill className="object-contain" sizes="96px" />
               </button>
             ))}
           </div>
