@@ -347,11 +347,11 @@ img {
 }
 @keyframes cart-pop {
   0% { transform: scale(1); }
-  40% { transform: scale(1.16); }
+  50% { transform: scale(1.12); }
   100% { transform: scale(1); }
 }
 .cart-pop {
-  animation: cart-pop 0.4s ease;
+  animation: cart-pop 0.45s cubic-bezier(0.4, 0, 0.2, 1);
 }
 @keyframes quick-view-in {
   from {

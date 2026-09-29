@@ -5,25 +5,28 @@ export function flyProductToCart(from: HTMLElement, image: string) {
   if (cartBox.width === 0) return;
 
   const fromBox = from.getBoundingClientRect();
+  const size = Math.round(Math.min(168, Math.max(112, fromBox.width * 0.5)));
+  const startX = fromBox.left + fromBox.width / 2 - size / 2;
+  const startY = fromBox.top + fromBox.height / 2 - size / 2;
+  const endX = cartBox.left + cartBox.width / 2 - (startX + size / 2);
+  const endY = cartBox.top + cartBox.height / 2 - (startY + size / 2);
+  const lift = Math.min(90, Math.max(36, Math.abs(endY) * 0.18));
+
   const flyer = document.createElement("img");
   flyer.src = image;
   flyer.alt = "";
-  const size = 72;
   flyer.style.position = "fixed";
   flyer.style.zIndex = "90";
-  flyer.style.left = `${fromBox.left + fromBox.width / 2 - size / 2}px`;
-  flyer.style.top = `${fromBox.top + fromBox.height / 2 - size / 2}px`;
+  flyer.style.left = `${startX}px`;
+  flyer.style.top = `${startY}px`;
   flyer.style.width = `${size}px`;
   flyer.style.height = `${size}px`;
   flyer.style.objectFit = "cover";
-  flyer.style.borderRadius = "18px";
+  flyer.style.borderRadius = "22px";
   flyer.style.pointerEvents = "none";
-  flyer.style.boxShadow = "0 12px 28px rgba(74, 20, 42, 0.28)";
-  flyer.style.transition = "transform 620ms cubic-bezier(0.16, 1, 0.3, 1), opacity 620ms ease";
+  flyer.style.boxShadow = "0 16px 32px rgba(74, 20, 42, 0.22)";
+  flyer.style.willChange = "transform, opacity";
   document.body.appendChild(flyer);
-
-  const endX = cartBox.left + cartBox.width / 2 - (fromBox.left + fromBox.width / 2);
-  const endY = cartBox.top + cartBox.height / 2 - (fromBox.top + fromBox.height / 2);
 
   let finished = false;
   const done = () => {
@@ -33,12 +36,24 @@ export function flyProductToCart(from: HTMLElement, image: string) {
     window.dispatchEvent(new Event("empulse-cart-pop"));
   };
 
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      flyer.style.transform = `translate(${endX}px, ${endY}px) scale(0.18)`;
-      flyer.style.opacity = "0.2";
-    });
+  const bendX = endX * 0.15;
+  const bendY = endY * 0.4 - lift * 0.35;
+  const steps = 20;
+  const frames = Array.from({ length: steps + 1 }, (_, index) => {
+    const t = index / steps;
+    const remain = 1 - t;
+    const x = remain * remain * 0 + 2 * remain * t * bendX + t * t * endX;
+    const y = remain * remain * 0 + 2 * remain * t * bendY + t * t * endY;
+    const opacity = t < 0.86 ? 1 : 1 - ((t - 0.86) / 0.14) * 0.75;
+    return {
+      transform: `translate3d(${x}px, ${y}px, 0) scale(${1 - t * 0.86})`,
+      opacity,
+      offset: t,
+    };
   });
-  flyer.addEventListener("transitionend", done);
-  window.setTimeout(done, 760);
+
+  const animation = flyer.animate(frames, { duration: 760, easing: "linear", fill: "forwards" });
+
+  animation.onfinish = done;
+  window.setTimeout(done, 1100);
 }
