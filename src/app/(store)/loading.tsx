@@ -4,7 +4,7 @@ export default function StoreLoading() {
   return (
     <div aria-busy="true" aria-label="Loading">
       <div className="px-3 sm:px-4 md:px-6 pt-3 md:pt-4">
-        <Skeleton className="aspect-[1122/1402] w-full rounded-[28px] md:aspect-[2025/777]" />
+        <Skeleton className="aspect-[1122/1402] w-full rounded-[28px] md:aspect-[2029/775]" />
       </div>
       <Skeleton className="mt-3 h-10 w-full" />
       <div className="mx-auto max-w-[90rem] px-4 sm:px-6 py-16">

@@ -24,7 +24,7 @@ export function HeroMedia() {
   }, []);
 
   return (
-    <div ref={frameRef} className="relative mx-auto aspect-[1122/1402] h-auto w-full overflow-hidden rounded-[28px] bg-[#f4e6ec] md:aspect-[2025/777]">
+    <div ref={frameRef} className="relative mx-auto aspect-[1122/1402] h-auto w-full overflow-hidden rounded-[28px] bg-[#f4e6ec] md:aspect-[2029/775]">
       {!mobileReady ? <div className="skeleton absolute inset-0 z-10 md:hidden" aria-hidden /> : null}
       {!desktopReady ? <div className="skeleton absolute inset-0 z-10 hidden md:block" aria-hidden /> : null}
       <Image
