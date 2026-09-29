@@ -192,17 +192,15 @@ export function Header() {
 
           <Link
             href="/"
-            className={`z-10 flex items-center justify-self-center rounded-xl px-2.5 py-1.5 transition-all duration-300 hover:scale-[1.02] md:px-3 ${
-              scrolled ? "bg-white" : "bg-transparent"
-            }`}
+            className="z-10 flex items-center justify-self-center rounded-xl px-2.5 py-1.5 transition-all duration-300 hover:scale-[1.02] md:px-3"
             aria-label="Empulse home"
           >
             <Image
               src={assets.logo}
               alt="Empulse"
-              width={1472}
-              height={391}
-              className="h-7 w-auto md:h-8 object-contain"
+              width={2045}
+              height={392}
+              className={`h-9 w-auto object-contain md:h-11 ${scrolled ? "brightness-0 invert" : ""}`}
               priority
               unoptimized
             />

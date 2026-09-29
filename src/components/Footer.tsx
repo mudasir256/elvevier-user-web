@@ -36,9 +36,9 @@ export function Footer() {
               <Image
                 src={assets.logo}
                 alt="Empulse"
-                width={1472}
-                height={391}
-                className="h-9 w-auto object-contain brightness-0 invert opacity-90"
+                width={2045}
+                height={392}
+                className="h-11 w-auto object-contain brightness-0 invert"
                 unoptimized
               />
             </Link>

@@ -315,6 +315,13 @@ img {
 .partners-scroll:hover {
   animation-play-state: paused;
 }
+.partner-logo {
+  transform: translateY(0) scale(1);
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.partner-logo:hover {
+  transform: translateY(-8px) scale(1.22);
+}
 .skeleton {
   background: linear-gradient(90deg, #f4e6ec 0%, #fbf7f8 45%, #f4e6ec 100%);
   background-size: 200% 100%;
