@@ -11,6 +11,7 @@ const footerLinks = {
     { label: "Accessories", href: "/accessories" },
   ],
   help: [
+    { label: "Blogs", href: "/blog" },
     { label: "About Us", href: "/about" },
     { label: "FAQs", href: "/faqs" },
     { label: "Returns / Exchanges", href: "/returns" },

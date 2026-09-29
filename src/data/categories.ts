@@ -24,68 +24,57 @@ export const categories: Category[] = [
 
 export const navCategories = [
   {
-    id: "women",
-    name: "Woman",
-    slug: "women",
-    children: [
-      { name: "New In", slug: "women?filter=new" },
-      { name: "Tops & Blouses", slug: "women/tops" },
-      { name: "Dresses & Jumpsuits", slug: "women/dresses" },
-      { name: "T-Shirts", slug: "women/tshirts" },
-      { name: "Bottoms", slug: "women/bottoms" },
-      { name: "Blazers", slug: "women/blazers" },
-      { name: "Sweaters & Cardigans", slug: "women/sweaters" },
-      { name: "Jackets & Coats", slug: "women/jackets" },
-      { name: "Shoes", slug: "shoes/women" },
-    ],
-  },
-  {
-    id: "men",
-    name: "Man",
-    slug: "men",
-    children: [
-      { name: "New In", slug: "men?filter=new" },
-      { name: "Shirts", slug: "men/shirts" },
-      { name: "T-Shirts", slug: "men/tshirts" },
-      { name: "Polo", slug: "men/polo" },
-      { name: "Bottoms", slug: "men/bottoms" },
-      { name: "Blazers", slug: "men/blazers" },
-      { name: "Sweaters & Cardigans", slug: "men/sweaters" },
-      { name: "Jackets & Coats", slug: "men/jackets" },
-      { name: "Shoes", slug: "shoes/men" },
-    ],
-  },
-  {
-    id: "kids",
-    name: "Kids",
-    slug: "kids",
-    children: [
-      { name: "New In", slug: "kids?filter=new" },
-      { name: "Tops", slug: "kids/tops" },
-      { name: "Bottoms", slug: "kids/bottoms" },
-      { name: "Dresses", slug: "kids/dresses" },
-      { name: "Shoes", slug: "shoes/kids" },
-    ],
-  },
-  {
     id: "shoes",
     name: "Shoes",
     slug: "shoes",
     children: [
-      { name: "Woman", slug: "shoes/women" },
-      { name: "Man", slug: "shoes/men" },
-      { name: "Kids", slug: "shoes/kids" },
+      { name: "Men", slug: "shoes/men" },
+      { name: "Women", slug: "shoes/women" },
     ],
   },
   {
-    id: "accessories",
-    name: "Accessories",
-    slug: "accessories",
+    id: "trouser",
+    name: "Trouser",
+    slug: "search?q=trouser",
     children: [
-      { name: "Belts", slug: "belts" },
-      { name: "Caps", slug: "caps" },
-      { name: "Bags", slug: "bags" },
-      { name: "Eyewear", slug: "accessories/eyewear" },
+      { name: "Men", slug: "men?type=trouser" },
+      { name: "Women", slug: "women?type=trouser" },
+    ],
+  },
+  {
+    id: "sweatshirt",
+    name: "Sweatshirt",
+    slug: "search?q=sweatshirt",
+    children: [
+      { name: "Men", slug: "men?type=sweatshirt" },
+      { name: "Women", slug: "women?type=sweatshirt" },
+    ],
+  },
+  {
+    id: "jeans",
+    name: "Jeans",
+    slug: "search?q=jeans",
+    children: [
+      { name: "Men", slug: "men?type=jeans" },
+      { name: "Women", slug: "women?type=jeans" },
+    ],
+  },
+  {
+    id: "hoodies",
+    name: "Hoodies",
+    slug: "search?q=hoodie",
+    children: [
+      { name: "Men", slug: "men?type=hoodie" },
+      { name: "Women", slug: "women?type=hoodie" },
+    ],
+  },
+  {
+    id: "jackets",
+    name: "Jackets",
+    slug: "search?q=jacket",
+    children: [
+      { name: "Men", slug: "men?type=jacket" },
+      { name: "Women", slug: "women?type=jacket" },
     ],
   },
 ];

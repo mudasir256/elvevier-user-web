@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from "react";
 import { clearCustomerSession, readCustomerSession, type CustomerSession } from "@/lib/customerSession";
 
 const helpLinks = [
+  { name: "Blogs", href: "/blog" },
   { name: "About Us", href: "/about" },
   { name: "FAQs", href: "/faqs" },
   { name: "Returns / Exchanges", href: "/returns" },
@@ -144,11 +145,16 @@ export function Header() {
               >
                 <Link
                   href={`/${cat.slug}`}
-                  className={`px-3.5 py-2 text-[14px] font-medium rounded-lg transition-all duration-200 ${itemHover}`}
+                  className={`inline-flex items-center gap-1 px-3.5 py-2 text-[14px] font-medium rounded-lg transition-all duration-200 ${itemHover}`}
                 >
                   {cat.name}
+                  {cat.children.length > 0 && (
+                    <svg className="h-3 w-3 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  )}
                 </Link>
-                {openNavId === cat.id && (
+                {openNavId === cat.id && cat.children.length > 0 && (
                   <div className="absolute left-0 top-full z-50 pt-2 animate-scale-in">
                     <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-lg shadow-[var(--shadow-warm)] py-2 min-w-[220px]">
                       {cat.children.map((child) => (

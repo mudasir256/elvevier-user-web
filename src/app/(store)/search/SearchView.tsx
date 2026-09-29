@@ -34,6 +34,14 @@ export function SearchView({
   });
   const products = data ?? initialProducts;
   const q = query.trim().toLowerCase();
+  const genderType: Record<string, string> = {
+    trouser: "trouser",
+    sweatshirt: "sweatshirt",
+    jeans: "jeans",
+    hoodie: "hoodie",
+    jacket: "jacket",
+  };
+  const splitType = genderType[q];
   const results =
     q.length > 0
       ? products.filter(
@@ -56,6 +64,16 @@ export function SearchView({
         className="w-full px-4 py-3 rounded-xl border border-[var(--border)] bg-[var(--card)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
         autoFocus
       />
+      {splitType && (
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link href={`/men?type=${splitType}`} className="rounded-full bg-[#4a142a] px-5 py-2 text-sm font-medium text-white hover:bg-[#350e1e]">
+            Men
+          </Link>
+          <Link href={`/women?type=${splitType}`} className="rounded-full border border-[var(--border)] bg-[var(--card)] px-5 py-2 text-sm font-medium hover:border-[#4a142a] hover:text-[#4a142a]">
+            Women
+          </Link>
+        </div>
+      )}
       {query && (
         <p className="mt-4 text-sm text-[var(--muted)]">
           {results.length} result{results.length !== 1 ? "s" : ""}

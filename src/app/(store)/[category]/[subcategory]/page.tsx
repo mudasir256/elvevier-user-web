@@ -1,12 +1,9 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ProductCard } from "@/components/ProductCard";
-import {
-  getProductsByCategoryAndSubcategory,
-  getProductsByCategory,
-} from "@/lib/catalog";
+import { GenderShopNav, type GenderShop } from "@/components/GenderShopNav";
+import { getProductsByCategoryAndSubcategory } from "@/lib/catalog";
 import { categories } from "@/data/categories";
-import { navCategories } from "@/data/categories";
 
 type Props = {
   params: Promise<{ category: string; subcategory: string }>;
@@ -68,14 +65,13 @@ export default async function SubcategoryPage({ params }: Props) {
   const category = categories.find((c) => c.slug === cat);
   if (!category) notFound();
 
-  const title =
-    subcategoryTitles[cat]?.[sub] ??
-    subcategorySlug.charAt(0).toUpperCase() + subcategorySlug.slice(1);
+  const shoeGender: GenderShop | null = cat === "shoes" && (sub === "men" || sub === "women") ? sub : null;
+  const title = shoeGender
+    ? `${shoeGender === "men" ? "Men" : "Women"}'s Shoes`
+    : subcategoryTitles[cat]?.[sub] ??
+      subcategorySlug.charAt(0).toUpperCase() + subcategorySlug.slice(1);
 
-  const list =
-    cat === "shoes"
-      ? await getProductsByCategory("shoes")
-      : await getProductsByCategoryAndSubcategory(category.id, sub);
+  const list = await getProductsByCategoryAndSubcategory(category.id, sub);
 
   return (
     <div className="max-w-[90rem] mx-auto px-4 sm:px-6 py-10">
@@ -97,6 +93,7 @@ export default async function SubcategoryPage({ params }: Props) {
         {category.description && (
           <p className="mt-2 text-[var(--muted)]">{category.description}</p>
         )}
+        {shoeGender && <GenderShopNav gender={shoeGender} active="shoes" />}
       </div>
       {list.length === 0 ? (
         <p className="text-[var(--muted)] py-12 text-center animate-fade-up">
