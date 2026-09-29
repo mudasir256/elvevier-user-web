@@ -106,7 +106,7 @@ export function Footer() {
           {/* Help links */}
           <div className="md:col-span-3 animate-fade-up animation-delay-200">
             <h4 className="font-semibold text-xs uppercase tracking-[0.2em] text-[var(--accent-soft)] mb-5">
-              Customer Service
+              Help
             </h4>
             <ul className="space-y-3">
               {footerLinks.help.map((link) => (
