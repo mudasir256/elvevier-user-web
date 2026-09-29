@@ -23,6 +23,7 @@ export function Header() {
   const [openMobileSubId, setOpenMobileSubId] = useState<string | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [profileAnchor, setProfileAnchor] = useState({ top: 0, right: 12 });
+  const [cartPop, setCartPop] = useState(false);
   const profileButtonRef = useRef<HTMLButtonElement>(null);
   const [scrolled, setScrolled] = useState(false);
   const [customer, setCustomer] = useState<CustomerSession | null>(null);
@@ -43,6 +44,20 @@ export function Header() {
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    let timer = 0;
+    const onPop = () => {
+      setCartPop(true);
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => setCartPop(false), 400);
+    };
+    window.addEventListener("empulse-cart-pop", onPop);
+    return () => {
+      window.removeEventListener("empulse-cart-pop", onPop);
+      window.clearTimeout(timer);
+    };
   }, []);
 
   const itemHover = scrolled
@@ -237,7 +252,7 @@ export function Header() {
             </Link>
             <button
               type="button"
-              className={`relative p-2.5 rounded-xl transition-colors duration-200 ${iconHover}`}
+              className={`relative p-2.5 rounded-xl transition-colors duration-200 ${iconHover} ${cartPop ? "cart-pop" : ""}`}
               onClick={openCart}
               aria-label="Cart"
             >

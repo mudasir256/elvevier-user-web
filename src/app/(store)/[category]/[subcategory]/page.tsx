@@ -78,7 +78,7 @@ export default async function SubcategoryPage({ params }: Props) {
       : await getProductsByCategoryAndSubcategory(category.id, sub);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+    <div className="max-w-[90rem] mx-auto px-4 sm:px-6 py-10">
       <div className="mb-8 animate-fade-up">
         <nav className="text-sm text-[var(--muted)] mb-1">
           <Link href="/" className="hover:text-[var(--accent)]">

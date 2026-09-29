@@ -31,7 +31,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const isNewFilter = filter === "new";
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+    <div className="max-w-[90rem] mx-auto px-4 sm:px-6 py-10">
       <div className="mb-8 animate-fade-up">
         <h1 className="font-serif text-3xl md:text-4xl font-semibold capitalize">
           {isNewFilter ? `New In – ${category.name}` : category.name}

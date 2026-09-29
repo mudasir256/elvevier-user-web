@@ -7,7 +7,7 @@ export default function StoreLoading() {
         <Skeleton className="aspect-[1122/1402] w-full rounded-[28px] md:aspect-[1958/803]" />
       </div>
       <Skeleton className="mt-3 h-10 w-full" />
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16">
+      <div className="mx-auto max-w-[90rem] px-4 sm:px-6 py-16">
         <Skeleton className="mb-8 h-8 w-48 rounded-lg" />
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 md:gap-7">
           {Array.from({ length: 5 }, (_, index) => (

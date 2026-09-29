@@ -345,6 +345,46 @@ img {
 .animate-scale-in {
   animation: scale-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+@keyframes cart-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.16); }
+  100% { transform: scale(1); }
+}
+.cart-pop {
+  animation: cart-pop 0.4s ease;
+}
+@keyframes quick-view-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes quick-view-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+}
+.quick-view-backdrop {
+  animation: fade-in 0.28s ease-out both;
+}
+.quick-view-backdrop-out {
+  animation: fade-in 0.22s ease-in reverse both;
+}
+.quick-view-panel {
+  animation: quick-view-in 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.quick-view-panel-out {
+  animation: quick-view-out 0.22s ease-in both;
+}
 .animate-float {
   animation: float 3s ease-in-out infinite;
 }

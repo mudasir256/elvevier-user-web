@@ -191,7 +191,6 @@ export function CartProvider({
   const addToCart = useCallback(
     (product: Product, quantity = 1, size?: string) => {
       dispatch({ type: "ADD", product, quantity, size });
-      dispatch({ type: "OPEN_CART" });
       run(async (current) => {
         try {
           const data = await sendCart(

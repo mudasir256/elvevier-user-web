@@ -6,8 +6,16 @@ import {
   getNewProducts,
   getProductsByCategory,
 } from "@/lib/catalog";
-import { navCategories } from "@/data/categories";
 import { assets } from "@/data/assets";
+
+const browseCategories = [
+  { name: "Shoes", href: "/shoes" },
+  { name: "Trouser", href: "/search?q=trouser" },
+  { name: "Sweatshirt", href: "/search?q=sweater" },
+  { name: "Jeans", href: "/search?q=jeans" },
+  { name: "Hoodies", href: "/search?q=hoodie" },
+  { name: "Jackets", href: "/search?q=jacket" },
+];
 
 export default async function HomePage() {
   const newProducts = await getNewProducts();
@@ -18,8 +26,27 @@ export default async function HomePage() {
     <div className="grain-overlay">
       <HeroSlider />
 
+      <section className="border-y border-[#e7d0da] bg-[#f4e6ec] py-14">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <p className="mb-8 animate-fade-up text-center text-sm uppercase tracking-[0.2em] text-[var(--muted)]">
+            Browse by Category
+          </p>
+          <div className="flex animate-fade-up flex-wrap justify-center gap-3 animation-delay-100 md:gap-4">
+            {browseCategories.map((cat) => (
+              <Link
+                key={cat.name}
+                href={cat.href}
+                className="rounded-full border border-[var(--border)] bg-[var(--card)] px-6 py-2.5 text-sm font-medium text-[var(--foreground)] transition-all duration-200 hover:border-[var(--accent)] hover:text-[var(--accent)] hover:shadow-sm"
+              >
+                {cat.name}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* New Arrivals */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-20">
+      <section className="max-w-[90rem] mx-auto px-4 sm:px-6 py-20">
         <div className="flex items-end justify-between mb-10 animate-fade-up">
           <div>
             <p className="text-sm uppercase tracking-[0.2em] text-[var(--accent)] font-medium mb-2">Just Dropped</p>
@@ -44,7 +71,7 @@ export default async function HomePage() {
 
       {/* Shoes */}
       <section className="bg-[radial-gradient(ellipse_at_top,#f4e6ec_0%,var(--background)_70%)] py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="max-w-[90rem] mx-auto px-4 sm:px-6">
           <div className="flex items-end justify-between mb-10 animate-fade-up">
             <div>
               <p className="text-sm uppercase tracking-[0.2em] text-[var(--accent)] font-medium mb-2">Step Into Comfort</p>
@@ -117,26 +144,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Categories strip */}
-      <section className="py-14 bg-[#f4e6ec] border-y border-[#e7d0da]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <p className="text-center text-sm uppercase tracking-[0.2em] text-[var(--muted)] mb-8 animate-fade-up">Browse by Category</p>
-          <div className="flex flex-wrap justify-center gap-3 md:gap-4 animate-fade-up animation-delay-100">
-            {navCategories.map((cat) => (
-              <Link
-                key={cat.id}
-                href={`/${cat.slug}`}
-                className="px-6 py-2.5 rounded-full border border-[var(--border)] bg-[var(--card)] text-sm font-medium text-[var(--foreground)] hover:border-[var(--accent)] hover:text-[var(--accent)] hover:shadow-sm transition-all duration-200"
-              >
-                {cat.name}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Bags */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-20">
+      <section className="max-w-[90rem] mx-auto px-4 sm:px-6 py-20">
         <div className="flex items-end justify-between mb-10 animate-fade-up">
           <div>
             <p className="text-sm uppercase tracking-[0.2em] text-[var(--accent)] font-medium mb-2">Carry in Style</p>
@@ -184,37 +193,6 @@ export default async function HomePage() {
               </Link>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Newsletter CTA */}
-      <section className="bg-[var(--foreground)] text-[var(--cream)] py-20 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full bg-[var(--accent)] blur-[128px]" />
-          <div className="absolute bottom-0 right-1/4 w-80 h-80 rounded-full bg-[var(--accent-soft)] blur-[100px]" />
-        </div>
-        <div className="relative max-w-xl mx-auto px-4 text-center">
-          <p className="text-sm uppercase tracking-[0.25em] text-[var(--accent-soft)] mb-3 animate-fade-up">Join the Family</p>
-          <h2 className="section-heading text-3xl md:text-4xl font-semibold animate-fade-up animation-delay-100">
-            Sign up & save 10%
-          </h2>
-          <p className="mt-3 text-[var(--muted)] animate-fade-up animation-delay-200">
-            Get early access to new drops, exclusive offers, and cozy style inspiration.
-          </p>
-          <form className="mt-8 flex flex-col sm:flex-row gap-3 max-w-md mx-auto animate-fade-up animation-delay-300">
-            <input
-              type="email"
-              placeholder="Your email address"
-              className="flex-1 px-5 py-3.5 rounded-full bg-white/10 border border-white/15 text-[var(--cream)] placeholder:text-[var(--muted)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-soft)] focus:border-transparent transition-all duration-200 text-sm"
-            />
-            <button
-              type="submit"
-              className="px-7 py-3.5 bg-[var(--accent)] text-white font-medium rounded-full hover:bg-[var(--accent-hover)] transition-all duration-200 hover:shadow-lg text-sm whitespace-nowrap"
-            >
-              Subscribe
-            </button>
-          </form>
-          <p className="mt-4 text-xs text-[var(--muted)]/70 animate-fade-up animation-delay-400">No spam, unsubscribe anytime.</p>
         </div>
       </section>
     </div>

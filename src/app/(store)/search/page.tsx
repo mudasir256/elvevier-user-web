@@ -7,7 +7,12 @@ export const metadata: Metadata = {
   description: "Search the Empulse catalog.",
 };
 
-export default async function SearchPage() {
+export default async function SearchPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
   const products = await getActiveProducts();
-  return <SearchView initialProducts={products} />;
+  return <SearchView initialProducts={products} initialQuery={q ?? ""} />;
 }

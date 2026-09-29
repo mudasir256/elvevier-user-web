@@ -12,9 +12,15 @@ function formatPrice(price: number) {
   return `Rs. ${price.toLocaleString()}`;
 }
 
-export function SearchView({ initialProducts }: { initialProducts: Product[] }) {
+export function SearchView({
+  initialProducts,
+  initialQuery = "",
+}: {
+  initialProducts: Product[];
+  initialQuery?: string;
+}) {
   const dispatch = useDispatch<AppDispatch>();
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
