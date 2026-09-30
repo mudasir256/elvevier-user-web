@@ -17,6 +17,18 @@ type Props = {
 
 const categorySlugs = categories.map((c) => c.slug);
 
+const stylePages: Record<string, { heading: string; subcategory: string; men: string; women: string }> = {
+  jackets: { heading: "Jackets", subcategory: "jacket", men: "/men?type=jacket", women: "/women?type=jacket" },
+  jacket: { heading: "Jackets", subcategory: "jacket", men: "/men?type=jacket", women: "/women?type=jacket" },
+  hoodies: { heading: "Hoodies", subcategory: "hoodie", men: "/men?type=hoodie", women: "/women?type=hoodie" },
+  hoodie: { heading: "Hoodies", subcategory: "hoodie", men: "/men?type=hoodie", women: "/women?type=hoodie" },
+  sweatshirts: { heading: "Sweatshirts", subcategory: "sweatshirt", men: "/men?type=sweatshirt", women: "/women?type=sweatshirt" },
+  sweatshirt: { heading: "Sweatshirts", subcategory: "sweatshirt", men: "/men?type=sweatshirt", women: "/women?type=sweatshirt" },
+  trousers: { heading: "Trousers", subcategory: "trouser", men: "/men?type=trouser", women: "/women?type=trouser" },
+  trouser: { heading: "Trousers", subcategory: "trouser", men: "/men?type=trouser", women: "/women?type=trouser" },
+  jeans: { heading: "Jeans", subcategory: "jeans", men: "/men?type=jeans", women: "/women?type=jeans" },
+};
+
 const apparelTypes: Record<string, { label: string; heading: string }> = {
   trouser: { label: "Trouser", heading: "Trousers" },
   sweatshirt: { label: "Sweatshirt", heading: "Sweatshirts" },
@@ -35,6 +47,46 @@ function forGender(product: Product, gender: GenderShop) {
 export default async function CategoryPage({ params, searchParams }: Props) {
   const { category: categorySlug } = await params;
   const { filter, type } = await searchParams;
+
+  const style = stylePages[categorySlug.toLowerCase()];
+  if (style) {
+    const products = await getActiveProducts();
+    const list = products.filter((product) => product.subcategory?.toLowerCase() === style.subcategory);
+    return (
+      <div className="max-w-[90rem] mx-auto px-4 sm:px-6 py-10">
+        <div className="mb-8 animate-fade-up">
+          <h1 className="font-serif text-3xl md:text-4xl font-semibold">{style.heading}</h1>
+          <div className="mt-6 flex flex-wrap gap-2">
+            <Link href={style.men} className="rounded-full border border-[var(--border)] bg-[var(--card)] px-5 py-2 text-sm font-medium hover:border-[#4a142a] hover:text-[#4a142a]">
+              Men
+            </Link>
+            <Link href={style.women} className="rounded-full border border-[var(--border)] bg-[var(--card)] px-5 py-2 text-sm font-medium hover:border-[#4a142a] hover:text-[#4a142a]">
+              Women
+            </Link>
+          </div>
+        </div>
+        {list.length === 0 ? (
+          <p className="py-12 text-center text-[var(--muted)]">
+            No products in this category yet.{" "}
+            <Link href="/" className="text-[var(--accent)] hover:underline">
+              Back to home
+            </Link>
+          </p>
+        ) : (
+          <>
+            <p className="mb-6 text-sm text-[var(--muted)]">
+              {list.length} product{list.length !== 1 ? "s" : ""}
+            </p>
+            <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+              {list.map((product, i) => (
+                <ProductCard key={product.id} product={product} index={i} />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    );
+  }
 
   const category = categories.find(
     (c) => c.slug === categorySlug.toLowerCase()
