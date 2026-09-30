@@ -5,8 +5,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { saveCustomerSession } from "@/lib/customerSession";
 import { PasswordField } from "@/components/PasswordField";
+import { accountApi } from "@/store/accountApi";
 import { useLoginMutation } from "@/store/authApi";
 import { apiError } from "@/store/apiError";
+import { store } from "@/store/store";
 
 export function LoginForm() {
   const router = useRouter();
@@ -27,6 +29,7 @@ export function LoginForm() {
         return;
       }
       saveCustomerSession({ ...data.user, token: data.token });
+      store.dispatch(accountApi.util.resetApiState());
       router.push("/");
       router.refresh();
     } catch (err) {

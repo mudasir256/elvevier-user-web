@@ -18,6 +18,17 @@ export interface Category {
   image?: string;
 }
 
+export interface ProductVariant {
+  size: string;
+  color: string;
+  stock: number;
+}
+
+export interface ColorGallery {
+  color: string;
+  images: string[];
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -27,6 +38,8 @@ export interface Product {
   categoryId: CategoryId;
   subcategory?: string;
   color: string;
+  variants?: ProductVariant[];
+  colorImages?: ColorGallery[];
   image: string;
   images?: string[];
   description?: string;
@@ -39,4 +52,5 @@ export interface CartItem {
   product: Product;
   quantity: number;
   size?: string;
+  color?: string;
 }

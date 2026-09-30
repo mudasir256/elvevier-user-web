@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
+import { galleryFor, lineStock } from "@/lib/variants";
 
 function formatPrice(price: number) {
   return `Rs. ${price.toLocaleString()}`;
@@ -49,14 +50,17 @@ export default function CartPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         <div className="lg:col-span-2">
           <ul className="space-y-6">
-            {items.map((item) => (
+            {items.map((item) => {
+              const stock = lineStock(item.product, item.size, item.color);
+              const atLimit = stock != null && item.quantity >= stock;
+              return (
               <li
-                key={`${item.product.id}-${item.size ?? ""}`}
+                key={`${item.product.id}-${item.size ?? ""}-${item.color ?? ""}`}
                 className="flex gap-4 py-6 border-b border-[var(--border)]"
               >
                 <div className="relative w-24 h-32 md:w-28 md:h-36 rounded-lg overflow-hidden bg-[var(--cream)] shrink-0">
                   <Image
-                    src={item.product.image}
+                    src={galleryFor(item.product, item.color)[0] || item.product.image}
                     alt={item.product.name}
                     fill
                     className="object-cover"
@@ -71,7 +75,7 @@ export default function CartPage() {
                     {item.product.name}
                   </Link>
                   <p className="text-sm text-[var(--muted)] mt-0.5">
-                    {item.product.color}
+                    {item.color || item.product.color}
                     {item.size && ` · ${item.size}`}
                   </p>
                   <p className="mt-2 font-medium">
@@ -83,7 +87,9 @@ export default function CartPage() {
                       onClick={() =>
                         updateQuantity(
                           item.product.id,
-                          Math.max(0, item.quantity - 1)
+                          Math.max(0, item.quantity - 1),
+                          item.size,
+                          item.color
                         )
                       }
                       className="w-8 h-8 rounded border border-[var(--border)] flex items-center justify-center hover:bg-[var(--cream)]"
@@ -93,24 +99,32 @@ export default function CartPage() {
                     <span className="w-8 text-center">{item.quantity}</span>
                     <button
                       type="button"
-                      onClick={() =>
-                        updateQuantity(item.product.id, item.quantity + 1)
-                      }
-                      className="w-8 h-8 rounded border border-[var(--border)] flex items-center justify-center hover:bg-[var(--cream)]"
+                      disabled={atLimit}
+                      onClick={() => {
+                        if (atLimit) return;
+                        updateQuantity(item.product.id, item.quantity + 1, item.size, item.color);
+                      }}
+                      className="w-8 h-8 rounded border border-[var(--border)] flex items-center justify-center hover:bg-[var(--cream)] disabled:cursor-not-allowed disabled:opacity-40"
                     >
                       +
                     </button>
                     <button
                       type="button"
-                      onClick={() => removeFromCart(item.product.id)}
+                      onClick={() => removeFromCart(item.product.id, item.size, item.color)}
                       className="ml-4 text-sm text-[var(--muted)] hover:text-red-600"
                     >
                       Remove
                     </button>
                   </div>
+                  {stock === 0 ? (
+                    <p className="mt-2 text-sm text-red-700">Out of stock</p>
+                  ) : atLimit ? (
+                    <p className="mt-2 text-sm text-[#4a142a]">Only {stock} available</p>
+                  ) : null}
                 </div>
               </li>
-            ))}
+              );
+            })}
           </ul>
         </div>
         <div>

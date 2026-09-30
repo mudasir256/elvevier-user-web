@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
+import { galleryFor } from "@/lib/variants";
 import { usePlaceOrderMutation } from "@/store/checkoutApi";
 import { readCustomerSession } from "@/lib/customerSession";
 import { useGetAccountQuery, useUpdateAccountMutation } from "@/store/accountApi";
@@ -83,12 +84,14 @@ export default function CheckoutPage() {
       postalCode,
       phone,
       orderItems: items.map((item) => ({
+        productId: item.product.id,
         name: item.product.name,
-        variant: item.product.color || "",
+        variant: item.color || item.product.color || "",
+        color: item.color || "",
         price: item.product.price,
         quantity: item.quantity,
         size: item.size || "",
-        image: item.product.image,
+        image: galleryFor(item.product, item.color)[0] || item.product.image,
       })),
       subtotal: total,
       shipping: shippingCost === 0 ? "Free" : `Rs. ${shippingCost}`,
@@ -398,14 +401,14 @@ export default function CheckoutPage() {
               <h2 className="font-semibold text-lg mb-4">Order summary</h2>
               <ul className="space-y-4 max-h-56 overflow-y-auto">
                 {items.map((item) => (
-                  <li key={`${item.product.id}-${item.size ?? ""}`} className="flex gap-3 border-b border-[var(--border)] pb-4 last:border-0">
+                  <li key={`${item.product.id}-${item.size ?? ""}-${item.color ?? ""}`} className="flex gap-3 border-b border-[var(--border)] pb-4 last:border-0">
                     <div className="relative w-16 h-20 rounded-lg overflow-hidden bg-[var(--cream)] shrink-0">
-                      <Image src={item.product.image} alt={item.product.name} fill className="object-cover" sizes="64px" />
+                      <Image src={galleryFor(item.product, item.color)[0] || item.product.image} alt={item.product.name} fill className="object-cover" sizes="64px" />
                       <span className="absolute bottom-0 right-0 bg-[var(--foreground)] text-[var(--cream)] text-[10px] w-5 h-5 flex items-center justify-center rounded-tl">{item.quantity}</span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm line-clamp-2">{item.product.name}</p>
-                      <p className="text-xs text-[var(--muted)]">{item.product.color}{item.size && ` · ${item.size}`}</p>
+                      <p className="text-xs text-[var(--muted)]">{item.color || item.product.color}{item.size && ` · ${item.size}`}</p>
                       <p className="text-sm font-medium mt-0.5">{formatPrice(item.product.price * item.quantity)}</p>
                     </div>
                   </li>

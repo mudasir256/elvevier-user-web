@@ -1,6 +1,7 @@
 import type { Product } from "@/types";
 import { products as seedProducts } from "@/data/products";
 import { getSupabase } from "@/lib/supabase";
+import { normalizeColorImages, normalizeVariants, type ColorGallery } from "@/lib/variants";
 
 type ProductRow = {
   id: string;
@@ -11,6 +12,8 @@ type ProductRow = {
   category_id: Product["categoryId"];
   subcategory: string;
   color: string;
+  variants: unknown;
+  color_images?: unknown;
   image: string;
   images: string[] | null;
   description: string;
@@ -59,6 +62,8 @@ function toProduct(row: ProductRow): Product {
     categoryId: row.category_id,
     subcategory: row.subcategory || undefined,
     color: row.color,
+    variants: normalizeVariants(row.variants),
+    colorImages: normalizeColorImages(row.color_images),
     image: images[0] || row.image,
     images,
     description: row.description || undefined,
@@ -74,6 +79,17 @@ export function collectImages(body: Record<string, unknown>) {
   const images = [...new Set(listed.length ? listed : single ? [single] : [])].slice(0, 8);
   if (!images.length) return { error: "Add at least one product image." as const };
   return { image: images[0], images };
+}
+
+export function resolveProductPhotos(body: Record<string, unknown>, colorImages: ColorGallery[]) {
+  const photos = collectImages(body);
+  const first = colorImages.find((item) => item.images.length);
+  if ("error" in photos) {
+    if (!first) return photos;
+    return { image: first.images[0], images: first.images };
+  }
+  if (first) return { image: first.images[0], images: photos.images };
+  return photos;
 }
 
 let seedPromise: Promise<void> | null = null;

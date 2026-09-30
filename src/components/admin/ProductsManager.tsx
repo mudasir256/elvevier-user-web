@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { productCategories } from "@/data/productCategories";
-import type { Product } from "@/types";
+import type { ColorGallery, Product } from "@/types";
+import { totalStock } from "@/lib/variants";
 import {
   useCreateProductMutation,
   useDeleteProductMutation,
@@ -13,6 +14,8 @@ import {
 } from "@/store/adminApi";
 import { apiError } from "@/store/apiError";
 
+type DraftVariant = { size: string; color: string; stock: string };
+
 type Draft = {
   name: string;
   price: string;
@@ -20,6 +23,8 @@ type Draft = {
   categoryId: string;
   subcategory: string;
   color: string;
+  variants: DraftVariant[];
+  colorImages: ColorGallery[];
   description: string;
   image: string;
   images: string[];
@@ -28,6 +33,31 @@ type Draft = {
   active: boolean;
 };
 
+const waistSizes = ["28", "30", "32", "34", "36", "38", "40", "42"];
+const shoeSizes = ["36", "37", "38", "39", "40", "41", "42", "43", "44", "45"];
+
+function sizeGuide(categoryId: string) {
+  if (categoryId === "shoes") {
+    return {
+      label: "Shoe size",
+      sizes: shoeSizes,
+      hint: "Shoes use 40, 41, 42 and so on. Tap a size or type another number.",
+    };
+  }
+  if (categoryId === "women" || categoryId === "men" || categoryId === "kids" || categoryId === "belts") {
+    return {
+      label: "Waist",
+      sizes: waistSizes,
+      hint: "Dresses, jackets and other clothes use waist sizes such as 30, 32, 34. Tap a size or type another one.",
+    };
+  }
+  return {
+    label: "Size",
+    sizes: [] as string[],
+    hint: "Type the size you want to add.",
+  };
+}
+
 const emptyDraft: Draft = {
   name: "",
   price: "",
@@ -35,6 +65,8 @@ const emptyDraft: Draft = {
   categoryId: "women",
   subcategory: "",
   color: "",
+  variants: [],
+  colorImages: [],
   description: "",
   image: "",
   images: [],
@@ -51,6 +83,9 @@ export function ProductsManager() {
   const [creating, setCreating] = useState(false);
   const [draft, setDraft] = useState<Draft>(emptyDraft);
   const [formError, setFormError] = useState("");
+  const [customSize, setCustomSize] = useState("");
+  const [colorInput, setColorInput] = useState("");
+  const [palette, setPalette] = useState<string[]>([]);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const { data, isLoading: loading, error: loadError } = useGetAdminProductsQuery({
     category,
@@ -62,6 +97,7 @@ export function ProductsManager() {
   const [updateProduct, { isLoading: updatingProduct }] = useUpdateProductMutation();
   const [deleteProduct] = useDeleteProductMutation();
   const [uploadImagesRequest, { isLoading: uploading }] = useUploadProductImagesMutation();
+  const [uploadingColor, setUploadingColor] = useState("");
   const saving = creatingProduct || updatingProduct;
 
   useEffect(() => {
@@ -73,10 +109,127 @@ export function ProductsManager() {
     () => productCategories.find((item) => item.id === draft.categoryId)?.subcategories ?? [],
     [draft.categoryId]
   );
+  const sizes = useMemo(() => sizeGuide(draft.categoryId), [draft.categoryId]);
+
+  function sameOption(variant: DraftVariant, size: string, color: string) {
+    return variant.size.trim().toLowerCase() === size.trim().toLowerCase() && variant.color.trim().toLowerCase() === color.trim().toLowerCase();
+  }
+
+  function addColor(raw: string) {
+    const color = raw.trim().replace(/\s+/g, " ");
+    if (!color) return;
+    if (palette.some((item) => item.toLowerCase() === color.toLowerCase())) {
+      setColorInput("");
+      return;
+    }
+    setFormError("");
+    setPalette((current) => [...current, color]);
+    setDraft((current) => {
+      const sizes = [...new Set(current.variants.map((variant) => variant.size.trim()).filter(Boolean))];
+      const variants = [...current.variants];
+      for (const size of sizes) {
+        if (!variants.some((variant) => sameOption(variant, size, color))) {
+          variants.push({ size, color, stock: "1" });
+        }
+      }
+      const colorImages = current.colorImages.some((item) => item.color.toLowerCase() === color.toLowerCase())
+        ? current.colorImages
+        : [...current.colorImages, { color, images: [] }];
+      return { ...current, color: [...palette, color].join(" / "), variants, colorImages };
+    });
+    setColorInput("");
+  }
+
+  function removeColor(color: string) {
+    const nextPalette = palette.filter((item) => item.toLowerCase() !== color.toLowerCase());
+    setPalette(nextPalette);
+    setDraft((current) => ({
+      ...current,
+      color: nextPalette.join(" / "),
+      variants: current.variants.filter((variant) => variant.color.trim().toLowerCase() !== color.toLowerCase()),
+      colorImages: current.colorImages.filter((item) => item.color.toLowerCase() !== color.toLowerCase()),
+    }));
+  }
+
+  function colorPhotos(color: string) {
+    return draft.colorImages.find((item) => item.color.toLowerCase() === color.toLowerCase())?.images ?? [];
+  }
+
+  function updateColorPhotos(color: string, images: string[]) {
+    setDraft((current) => {
+      const next = images.slice(0, 8);
+      const exists = current.colorImages.some((item) => item.color.toLowerCase() === color.toLowerCase());
+      const colorImages = exists
+        ? current.colorImages.map((item) => (item.color.toLowerCase() === color.toLowerCase() ? { ...item, images: next } : item))
+        : [...current.colorImages, { color, images: next }];
+      return { ...current, colorImages };
+    });
+  }
+
+  async function uploadColorImages(color: string, files: File[]) {
+    if (!files.length) return;
+    setFormError("");
+    setUploadingColor(color);
+    try {
+      const body = new FormData();
+      files.forEach((file) => body.append("file", file));
+      const data = await uploadImagesRequest(body).unwrap();
+      const urls = data.urls ?? [];
+      setDraft((current) => {
+        const existing = current.colorImages.find((item) => item.color.toLowerCase() === color.toLowerCase())?.images ?? [];
+        const images = [...existing, ...urls].slice(0, 8);
+        const colorImages = current.colorImages.some((item) => item.color.toLowerCase() === color.toLowerCase())
+          ? current.colorImages.map((item) => (item.color.toLowerCase() === color.toLowerCase() ? { ...item, images } : item))
+          : [...current.colorImages, { color, images }];
+        return { ...current, colorImages };
+      });
+    } catch (err) {
+      setFormError(apiError(err, "Could not upload the images."));
+    } finally {
+      setUploadingColor("");
+    }
+  }
+
+  function addVariantSize(size: string) {
+    const next = size.trim();
+    if (!next) return;
+    if (!palette.length) {
+      setFormError("Add a color first. The same size is then added in every color.");
+      return;
+    }
+    setFormError("");
+    setDraft((current) => {
+      const variants = [...current.variants];
+      for (const color of palette) {
+        if (!variants.some((variant) => sameOption(variant, next, color))) {
+          variants.push({ size: next, color, stock: "1" });
+        }
+      }
+      return { ...current, variants };
+    });
+    setCustomSize("");
+  }
+
+  function setVariantStock(size: string, color: string, stock: string) {
+    setDraft((current) => ({
+      ...current,
+      variants: current.variants.map((variant) => (sameOption(variant, size, color) ? { ...variant, stock } : variant)),
+    }));
+  }
+
+  function removeVariant(size: string, color: string) {
+    setDraft((current) => ({
+      ...current,
+      variants: current.variants.filter((variant) => !sameOption(variant, size, color)),
+    }));
+  }
 
   function openCreate() {
     setEditing(null);
     setDraft(emptyDraft);
+    setPalette([]);
+    setColorInput("");
+    setCustomSize("");
     setFormError("");
     setCreating(true);
   }
@@ -84,7 +237,12 @@ export function ProductsManager() {
   function openEdit(product: Product) {
     setCreating(false);
     setEditing(product);
+    setCustomSize("");
+    setColorInput("");
     setFormError("");
+    const variantColors = [...new Set((product.variants ?? []).map((variant) => variant.color.trim()).filter(Boolean))];
+    const savedColors = product.color && product.color !== "—" ? product.color.split("/").map((item) => item.trim()).filter(Boolean) : [];
+    setPalette(variantColors.length ? variantColors : savedColors);
     setDraft({
       name: product.name,
       price: String(product.price),
@@ -92,6 +250,12 @@ export function ProductsManager() {
       categoryId: product.categoryId,
       subcategory: product.subcategory ?? "",
       color: product.color === "—" ? "" : product.color,
+      variants: (product.variants ?? []).map((variant) => ({
+        size: variant.size,
+        color: variant.color,
+        stock: String(variant.stock),
+      })),
+      colorImages: product.colorImages ?? [],
       description: product.description ?? "",
       image: product.image,
       images: product.images?.length ? product.images : [product.image],
@@ -139,6 +303,20 @@ export function ProductsManager() {
       ...draft,
       price: Number(draft.price),
       compareAtPrice: draft.compareAtPrice,
+      color: palette.join(" / "),
+      variants: draft.variants
+        .map((variant) => ({
+          size: variant.size.trim(),
+          color: variant.color.trim(),
+          stock: Math.max(0, Math.floor(Number(variant.stock) || 0)),
+        }))
+        .filter((variant) => variant.size && variant.color),
+      colorImages: palette
+        .map((color) => ({
+          color,
+          images: (draft.colorImages.find((item) => item.color.toLowerCase() === color.toLowerCase())?.images ?? []).slice(0, 8),
+        }))
+        .filter((item) => item.images.length),
     };
     try {
       if (editing) await updateProduct({ id: editing.id, body: payload }).unwrap();
@@ -159,6 +337,15 @@ export function ProductsManager() {
   }
 
   const formOpen = creating || Boolean(editing);
+
+  useEffect(() => {
+    if (!formOpen) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeForm();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [formOpen]);
 
   return (
     <div className="p-6 lg:p-8">
@@ -218,6 +405,7 @@ export function ProductsManager() {
                   <th className="px-4 py-3 font-medium">Product</th>
                   <th className="px-4 py-3 font-medium">Category</th>
                   <th className="px-4 py-3 font-medium">Price</th>
+                  <th className="px-4 py-3 font-medium">Stock</th>
                   <th className="px-4 py-3 font-medium">Status</th>
                   <th className="px-4 py-3 font-medium" />
                 </tr>
@@ -241,6 +429,9 @@ export function ProductsManager() {
                       {productCategories.find((item) => item.id === product.categoryId)?.name ?? product.categoryId}
                     </td>
                     <td className="px-4 py-3 font-medium">Rs. {Number(product.price).toLocaleString()}</td>
+                    <td className="px-4 py-3 text-gray-700">
+                      {product.variants?.length ? totalStock(product.variants) : "—"}
+                    </td>
                     <td className="px-4 py-3">
                       <div className="flex flex-wrap gap-1">
                         {product.active === false ? <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px]">Hidden</span> : <span className="rounded-full bg-green-50 px-2 py-0.5 text-[11px] text-green-700">Live</span>}
@@ -265,13 +456,17 @@ export function ProductsManager() {
       </div>
 
       {formOpen ? (
-        <div className="fixed inset-0 z-40 flex justify-end bg-black/40">
-          <form onSubmit={save} className="h-full w-full max-w-md overflow-y-auto bg-white p-6 shadow-xl">
-            <div className="flex items-center justify-between mb-5">
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4" onClick={closeForm}>
+          <form
+            onSubmit={save}
+            onClick={(event) => event.stopPropagation()}
+            className="flex max-h-[min(92vh,900px)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-xl"
+          >
+            <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
               <h2 className="text-lg font-semibold">{editing ? "Edit product" : "New product"}</h2>
               <button type="button" onClick={closeForm} className="text-sm text-gray-500">Close</button>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-4 overflow-y-auto px-6 py-5">
               <Field label="Name">
                 <input required value={draft.name} onChange={(event) => setDraft({ ...draft, name: event.target.value })} className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm" />
               </Field>
@@ -304,14 +499,156 @@ export function ProductsManager() {
                   </select>
                 </Field>
               ) : null}
-              <Field label="Color">
-                <input value={draft.color} onChange={(event) => setDraft({ ...draft, color: event.target.value })} className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm" />
-              </Field>
+              <div>
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-700">Colors</span>
+                  <span className="text-xs text-gray-500">
+                    {draft.variants.reduce((sum, variant) => sum + Math.max(0, Math.floor(Number(variant.stock) || 0)), 0)} articles
+                  </span>
+                </div>
+                <p className="mb-2 text-xs text-gray-500">Add every color this product comes in. The same size is kept separately in each color, with its own stock.</p>
+                <div className="mb-3 flex gap-2">
+                  <input
+                    value={colorInput}
+                    onChange={(event) => setColorInput(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key !== "Enter") return;
+                      event.preventDefault();
+                      addColor(colorInput);
+                    }}
+                    placeholder="Color, e.g. Black"
+                    className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm"
+                  />
+                  <button type="button" onClick={() => addColor(colorInput)} className="shrink-0 rounded-xl bg-[#f4e6ec] px-3 py-2 text-sm font-medium text-[#4a142a]">
+                    Add color
+                  </button>
+                </div>
+                {palette.length > 0 ? (
+                  <div className="mb-4 flex flex-wrap gap-1.5">
+                    {palette.map((color) => (
+                      <span key={color} className="inline-flex items-center gap-1 rounded-full bg-[#4a142a] px-2.5 py-1 text-xs font-medium text-white">
+                        {color}
+                        <button type="button" onClick={() => removeColor(color)} className="text-white/80" aria-label={`Remove ${color}`}>
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
+                <p className="mb-2 text-xs text-gray-500">{sizes.hint}</p>
+                {sizes.sizes.length > 0 ? (
+                  <div className="mb-3 flex flex-wrap gap-1.5">
+                    {sizes.sizes.map((size) => {
+                      const selected = palette.length > 0 && palette.every((color) => draft.variants.some((variant) => sameOption(variant, size, color)));
+                      return (
+                        <button
+                          key={size}
+                          type="button"
+                          onClick={() => addVariantSize(size)}
+                          className={`rounded-full border px-2.5 py-1 text-xs font-medium ${
+                            selected ? "border-[#4a142a] bg-[#4a142a] text-white" : "border-gray-200 text-[#4a142a]"
+                          }`}
+                        >
+                          {size}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : null}
+                <div className="mb-3 flex gap-2">
+                  <input
+                    value={customSize}
+                    onChange={(event) => setCustomSize(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key !== "Enter") return;
+                      event.preventDefault();
+                      addVariantSize(customSize);
+                    }}
+                    placeholder={
+                      draft.categoryId === "shoes"
+                        ? "Custom shoe size, e.g. 44"
+                        : sizes.sizes.length
+                          ? "Custom waist, e.g. 33"
+                          : "Custom size"
+                    }
+                    className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => addVariantSize(customSize)}
+                    className="shrink-0 rounded-xl bg-[#f4e6ec] px-3 py-2 text-sm font-medium text-[#4a142a]"
+                  >
+                    Add size
+                  </button>
+                </div>
+                <div className="space-y-3">
+                  {palette.map((color) => {
+                    const rows = draft.variants.filter((variant) => variant.color.trim().toLowerCase() === color.toLowerCase() && variant.size.trim());
+                    return (
+                      <div key={color} className="rounded-xl border border-gray-200 p-3">
+                        <p className="text-sm font-semibold text-[#4a142a]">{color}</p>
+                        {rows.length === 0 ? (
+                          <p className="mt-2 text-xs text-gray-500">Add a size and it will show here for this color.</p>
+                        ) : (
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {rows.map((variant) => (
+                              <div key={`${color}-${variant.size}`} className="flex items-center gap-1 rounded-lg border border-gray-200 px-2 py-1">
+                                <span className="min-w-6 text-sm font-medium">{variant.size}</span>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  value={variant.stock}
+                                  aria-label={`${color} ${variant.size} stock`}
+                                  onChange={(event) => setVariantStock(variant.size, color, event.target.value)}
+                                  className="w-14 rounded-lg border border-gray-200 px-2 py-1 text-sm"
+                                />
+                                <button type="button" onClick={() => removeVariant(variant.size, color)} className="px-1 text-xs font-medium text-red-700" aria-label={`Remove ${color} ${variant.size}`}>
+                                  ×
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        <p className="mt-3 text-xs text-gray-500">Photos for {color}. These show when a customer selects this color.</p>
+                        <div className="mt-2 grid grid-cols-4 gap-2">
+                          {colorPhotos(color).map((url, index) => (
+                            <div key={`${color}-${url}-${index}`} className="relative">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={url} alt="" className="h-16 w-full rounded-lg bg-gray-100 object-cover" />
+                              <button
+                                type="button"
+                                onClick={() => updateColorPhotos(color, colorPhotos(color).filter((_, itemIndex) => itemIndex !== index))}
+                                className="absolute right-1 top-1 rounded bg-white/90 px-1.5 py-0.5 text-[10px] font-semibold text-red-700"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                        <label className="mt-2 inline-flex cursor-pointer text-sm font-medium text-[#4a142a]">
+                          {uploadingColor === color ? "Uploading…" : `Upload ${color} photos`}
+                          <input
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            multiple
+                            className="sr-only"
+                            onChange={(event) => {
+                              const files = [...(event.target.files ?? [])];
+                              event.target.value = "";
+                              if (files.length) uploadColorImages(color, files);
+                            }}
+                          />
+                        </label>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
               <Field label="Description">
                 <textarea value={draft.description} onChange={(event) => setDraft({ ...draft, description: event.target.value })} rows={3} className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm" />
               </Field>
               <Field label="Images">
-                <p className="mb-2 text-xs text-gray-500">Add up to 8. The first image is the cover on the shop.</p>
+                <p className="mb-2 text-xs text-gray-500">Backup photos, used when a color does not have its own pictures. Add up to 8.</p>
                 <div className="grid grid-cols-3 gap-2">
                   {draft.images.map((url, index) => (
                     <div key={`${url}-${index}`} className="relative">

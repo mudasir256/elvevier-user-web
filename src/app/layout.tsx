@@ -19,7 +19,7 @@ const cormorant = Cormorant_Garamond({
   weight: "variable",
 });
 
-const siteTitle = "Empulse – Cozy Fashion for Everyone";
+const siteTitle = "Empulse – Fashion that feels like home";
 const siteDescription =
   "Men's, women's & kids clothing, shoes, belts, caps, bags and more. Free shipping on orders above Rs. 2,500.";
 

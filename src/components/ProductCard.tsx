@@ -7,6 +7,7 @@ import type { Product } from "@/types";
 import { useCart } from "@/context/CartContext";
 import { flyProductToCart } from "@/lib/flyToCart";
 import { ProductQuickView } from "@/components/ProductQuickView";
+import { totalStock } from "@/lib/variants";
 
 function formatPrice(price: number) {
   return `Rs. ${price.toLocaleString()}`;
@@ -70,6 +71,8 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
     "animation-delay-500",
   ];
   const delayClass = delayClasses[Math.min(index, 5)] ?? "animation-delay-500";
+  const tracked = Boolean(product.variants?.length);
+  const soldOut = tracked && totalStock(product.variants) < 1;
 
   useEffect(() => {
     const image = frameRef.current?.querySelector("img");
@@ -95,10 +98,19 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
             New
           </span>
         )}
+        {soldOut ? (
+          <span className="absolute top-3 right-3 z-20 rounded-full bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#4a142a]">
+            Sold out
+          </span>
+        ) : null}
         <div className="absolute bottom-3 right-3 z-20">
           <CardActions
             product={product}
             onAdd={(event) => {
+              if (tracked) {
+                setDetailsOpen(true);
+                return;
+              }
               addToCart(product);
               const photo = frameRef.current ?? event.currentTarget;
               flyProductToCart(photo, product.image);

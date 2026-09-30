@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { PasswordField } from "@/components/PasswordField";
-import { readCustomerSession, saveCustomerSession } from "@/lib/customerSession";
+import { clearCustomerSession, readCustomerSession, saveCustomerSession } from "@/lib/customerSession";
 import { Skeleton } from "@/components/Skeleton";
 import { useChangePasswordMutation, useGetAccountQuery, useUpdateAccountMutation } from "@/store/accountApi";
 import { apiError } from "@/store/apiError";
@@ -41,7 +41,7 @@ export function AccountView() {
   const [passwordError, setPasswordError] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const { data, isLoading, error } = useGetAccountQuery(undefined, { skip: !sessionReady });
+  const { data, isLoading, isFetching, isUninitialized, error } = useGetAccountQuery(undefined, { skip: !sessionReady });
   const [updateAccount, { isLoading: savingDetails }] = useUpdateAccountMutation();
   const [changePassword, { isLoading: savingPassword }] = useChangePasswordMutation();
   const orders = data?.orders ?? [];
@@ -62,10 +62,12 @@ export function AccountView() {
   }, [router]);
 
   useEffect(() => {
+    if (!sessionReady || isUninitialized || isLoading || isFetching || data) return;
     if (error && typeof error === "object" && "status" in error && error.status === 401) {
+      clearCustomerSession();
       router.replace("/login");
     }
-  }, [error, router]);
+  }, [sessionReady, isUninitialized, isLoading, isFetching, data, error, router]);
 
   useEffect(() => {
     const user = data?.user;

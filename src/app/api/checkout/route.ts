@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCustomer } from "@/lib/customerAuth";
+import { reserveStock, restoreStock } from "@/lib/stock";
 import { getSupabase } from "@/lib/supabase";
 
 export async function POST(request: Request) {
@@ -17,6 +18,19 @@ export async function POST(request: Request) {
 
     if (!orderItems || orderItems.length === 0) {
       return NextResponse.json({ error: "Cart is empty." }, { status: 400 });
+    }
+
+    const stock = await reserveStock(
+      orderItems.map((item: { productId?: string; size?: string; color?: string; variant?: string; quantity?: number }) => ({
+        productId: item.productId,
+        size: item.size,
+        color: item.color || item.variant,
+        quantity: item.quantity,
+      }))
+    );
+    if (stock.error) {
+      if (stock.applied.length) await restoreStock(stock.applied);
+      return NextResponse.json({ error: stock.error }, { status: 400 });
     }
 
     const supabase = getSupabase();
@@ -43,7 +57,10 @@ export async function POST(request: Request) {
       .select("id")
       .single();
 
-    if (error) throw error;
+    if (error) {
+      await restoreStock(stock.applied);
+      throw error;
+    }
 
     return NextResponse.json(
       { message: "Order placed successfully!", orderId: data.id },

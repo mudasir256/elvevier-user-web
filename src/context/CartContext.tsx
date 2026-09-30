@@ -5,11 +5,13 @@ import type { Product } from "@/types";
 import { GUEST_KEY, readCartSnapshot, rememberGuestToken, writeCartSnapshot } from "@/lib/cartToken";
 import { store } from "@/store/store";
 import { cartApi } from "@/store/cartApi";
+import { lineStock } from "@/lib/variants";
 
 export interface CartItem {
   product: Product;
   quantity: number;
   size?: string;
+  color?: string;
 }
 
 interface CartState {
@@ -18,9 +20,9 @@ interface CartState {
 }
 
 type CartAction =
-  | { type: "ADD"; product: Product; quantity?: number; size?: string }
-  | { type: "REMOVE"; productId: string }
-  | { type: "UPDATE_QTY"; productId: string; quantity: number }
+  | { type: "ADD"; product: Product; quantity?: number; size?: string; color?: string }
+  | { type: "REMOVE"; productId: string; size?: string; color?: string }
+  | { type: "UPDATE_QTY"; productId: string; quantity: number; size?: string; color?: string }
   | { type: "SET"; items: CartItem[] }
   | { type: "MERGE_ITEMS"; items: CartItem[] }
   | { type: "CLEAR" }
@@ -28,46 +30,66 @@ type CartAction =
   | { type: "CLOSE_CART" }
   | { type: "TOGGLE_CART" };
 
+function sameLine(item: CartItem, productId: string, size?: string, color?: string) {
+  return item.product.id === productId && (item.size ?? "") === (size ?? "") && (item.color ?? "") === (color ?? "");
+}
+
+function lineKey(item: CartItem) {
+  return `${item.product.id}:${item.size ?? ""}:${item.color ?? ""}`;
+}
+
+function capQuantity(product: Product, size: string | undefined, color: string | undefined, quantity: number) {
+  const stock = lineStock(product, size, color);
+  const max = stock == null ? 20 : Math.min(20, stock);
+  return Math.min(max, quantity);
+}
+
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case "ADD": {
-      const existing = state.items.find(
-        (item) => item.product.id === action.product.id && item.size === action.size
-      );
+      const existing = state.items.find((item) => sameLine(item, action.product.id, action.size, action.color));
       const qty = action.quantity ?? 1;
+      const next = capQuantity(action.product, action.size, action.color, (existing?.quantity ?? 0) + qty);
+      if (next < 1) return state;
       if (existing) {
         return {
           ...state,
           items: state.items.map((item) =>
-            item.product.id === action.product.id && item.size === action.size
-              ? { ...item, quantity: Math.min(20, item.quantity + qty) }
-              : item
+            sameLine(item, action.product.id, action.size, action.color) ? { ...item, quantity: next } : item
           ),
         };
       }
       return {
         ...state,
-        items: [...state.items, { product: action.product, quantity: qty, size: action.size }],
+        items: [...state.items, { product: action.product, quantity: next, size: action.size, color: action.color }],
       };
     }
     case "REMOVE":
-      return { ...state, items: state.items.filter((item) => item.product.id !== action.productId) };
+      return {
+        ...state,
+        items: state.items.filter((item) => !sameLine(item, action.productId, action.size, action.color)),
+      };
     case "UPDATE_QTY": {
       if (action.quantity <= 0) {
-        return { ...state, items: state.items.filter((item) => item.product.id !== action.productId) };
+        return {
+          ...state,
+          items: state.items.filter((item) => !sameLine(item, action.productId, action.size, action.color)),
+        };
       }
       return {
         ...state,
         items: state.items.map((item) =>
-          item.product.id === action.productId ? { ...item, quantity: Math.min(20, action.quantity) } : item
+          sameLine(item, action.productId, action.size, action.color)
+            ? { ...item, quantity: capQuantity(item.product, action.size, action.color, action.quantity) }
+            : item
         ),
       };
     }
     case "SET":
       return { ...state, items: action.items };
     case "MERGE_ITEMS": {
-      const merged = new Map(state.items.map((item) => [`${item.product.id}:${item.size ?? ""}`, item]));
-      for (const item of action.items) merged.set(`${item.product.id}:${item.size ?? ""}`, item);
+      const merged = new Map(state.items.map((item) => [lineKey(item), item]));
+      for (const item of action.items) merged.set(lineKey(item), item);
       return { ...state, items: [...merged.values()] };
     }
     case "CLEAR":
@@ -85,9 +107,9 @@ function cartReducer(state: CartState, action: CartAction): CartState {
 
 interface CartContextValue extends CartState {
   ready: boolean;
-  addToCart: (product: Product, quantity?: number, size?: string) => void;
-  removeFromCart: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
+  addToCart: (product: Product, quantity?: number, size?: string, color?: string) => void;
+  removeFromCart: (productId: string, size?: string, color?: string) => void;
+  updateQuantity: (productId: string, quantity: number, size?: string, color?: string) => void;
   clearCart: () => Promise<void>;
   openCart: () => void;
   closeCart: () => void;
@@ -189,8 +211,8 @@ export function CartProvider({
   }, [ready, state.items]);
 
   const addToCart = useCallback(
-    (product: Product, quantity = 1, size?: string) => {
-      dispatch({ type: "ADD", product, quantity, size });
+    (product: Product, quantity = 1, size?: string, color?: string) => {
+      dispatch({ type: "ADD", product, quantity, size, color });
       run(async (current) => {
         try {
           const data = await sendCart(
@@ -199,6 +221,7 @@ export function CartProvider({
                 productId: product.id,
                 quantity,
                 size: size ?? "",
+                color: color ?? "",
               })
             )
           );
@@ -215,11 +238,13 @@ export function CartProvider({
   );
 
   const removeFromCart = useCallback(
-    (productId: string) => {
-      dispatch({ type: "REMOVE", productId });
+    (productId: string, size?: string, color?: string) => {
+      dispatch({ type: "REMOVE", productId, size, color });
       run(async (current) => {
         try {
-          const data = await sendCart(store.dispatch(cartApi.endpoints.removeCartItem.initiate({ productId })));
+          const data = await sendCart(
+            store.dispatch(cartApi.endpoints.removeCartItem.initiate({ productId, size: size ?? "", color: color ?? "" }))
+          );
           rememberGuest(data);
           applyItems(current, data.items ?? []);
         } catch {
@@ -232,11 +257,13 @@ export function CartProvider({
   );
 
   const updateQuantity = useCallback(
-    (productId: string, quantity: number) => {
-      dispatch({ type: "UPDATE_QTY", productId, quantity });
+    (productId: string, quantity: number, size?: string, color?: string) => {
+      dispatch({ type: "UPDATE_QTY", productId, quantity, size, color });
       run(async (current) => {
         try {
-          const data = await sendCart(store.dispatch(cartApi.endpoints.updateCartItem.initiate({ productId, quantity })));
+          const data = await sendCart(
+            store.dispatch(cartApi.endpoints.updateCartItem.initiate({ productId, quantity, size: size ?? "", color: color ?? "" }))
+          );
           rememberGuest(data);
           applyItems(current, data.items ?? []);
         } catch {

@@ -1,18 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import Image from "next/image";
 import type { Product } from "@/types";
-import { AddToCartButton } from "./AddToCartButton";
+import { ProductPurchase } from "@/components/ProductPurchase";
+import { galleryFor, uniqueValues } from "@/lib/variants";
 
 function formatPrice(price: number) {
   return `Rs. ${price.toLocaleString()}`;
 }
 
 export function ProductDetail({ product }: { product: Product }) {
-  const photos = (product.images?.length ? product.images : [product.image]).filter(Boolean);
+  const [color, setColor] = useState(uniqueValues(product.variants ?? [], "color")[0] ?? "");
+  const photos = galleryFor(product, color);
   const [active, setActive] = useState(0);
   const current = photos[active] ?? photos[0];
+  const onColorChange = useCallback((next: string) => {
+    setColor((currentColor) => {
+      if (currentColor !== next) setActive(0);
+      return next;
+    });
+  }, []);
 
   return (
     <div className="grid grid-cols-1 items-start gap-10 md:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)] lg:gap-16">
@@ -24,6 +32,7 @@ export function ProductDetail({ product }: { product: Product }) {
             fill
             className="object-contain"
             priority
+            key={current}
             sizes="(max-width: 768px) 100vw, 60vw"
           />
         ) : null}
@@ -64,9 +73,7 @@ export function ProductDetail({ product }: { product: Product }) {
           </div>
         ) : null}
 
-        <div className="mt-6">
-          <AddToCartButton product={product} />
-        </div>
+        <ProductPurchase product={product} onColorChange={onColorChange} />
         <p className="mt-4 text-sm text-[var(--muted)]">Free shipping on orders above Rs. 2,500. Easy returns.</p>
       </div>
     </div>

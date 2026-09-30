@@ -4,8 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { saveCustomerSession } from "@/lib/customerSession";
 import { PasswordField } from "@/components/PasswordField";
+import { accountApi } from "@/store/accountApi";
 import { useSignupMutation } from "@/store/authApi";
 import { apiError } from "@/store/apiError";
+import { store } from "@/store/store";
 
 export function SignupForm() {
   const router = useRouter();
@@ -24,6 +26,7 @@ export function SignupForm() {
       const data = await signup({ name, email, password }).unwrap();
       if (data.token && data.user) {
         saveCustomerSession({ ...data.user, token: data.token });
+        store.dispatch(accountApi.util.resetApiState());
         router.push("/");
         router.refresh();
         return;

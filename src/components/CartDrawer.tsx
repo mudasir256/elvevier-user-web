@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
+import { galleryFor, lineStock } from "@/lib/variants";
 
 function formatPrice(price: number) {
   return `Rs. ${price.toLocaleString()}`;
@@ -64,14 +65,17 @@ export function CartDrawer() {
             </div>
           ) : (
             <ul className="space-y-4">
-              {items.map((item) => (
+              {items.map((item) => {
+                const stock = lineStock(item.product, item.size, item.color);
+                const atLimit = stock != null && item.quantity >= stock;
+                return (
                 <li
-                  key={`${item.product.id}-${item.size ?? ""}`}
+                  key={`${item.product.id}-${item.size ?? ""}-${item.color ?? ""}`}
                   className="flex gap-4 p-3 rounded-xl bg-[var(--background)] border border-[var(--border)]/50"
                 >
                   <div className="relative w-20 h-24 rounded-xl overflow-hidden bg-[var(--cream)] shrink-0">
                     <Image
-                      src={item.product.image}
+                      src={galleryFor(item.product, item.color)[0] || item.product.image}
                       alt={item.product.name}
                       fill
                       className="object-cover"
@@ -83,7 +87,7 @@ export function CartDrawer() {
                       {item.product.name}
                     </p>
                     <p className="text-xs text-[var(--muted)] mt-1">
-                      {item.product.color}
+                      {item.color || item.product.color}
                       {item.size && ` · ${item.size}`}
                     </p>
                     <p className="text-sm font-semibold mt-1.5">
@@ -93,7 +97,7 @@ export function CartDrawer() {
                       <button
                         type="button"
                         onClick={() =>
-                          updateQuantity(item.product.id, Math.max(0, item.quantity - 1))
+                          updateQuantity(item.product.id, Math.max(0, item.quantity - 1), item.size, item.color)
                         }
                         className="w-7 h-7 rounded-lg border border-[var(--border)] flex items-center justify-center text-sm hover:bg-[var(--cream)] transition-colors"
                       >
@@ -104,24 +108,32 @@ export function CartDrawer() {
                       </span>
                       <button
                         type="button"
-                        onClick={() =>
-                          updateQuantity(item.product.id, item.quantity + 1)
-                        }
-                        className="w-7 h-7 rounded-lg border border-[var(--border)] flex items-center justify-center text-sm hover:bg-[var(--cream)] transition-colors"
+                        disabled={atLimit}
+                        onClick={() => {
+                          if (atLimit) return;
+                          updateQuantity(item.product.id, item.quantity + 1, item.size, item.color);
+                        }}
+                        className="w-7 h-7 rounded-lg border border-[var(--border)] flex items-center justify-center text-sm hover:bg-[var(--cream)] transition-colors disabled:cursor-not-allowed disabled:opacity-40"
                       >
                         +
                       </button>
                       <button
                         type="button"
-                        onClick={() => removeFromCart(item.product.id)}
+                        onClick={() => removeFromCart(item.product.id, item.size, item.color)}
                         className="ml-auto text-xs text-[var(--muted)] hover:text-red-500 transition-colors"
                       >
                         Remove
                       </button>
                     </div>
+                    {stock === 0 ? (
+                      <p className="mt-1.5 text-xs text-red-700">Out of stock</p>
+                    ) : atLimit ? (
+                      <p className="mt-1.5 text-xs text-[#4a142a]">Only {stock} available</p>
+                    ) : null}
                   </div>
                 </li>
-              ))}
+                );
+              })}
             </ul>
           )}
         </div>

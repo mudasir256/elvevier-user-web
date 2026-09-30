@@ -6,6 +6,7 @@ export type CartLine = {
   product: Product;
   quantity: number;
   size?: string;
+  color?: string;
 };
 
 export type CartResponse = {
@@ -25,15 +26,15 @@ export const cartApi = createApi({
       query: () => "/cart",
       providesTags: ["Cart"],
     }),
-    addCartItem: builder.mutation<CartResponse, { productId: string; quantity: number; size: string }>({
+    addCartItem: builder.mutation<CartResponse, { productId: string; quantity: number; size: string; color: string }>({
       query: (body) => ({ url: "/cart", method: "POST", body }),
       invalidatesTags: ["Cart"],
     }),
-    updateCartItem: builder.mutation<CartResponse, { productId: string; quantity: number; size?: string }>({
+    updateCartItem: builder.mutation<CartResponse, { productId: string; quantity: number; size?: string; color?: string }>({
       query: (body) => ({ url: "/cart", method: "PATCH", body }),
       invalidatesTags: ["Cart"],
     }),
-    removeCartItem: builder.mutation<CartResponse, { productId: string }>({
+    removeCartItem: builder.mutation<CartResponse, { productId: string; size?: string; color?: string }>({
       query: (body) => ({ url: "/cart", method: "DELETE", body }),
       invalidatesTags: ["Cart"],
     }),

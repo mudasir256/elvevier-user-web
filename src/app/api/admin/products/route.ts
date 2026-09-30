@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { verifyAdmin, unauthorizedResponse } from "@/lib/auth";
 import { isCategoryId } from "@/data/productCategories";
-import { ensureCatalog, listProducts, slugify, collectImages } from "@/lib/catalog";
+import { ensureCatalog, listProducts, slugify, resolveProductPhotos } from "@/lib/catalog";
 import { getSupabase } from "@/lib/supabase";
+import { colorLabel, normalizeColorImages, normalizeVariants } from "@/lib/variants";
 
 function cleanProduct(body: Record<string, unknown>, existingSlug?: string) {
   const name = String(body.name ?? "").trim();
@@ -13,7 +14,8 @@ function cleanProduct(body: Record<string, unknown>, existingSlug?: string) {
   const subcategory = String(body.subcategory ?? "").trim();
   const color = String(body.color ?? "").trim();
   const description = String(body.description ?? "").trim();
-  const photos = collectImages(body);
+  const colorImages = normalizeColorImages(body.colorImages);
+  const photos = resolveProductPhotos(body, colorImages);
 
   if (!name || name.length > 120) return { error: "Enter a product name." as const };
   if (!Number.isFinite(price) || price <= 0) return { error: "Enter a valid price." as const };
@@ -22,6 +24,7 @@ function cleanProduct(body: Record<string, unknown>, existingSlug?: string) {
   }
   if (!isCategoryId(categoryId)) return { error: "Choose a category." as const };
   if ("error" in photos) return { error: photos.error };
+  const variants = normalizeVariants(body.variants);
 
   return {
     value: {
@@ -31,7 +34,9 @@ function cleanProduct(body: Record<string, unknown>, existingSlug?: string) {
       compare_at_price: compareAtPrice,
       category_id: categoryId,
       subcategory,
-      color: color || "—",
+      color: colorLabel(variants, color),
+      variants,
+      color_images: colorImages,
       image: photos.image,
       images: photos.images,
       description,

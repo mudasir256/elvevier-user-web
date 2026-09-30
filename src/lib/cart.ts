@@ -3,6 +3,7 @@ import type { Product } from "@/types";
 import { ensureCatalog } from "@/lib/catalog";
 import { getCustomer } from "@/lib/customerAuth";
 import { getSupabase } from "@/lib/supabase";
+import { findVariant, lineStock, normalizeColorImages, normalizeVariants } from "@/lib/variants";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -15,6 +16,8 @@ type ProductRow = {
   category_id: Product["categoryId"];
   subcategory: string;
   color: string;
+  variants?: unknown;
+  color_images?: unknown;
   image: string;
   images: string[] | null;
   description: string;
@@ -27,6 +30,7 @@ type ItemRow = {
   id: string;
   quantity: number;
   size: string;
+  color: string;
   product: ProductRow | ProductRow[] | null;
 };
 
@@ -34,6 +38,7 @@ export type StoredCartItem = {
   product: Product;
   quantity: number;
   size?: string;
+  color?: string;
 };
 
 function toProduct(row: ProductRow): Product {
@@ -48,6 +53,8 @@ function toProduct(row: ProductRow): Product {
     categoryId: row.category_id,
     subcategory: row.subcategory || undefined,
     color: row.color,
+    variants: normalizeVariants(row.variants),
+    colorImages: normalizeColorImages(row.color_images),
     image: images[0] || row.image,
     images,
     description: row.description || undefined,
@@ -73,23 +80,31 @@ async function readItems(cartId: string) {
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from("cart_items")
-    .select("id, quantity, size, product:products(*)")
+    .select("id, quantity, size, color, product:products(*)")
     .eq("cart_id", cartId)
     .order("created_at", { ascending: true });
   if (error) throw error;
 
   const rows = (data ?? []) as unknown as ItemRow[];
-  return rows.flatMap((row) => {
-    const product = oneProduct(row.product);
-    if (!product?.active) return [];
-    return [
-      {
-        product: toProduct(product),
-        quantity: row.quantity,
-        size: row.size || undefined,
-      },
-    ];
-  });
+  const items: StoredCartItem[] = [];
+  for (const row of rows) {
+    const productRow = oneProduct(row.product);
+    if (!productRow?.active) continue;
+    const product = toProduct(productRow);
+    const stock = lineStock(product, row.size, row.color);
+    let quantity = row.quantity;
+    if (stock != null && stock > 0 && quantity > stock) {
+      quantity = stock;
+      await supabase.from("cart_items").update({ quantity }).eq("id", row.id);
+    }
+    items.push({
+      product,
+      quantity,
+      size: row.size || undefined,
+      color: row.color || undefined,
+    });
+  }
+  return items;
 }
 
 async function findByGuest(guestToken: string) {
@@ -106,16 +121,18 @@ async function findByUser(userId: string) {
 
 async function moveItems(fromCartId: string, toCartId: string) {
   const supabase = getSupabase();
-  const { data, error } = await supabase.from("cart_items").select("product_id, quantity, size").eq("cart_id", fromCartId);
+  const { data, error } = await supabase.from("cart_items").select("product_id, quantity, size, color").eq("cart_id", fromCartId);
   if (error) throw error;
   for (const row of data ?? []) {
     const size = String(row.size ?? "");
+    const color = String(row.color ?? "");
     const { data: existing, error: existingError } = await supabase
       .from("cart_items")
       .select("id, quantity")
       .eq("cart_id", toCartId)
       .eq("product_id", row.product_id)
       .eq("size", size)
+      .eq("color", color)
       .maybeSingle();
     if (existingError) throw existingError;
     if (existing) {
@@ -130,6 +147,7 @@ async function moveItems(fromCartId: string, toCartId: string) {
         product_id: row.product_id,
         quantity: Math.min(20, row.quantity),
         size,
+        color,
       });
       if (insertError) throw insertError;
     }
@@ -225,35 +243,44 @@ export async function addCartItem(
   guestToken: string | null,
   productId: string,
   quantity: number,
-  size: string
+  size: string,
+  color: string
 ) {
   await ensureCatalog();
   const supabase = getSupabase();
   const { data: product, error: productError } = await supabase
     .from("products")
-    .select("id")
+    .select("id, name, variants")
     .eq("id", productId)
     .eq("active", true)
     .maybeSingle();
   if (productError) throw productError;
   if (!product) return { error: "That product is no longer available." as const };
 
+  const variants = normalizeVariants(product.variants);
   const cart = await openCart(userId, guestToken);
-  const qty = Math.min(20, Math.max(1, Math.floor(quantity) || 1));
+  let qty = Math.min(20, Math.max(1, Math.floor(quantity) || 1));
+  if (variants.length) {
+    const match = findVariant(variants, size, color);
+    if (!match) return { error: "Choose an available size and color." as const };
+    if (match.stock < 1) return { error: "That option is out of stock." as const };
+    qty = Math.min(qty, match.stock);
+  }
   const { data: existing, error: existingError } = await supabase
     .from("cart_items")
     .select("id, quantity")
     .eq("cart_id", cart.cartId)
     .eq("product_id", productId)
     .eq("size", size)
+    .eq("color", color)
     .maybeSingle();
   if (existingError) throw existingError;
 
   if (existing) {
-    const { error } = await supabase
-      .from("cart_items")
-      .update({ quantity: Math.min(20, existing.quantity + qty) })
-      .eq("id", existing.id);
+    const next = Math.min(20, existing.quantity + qty);
+    const capped = variants.length ? Math.min(next, findVariant(variants, size, color)?.stock ?? next) : next;
+    if (capped <= existing.quantity) return { error: "There is no more stock for that option." as const };
+    const { error } = await supabase.from("cart_items").update({ quantity: capped }).eq("id", existing.id);
     if (error) throw error;
   } else {
     const { error } = await supabase.from("cart_items").insert({
@@ -261,6 +288,7 @@ export async function addCartItem(
       product_id: productId,
       quantity: qty,
       size,
+      color,
     });
     if (error) throw error;
   }
@@ -274,7 +302,8 @@ export async function updateCartItem(
   guestToken: string | null,
   productId: string,
   quantity: number,
-  size: string
+  size: string,
+  color: string
 ) {
   await ensureCatalog();
   const cart = await openCart(userId, guestToken);
@@ -282,27 +311,46 @@ export async function updateCartItem(
 
   const supabase = getSupabase();
   if (quantity <= 0) {
-    let query = supabase.from("cart_items").delete().eq("cart_id", cartId).eq("product_id", productId);
-    if (size) query = query.eq("size", size);
-    const { error } = await query;
+    const { error } = await supabase.from("cart_items").delete().eq("cart_id", cartId).eq("product_id", productId).eq("size", size).eq("color", color);
     if (error) throw error;
   } else {
-    const qty = Math.min(20, Math.floor(quantity));
-    let query = supabase.from("cart_items").update({ quantity: qty }).eq("cart_id", cartId).eq("product_id", productId);
-    if (size) query = query.eq("size", size);
-    const { error } = await query;
-    if (error) throw error;
+    const { data: product, error: productError } = await supabase.from("products").select("variants").eq("id", productId).maybeSingle();
+    if (productError) throw productError;
+    const variants = normalizeVariants(product?.variants);
+    let qty = Math.min(20, Math.floor(quantity));
+    if (variants.length) qty = Math.min(qty, findVariant(variants, size, color)?.stock ?? 0);
+    if (qty < 1) return { error: "That option is out of stock." as const, items: await readItems(cartId), guestToken: cart.guestToken };
+    const { error: updateError } = await supabase
+      .from("cart_items")
+      .update({ quantity: qty })
+      .eq("cart_id", cartId)
+      .eq("product_id", productId)
+      .eq("size", size)
+      .eq("color", color);
+    if (updateError) throw updateError;
   }
 
   await touchCart(cartId);
   return { items: await readItems(cartId), guestToken: cart.guestToken };
 }
 
-export async function removeCartItem(userId: string | null, guestToken: string | null, productId: string) {
+export async function removeCartItem(
+  userId: string | null,
+  guestToken: string | null,
+  productId: string,
+  size = "",
+  color = ""
+) {
   await ensureCatalog();
   const cart = guestToken || userId ? await openCart(userId, guestToken) : null;
   if (!cart) return [] as StoredCartItem[];
-  const { error } = await getSupabase().from("cart_items").delete().eq("cart_id", cart.cartId).eq("product_id", productId);
+  const { error } = await getSupabase()
+    .from("cart_items")
+    .delete()
+    .eq("cart_id", cart.cartId)
+    .eq("product_id", productId)
+    .eq("size", size)
+    .eq("color", color);
   if (error) throw error;
   await touchCart(cart.cartId);
   return readItems(cart.cartId);

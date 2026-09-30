@@ -5,8 +5,8 @@ import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "@/types";
-import { useCart } from "@/context/CartContext";
-import { flyProductToCart } from "@/lib/flyToCart";
+import { ProductPurchase } from "@/components/ProductPurchase";
+import { galleryFor, uniqueValues } from "@/lib/variants";
 
 function formatPrice(price: number) {
   return `Rs. ${price.toLocaleString()}`;
@@ -14,9 +14,15 @@ function formatPrice(price: number) {
 
 export function ProductQuickView({ product, onClose }: { product: Product; onClose: () => void }) {
   const titleId = useId();
-  const { addToCart } = useCart();
-  const photos = (product.images?.length ? product.images : [product.image]).filter(Boolean);
+  const [color, setColor] = useState(uniqueValues(product.variants ?? [], "color")[0] ?? "");
+  const photos = galleryFor(product, color);
   const [active, setActive] = useState(0);
+  const onColorChange = useCallback((next: string) => {
+    setColor((currentColor) => {
+      if (currentColor !== next) setActive(0);
+      return next;
+    });
+  }, []);
   const [closing, setClosing] = useState(false);
   const closingRef = useRef(false);
   const current = photos[active] ?? photos[0];
@@ -85,7 +91,7 @@ export function ProductQuickView({ product, onClose }: { product: Product; onClo
         <div className="bg-[#e4e4e4] p-4 sm:p-6" style={{ backgroundColor: "#e4e4e4" }}>
           <div className="relative aspect-square overflow-hidden rounded-[1.2rem] bg-[#e4e4e4]" style={{ backgroundColor: "#e4e4e4" }}>
             {current ? (
-              <Image src={current} alt={product.name} fill className="object-contain" sizes="(max-width: 768px) 100vw, 56vw" style={{ backgroundColor: "#e4e4e4" }} />
+              <Image key={current} src={current} alt={product.name} fill className="object-contain" sizes="(max-width: 768px) 100vw, 56vw" style={{ backgroundColor: "#e4e4e4" }} />
             ) : null}
             {product.new ? (
               <span className="absolute top-3 left-3 rounded-full bg-[#f4e6ec] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#4a142a]">
@@ -143,18 +149,8 @@ export function ProductQuickView({ product, onClose }: { product: Product; onClo
             </div>
           ) : null}
 
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <button
-              type="button"
-              onClick={(event) => {
-                addToCart(product);
-                flyProductToCart(event.currentTarget, product.image);
-                requestClose();
-              }}
-              className="rounded-full bg-[#4a142a] px-6 py-3 text-sm font-medium text-white hover:bg-[#350e1e]"
-            >
-              Add to cart
-            </button>
+          <ProductPurchase product={product} onAdded={requestClose} onColorChange={onColorChange} />
+          <div className="mt-3 flex flex-col gap-3 sm:flex-row">
             <Link
               href={`/product/${product.slug}`}
               className="rounded-full bg-[#f4e6ec] px-6 py-3 text-center text-sm font-medium text-[#4a142a] hover:bg-[#ead3dc]"

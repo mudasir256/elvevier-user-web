@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { verifyAdmin, unauthorizedResponse } from "@/lib/auth";
 import { isCategoryId } from "@/data/productCategories";
-import { collectImages } from "@/lib/catalog";
+import { resolveProductPhotos } from "@/lib/catalog";
 import { getSupabase } from "@/lib/supabase";
+import { colorLabel, normalizeColorImages, normalizeVariants } from "@/lib/variants";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -21,7 +22,8 @@ export async function PATCH(request: Request, { params }: Params) {
     const compareRaw = body.compareAtPrice;
     const compareAtPrice = compareRaw === "" || compareRaw == null ? null : Number(compareRaw);
     const categoryId = String(body.categoryId ?? "");
-    const photos = collectImages(body);
+    const colorImages = normalizeColorImages(body.colorImages);
+    const photos = resolveProductPhotos(body, colorImages);
 
     if (!name || name.length > 120) {
       return NextResponse.json({ error: "Enter a product name." }, { status: 400 });
@@ -38,6 +40,8 @@ export async function PATCH(request: Request, { params }: Params) {
     if ("error" in photos) {
       return NextResponse.json({ error: photos.error }, { status: 400 });
     }
+    const variants = normalizeVariants(body.variants);
+    const color = colorLabel(variants, String(body.color ?? ""));
 
     const supabase = getSupabase();
     const { error } = await supabase
@@ -48,7 +52,9 @@ export async function PATCH(request: Request, { params }: Params) {
         compare_at_price: compareAtPrice,
         category_id: categoryId,
         subcategory: String(body.subcategory ?? "").trim(),
-        color: String(body.color ?? "").trim() || "—",
+        color,
+        variants,
+        color_images: colorImages,
         image: photos.image,
         images: photos.images,
         description: String(body.description ?? "").trim(),

@@ -2,8 +2,10 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 import { customerBaseQuery } from "./baseQuery";
 
 interface OrderItem {
+  productId?: string;
   name: string;
   variant: string;
+  color?: string;
   price: number;
   quantity: number;
   image?: string;

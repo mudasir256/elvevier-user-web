@@ -9,7 +9,7 @@ import {
   updateCartItem,
 } from "@/lib/cart";
 
-function cleanSize(value: unknown) {
+function cleanLabel(value: unknown) {
   return String(value ?? "").trim().slice(0, 40);
 }
 
@@ -36,7 +36,8 @@ export async function POST(request: Request) {
       owner.guestToken,
       productId,
       Number(body?.quantity) || 1,
-      cleanSize(body?.size)
+      cleanLabel(body?.size),
+      cleanLabel(body?.color)
     );
     if ("error" in result) {
       return NextResponse.json({ error: result.error }, { status: 400 });
@@ -60,8 +61,12 @@ export async function PATCH(request: Request) {
       owner.guestToken,
       productId,
       Number(body?.quantity),
-      cleanSize(body?.size)
+      cleanLabel(body?.size),
+      cleanLabel(body?.color)
     );
+    if ("error" in result && result.error) {
+      return NextResponse.json({ error: result.error }, { status: 400 });
+    }
     return cartResponse(result.items, result.guestToken);
   } catch {
     return NextResponse.json({ error: "Could not update your cart." }, { status: 500 });
@@ -77,7 +82,13 @@ export async function DELETE(request: Request) {
       await clearCartItems(owner.userId, owner.guestToken);
       return cartResponse([], owner.userId ? null : owner.guestToken);
     }
-    const items = await removeCartItem(owner.userId, owner.guestToken, productId);
+    const items = await removeCartItem(
+      owner.userId,
+      owner.guestToken,
+      productId,
+      cleanLabel(body?.size),
+      cleanLabel(body?.color)
+    );
     return cartResponse(items, owner.userId ? null : owner.guestToken);
   } catch {
     return NextResponse.json({ error: "Could not update your cart." }, { status: 500 });

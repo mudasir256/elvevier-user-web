@@ -36,6 +36,7 @@ type SnapshotLine = {
   };
   quantity: number;
   size?: string;
+  color?: string;
 };
 
 export function slimCartSnapshot(items: SnapshotLine[]) {
@@ -53,6 +54,7 @@ export function slimCartSnapshot(items: SnapshotLine[]) {
       },
       quantity: Math.min(20, item.quantity),
       size: item.size || "",
+      color: item.color || "",
     }));
 }
 

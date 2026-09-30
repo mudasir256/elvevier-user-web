@@ -1,5 +1,5 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import type { Product } from "@/types";
+import type { ColorGallery, Product, ProductVariant } from "@/types";
 import { adminBaseQuery } from "./baseQuery";
 
 export type AdminSession = {
@@ -19,6 +19,8 @@ export type ProductPayload = {
   categoryId: string;
   subcategory: string;
   color: string;
+  variants: ProductVariant[];
+  colorImages: ColorGallery[];
   description: string;
   image: string;
   images: string[];
