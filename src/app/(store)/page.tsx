@@ -1,13 +1,13 @@
 import Link from "next/link";
-import Image from "next/image";
 import { HeroSlider } from "@/components/HeroSlider";
 import { ProductCard } from "@/components/ProductCard";
 import { Reels } from "@/components/Reels";
 import { BlogCard } from "@/components/BlogCard";
 import { ShopByStyle } from "@/components/ShopByStyle";
+import { WhyChooseUs } from "@/components/WhyChooseUs";
+import { AboutUs } from "@/components/AboutUs";
 import { blogs } from "@/data/blogs";
 import { getActiveProducts } from "@/lib/catalog";
-import { assets } from "@/data/assets";
 import type { Product } from "@/types";
 
 const styleCategories: {
@@ -60,36 +60,13 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <div className="bg-[#F9F7F5]">
       <ShopByStyle categories={styles} />
 
-      <Reels />
+      <WhyChooseUs />
+      <AboutUs />
 
-      <section className="relative h-[50vh] md:h-[60vh] overflow-hidden">
-        <Image
-          src={assets.fashion}
-          alt="Empulse lifestyle"
-          fill
-          className="object-cover"
-          sizes="100vw"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-[var(--foreground)]/50 to-transparent" />
-        <div className="absolute inset-0 flex items-center">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
-            <div className="max-w-lg animate-fade-up">
-              <p className="text-sm uppercase tracking-[0.2em] text-[var(--cream)]/80 mb-3">The Empulse Way</p>
-              <h2 className="section-heading text-3xl md:text-5xl font-semibold text-[var(--cream)] leading-tight">
-                Fashion that feels like home
-              </h2>
-              <Link href="/about" className="mt-6 inline-flex items-center gap-2 text-[var(--cream)] font-medium hover:gap-3 transition-all duration-300">
-                Our story
-                <svg className="w-4 h-4 text-[#4a142a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      <Reels />
 
       <section className="mx-auto max-w-[90rem] px-4 py-16 sm:px-6 md:py-20">
         <div className="mb-10 flex items-end justify-between">
@@ -113,6 +90,7 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
+      </div>
     </div>
   );
 }
