@@ -35,19 +35,19 @@ export default async function BlogPostPage({ params }: Props) {
         <span className="mx-2">/</span>
         <span>{post.category}</span>
       </p>
-      <h1 className="section-heading mt-4 text-4xl font-semibold leading-tight md:text-5xl">{post.title}</h1>
+      <h1 className="section-heading mt-4">{post.title}</h1>
       <p className="mt-3 text-sm text-[var(--muted)]">{formatBlogDate(post.date)}</p>
       <div className="relative mt-8 aspect-[4/5] overflow-hidden rounded-[1.6rem] bg-[#f4e6ec] sm:aspect-[5/4]">
         <Image src={post.image} alt={post.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 768px" priority />
       </div>
-      <div className="mt-8 space-y-5 text-base leading-8 text-[var(--foreground)]">
+      <div className="type-copy mt-8 space-y-5 text-[var(--foreground)]">
         {post.paragraphs.map((paragraph) => (
           <p key={paragraph}>{paragraph}</p>
         ))}
       </div>
       {more.length > 0 && (
         <div className="mt-14 border-t border-[var(--border)] pt-8">
-          <h2 className="font-serif text-2xl font-semibold">More from the journal</h2>
+          <h2 className="section-heading">More from the journal</h2>
           <ul className="mt-4 space-y-3">
             {more.map((item) => (
               <li key={item.slug}>

@@ -4,12 +4,12 @@ export function AboutUs() {
   return (
     <section className="py-16 md:py-20" aria-label="About us">
       <div className="mx-auto max-w-2xl px-4 text-center sm:px-6">
-        <p className="mb-2 text-xs font-medium uppercase tracking-[0.28em] text-[#4a142a]">About us</p>
-        <h2 className="section-heading text-3xl font-semibold md:text-5xl">Fashion that feels like home</h2>
-        <p className="mt-5 text-base leading-7 text-[var(--muted)]">
+        <p className="eyebrow mb-2">About us</p>
+        <h2 className="section-heading">Fashion that feels like home</h2>
+        <p className="type-copy mt-5 text-[var(--muted)]">
           Empulse is built around one idea: cozy, always. From Lahore, we bring original clothing, shoes, and everyday layers for men and women, chosen so they feel good and last.
         </p>
-        <p className="mt-4 text-base leading-7 text-[var(--muted)]">
+        <p className="type-copy mt-4 text-[var(--muted)]">
           Timeless pieces, seasonal drops, and a store that lets you check your order before you pay. Style should be easy, and it should feel like yours.
         </p>
         <Link href="/about" className="btn-primary mt-8">

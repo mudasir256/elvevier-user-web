@@ -12,9 +12,9 @@ export default function BlogsPage() {
   return (
     <div className="mx-auto max-w-[90rem] px-4 py-12 sm:px-6 md:py-16">
       <div className="mb-10 max-w-2xl">
-        <p className="mb-2 text-sm font-medium uppercase tracking-[0.2em] text-[var(--accent)]">The journal</p>
-        <h1 className="section-heading text-4xl font-semibold md:text-5xl">Blogs</h1>
-        <p className="mt-3 text-[var(--muted)]">
+        <p className="eyebrow mb-2">The journal</p>
+        <h1 className="section-heading">Blogs</h1>
+        <p className="type-copy mt-3 text-[var(--muted)]">
           Short notes on how to wear the clothes already in the shop.
         </p>
       </div>

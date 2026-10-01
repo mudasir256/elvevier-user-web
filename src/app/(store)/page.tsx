@@ -36,12 +36,14 @@ export default async function HomePage() {
     <div className="grain-overlay">
       <HeroSlider />
 
+      <ShopByStyle categories={styles} />
+
       {/* New Arrivals */}
-      <section className="max-w-[90rem] mx-auto px-4 sm:px-6 pt-16 pb-6 md:pt-20">
+      <section className="max-w-[90rem] mx-auto px-4 sm:px-6 pt-4 pb-16 md:pb-20">
         <div className="flex items-end justify-between mb-10 animate-fade-up">
           <div>
-            <p className="text-sm uppercase tracking-[0.2em] text-[var(--accent)] font-medium mb-2">Just Dropped</p>
-            <h2 className="section-heading text-3xl md:text-4xl font-semibold">New Arrivals</h2>
+            <p className="eyebrow mb-2">Just Dropped</p>
+            <h2 className="section-heading">New Arrivals</h2>
           </div>
           <Link
             href="/women?filter=new"
@@ -61,8 +63,6 @@ export default async function HomePage() {
       </section>
 
       <div className="bg-[#F9F7F5]">
-      <ShopByStyle categories={styles} />
-
       <WhyChooseUs />
       <AboutUs />
 
@@ -71,8 +71,8 @@ export default async function HomePage() {
       <section className="mx-auto max-w-[90rem] px-4 py-16 sm:px-6 md:py-20">
         <div className="mb-10 flex items-end justify-between">
           <div>
-            <p className="mb-2 text-sm font-medium uppercase tracking-[0.2em] text-[var(--accent)]">The journal</p>
-            <h2 className="section-heading text-3xl font-semibold md:text-4xl">Blogs</h2>
+            <p className="eyebrow mb-2">The journal</p>
+            <h2 className="section-heading">Blogs</h2>
           </div>
           <Link
             href="/blog"

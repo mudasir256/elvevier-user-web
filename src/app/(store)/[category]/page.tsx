@@ -55,7 +55,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
     return (
       <div className="max-w-[90rem] mx-auto px-4 sm:px-6 py-10">
         <div className="mb-8 animate-fade-up">
-          <h1 className="font-serif text-3xl md:text-4xl font-semibold">{style.heading}</h1>
+          <h1 className="section-heading">{style.heading}</h1>
           <div className="mt-6 flex flex-wrap gap-2">
             <Link href={style.men} className="rounded-full border border-[var(--border)] bg-[var(--card)] px-5 py-2 text-sm font-medium hover:border-[#4a142a] hover:text-[#4a142a]">
               Men
@@ -66,7 +66,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           </div>
         </div>
         {list.length === 0 ? (
-          <p className="py-12 text-center text-[var(--muted)]">
+          <p className="type-copy py-12 text-center text-[var(--muted)]">
             No products in this category yet.{" "}
             <Link href="/" className="text-[var(--accent)] hover:underline">
               Back to home
@@ -123,11 +123,11 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   return (
     <div className="max-w-[90rem] mx-auto px-4 sm:px-6 py-10">
       <div className="mb-8 animate-fade-up">
-        <h1 className="font-serif text-3xl md:text-4xl font-semibold capitalize">
+        <h1 className="section-heading capitalize">
           {heading}
         </h1>
         {category.description && (
-          <p className="mt-2 text-[var(--muted)]">{category.description}</p>
+          <p className="type-copy mt-2 text-[var(--muted)]">{category.description}</p>
         )}
         {gender && (
           <GenderShopNav gender={gender} active={(typeInfo ? typeKey : "all") as GenderShopType} />
@@ -144,7 +144,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         )}
       </div>
       {list.length === 0 ? (
-        <p className="text-[var(--muted)] py-12 text-center">
+        <p className="type-copy py-12 text-center text-[var(--muted)]">
           No products in this category yet.{" "}
           <Link href="/" className="text-[var(--accent)] hover:underline">
             Back to home

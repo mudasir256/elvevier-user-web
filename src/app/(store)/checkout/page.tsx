@@ -135,8 +135,8 @@ export default function CheckoutPage() {
   if (items.length === 0 && !placed) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-20 text-center">
-        <h1 className="font-serif text-3xl font-semibold">Your cart is empty</h1>
-        <p className="mt-2 text-[var(--muted)]">
+        <h1 className="section-heading">Your cart is empty</h1>
+        <p className="type-copy mt-2 text-[var(--muted)]">
           Add items to your cart to checkout.
         </p>
         <Link
@@ -157,8 +157,8 @@ export default function CheckoutPage() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h1 className="font-serif text-3xl font-semibold">Order placed</h1>
-        <p className="mt-2 text-[var(--muted)]">
+        <h1 className="section-heading">Order placed</h1>
+        <p className="type-copy mt-2 text-[var(--muted)]">
           Thank you. We&apos;ll send a confirmation to your email shortly.
         </p>
         {orderId && (
@@ -193,14 +193,14 @@ export default function CheckoutPage() {
         <span className="mx-1">/</span>
         <span className="text-[var(--foreground)]">Checkout</span>
       </nav>
-      <h1 className="font-serif text-3xl font-semibold mb-8 animate-fade-up">Checkout</h1>
+      <h1 className="section-heading mb-8 animate-fade-up">Checkout</h1>
 
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
           <div className="lg:col-span-3 space-y-8 animate-fade-up animation-delay-100">
             {/* Contact */}
             <section className="bg-[var(--card)] rounded-2xl p-6 border border-[var(--border)]">
-              <h2 className="font-semibold text-lg mb-4">Contact</h2>
+              <h2 className="section-heading mb-4">Contact</h2>
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-[var(--foreground)] mb-1">Email</label>
                 <input
@@ -234,7 +234,7 @@ export default function CheckoutPage() {
 
             {/* Delivery address */}
             <section className="bg-[var(--card)] rounded-2xl p-6 border border-[var(--border)]">
-              <h2 className="font-semibold text-lg mb-4">Delivery address</h2>
+              <h2 className="section-heading mb-4">Delivery address</h2>
               <div className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
@@ -279,7 +279,7 @@ export default function CheckoutPage() {
 
             {/* Billing address */}
             <section className="bg-[var(--card)] rounded-2xl p-6 border border-[var(--border)]">
-              <h2 className="font-semibold text-lg mb-4">Billing address</h2>
+              <h2 className="section-heading mb-4">Billing address</h2>
               <label className="flex items-center gap-2 cursor-pointer mb-4">
                 <input
                   type="checkbox"
@@ -321,7 +321,7 @@ export default function CheckoutPage() {
 
             {/* Payment method & card details */}
             <section className="bg-[var(--card)] rounded-2xl p-6 border border-[var(--border)]">
-              <h2 className="font-semibold text-lg mb-4">Payment</h2>
+              <h2 className="section-heading mb-4">Payment</h2>
               <div className="space-y-4">
                 <div className="flex gap-4">
                   <label className={`flex-1 flex items-center justify-center gap-2 p-4 rounded-xl border-2 cursor-pointer transition ${paymentMethod === "card" ? "border-[var(--accent)] bg-[var(--accent)]/5 text-[var(--accent)]" : "border-[var(--border)] hover:border-[var(--muted)]"}`}>
@@ -398,7 +398,7 @@ export default function CheckoutPage() {
           {/* Order summary + Pay now */}
           <div className="lg:col-span-2">
             <div className="sticky top-24 bg-[var(--card)] rounded-2xl p-6 border border-[var(--border)] animate-fade-up animation-delay-200">
-              <h2 className="font-semibold text-lg mb-4">Order summary</h2>
+              <h2 className="section-heading mb-4">Order summary</h2>
               <ul className="space-y-4 max-h-56 overflow-y-auto">
                 {items.map((item) => (
                   <li key={`${item.product.id}-${item.size ?? ""}-${item.color ?? ""}`} className="flex gap-3 border-b border-[var(--border)] pb-4 last:border-0">

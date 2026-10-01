@@ -40,7 +40,7 @@ export default async function ProductPage({ params }: Props) {
 
       {related.length > 0 && (
         <section className="mt-20 pt-16 border-t border-[var(--border)]">
-          <h2 className="font-serif text-2xl font-semibold mb-8">
+          <h2 className="section-heading mb-8">
             You might also like
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">

@@ -45,14 +45,14 @@ export function ProductDetail({ product }: { product: Product }) {
 
       <div>
         <p className="text-sm uppercase tracking-wider text-[var(--muted)]">{product.color}</p>
-        <h1 className="mt-2 font-serif text-3xl font-semibold md:text-4xl">{product.name}</h1>
+        <h1 className="section-heading mt-2">{product.name}</h1>
         <div className="mt-4 flex items-baseline gap-3">
           <span className="text-xl font-semibold">{formatPrice(product.price)}</span>
           {product.compareAtPrice ? (
             <span className="text-[var(--muted)] line-through">{formatPrice(product.compareAtPrice)}</span>
           ) : null}
         </div>
-        {product.description ? <p className="mt-6 text-[var(--muted)]">{product.description}</p> : null}
+        {product.description ? <p className="type-copy mt-6 text-[var(--muted)]">{product.description}</p> : null}
 
         {photos.length > 1 ? (
           <div className="mt-8 flex gap-3 overflow-x-auto pb-3">
@@ -74,7 +74,7 @@ export function ProductDetail({ product }: { product: Product }) {
         ) : null}
 
         <ProductPurchase product={product} onColorChange={onColorChange} />
-        <p className="mt-4 text-sm text-[var(--muted)]">Free shipping on orders above Rs. 2,500. Easy returns.</p>
+        <p className="type-copy mt-4 text-[var(--muted)]">Free shipping on orders above Rs. 2,500. Easy returns.</p>
       </div>
     </div>
   );

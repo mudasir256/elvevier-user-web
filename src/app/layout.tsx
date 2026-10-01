@@ -1,22 +1,16 @@
 import type { Metadata } from "next";
 import { cookies, headers } from "next/headers";
-import { DM_Sans, Cormorant_Garamond } from "next/font/google";
+import { Poppins } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { CartProvider, type CartItem } from "@/context/CartContext";
 import { readCartCookie } from "@/lib/cartToken";
 import { ReduxProvider } from "@/store/ReduxProvider";
 
-const dmSans = DM_Sans({
-  variable: "--font-dm-sans",
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
-  weight: "variable",
-});
-
-const cormorant = Cormorant_Garamond({
-  variable: "--font-cormorant",
-  subsets: ["latin"],
-  weight: "variable",
+  weight: ["400", "500", "600", "700"],
 });
 
 const siteTitle = "Empulse – Fashion that feels like home";
@@ -77,7 +71,7 @@ export default async function RootLayout({
   const initialItems = readCartCookie(cookieStore.get("empulse_cart_items")?.value) as CartItem[];
 
   return (
-    <html lang="en" className={`${dmSans.variable} ${cormorant.variable}`} suppressHydrationWarning>
+    <html lang="en" className={poppins.variable} suppressHydrationWarning>
       <body className="antialiased min-h-screen flex flex-col" suppressHydrationWarning>
         <Script id="strip-bis" strategy="beforeInteractive">{`
           (function(){

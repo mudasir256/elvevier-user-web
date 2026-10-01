@@ -30,8 +30,8 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-20 text-center">
-        <h1 className="font-serif text-3xl font-semibold">Your cart is empty</h1>
-        <p className="mt-2 text-[var(--muted)]">
+        <h1 className="section-heading">Your cart is empty</h1>
+        <p className="type-copy mt-2 text-[var(--muted)]">
           Add something cozy from our collection.
         </p>
         <Link
@@ -46,7 +46,7 @@ export default function CartPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
-      <h1 className="font-serif text-3xl font-semibold mb-8">Shopping Cart</h1>
+      <h1 className="section-heading mb-8">Shopping Cart</h1>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         <div className="lg:col-span-2">
           <ul className="space-y-6">
@@ -129,7 +129,7 @@ export default function CartPage() {
         </div>
         <div>
           <div className="sticky top-24 bg-[var(--cream)] rounded-2xl p-6 border border-[var(--border)]">
-            <h2 className="font-semibold text-lg">Order summary</h2>
+            <h2 className="section-heading">Order summary</h2>
             <div className="mt-4 space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-[var(--muted)]">Subtotal ({itemCount} items)</span>

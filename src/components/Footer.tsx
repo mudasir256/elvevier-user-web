@@ -42,7 +42,7 @@ export function Footer() {
                 unoptimized
               />
             </Link>
-            <p className="mt-5 text-sm text-[var(--muted)] max-w-xs leading-relaxed">
+            <p className="type-copy mt-5 max-w-xs text-[var(--cream)]/70">
               Cozy fashion for everyone. Quality clothing, shoes and accessories
               crafted with care for men, women and kids.
             </p>

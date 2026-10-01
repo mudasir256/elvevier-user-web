@@ -147,14 +147,14 @@ export function AccountView() {
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12 md:py-16 space-y-8">
       <div>
-        <p className="text-sm uppercase tracking-[0.2em] text-[var(--accent)] font-medium mb-2">Your account</p>
-        <h1 className="section-heading text-3xl md:text-4xl font-semibold">Profile</h1>
+        <p className="eyebrow mb-2">Your account</p>
+        <h1 className="section-heading">Profile</h1>
         <p className="text-sm text-[var(--muted)] mt-2">{email}</p>
       </div>
 
       <section className="card-warm p-6 md:p-8">
-        <h2 className="text-lg font-semibold mb-1">Delivery details</h2>
-        <p className="text-sm text-[var(--muted)] mb-4">These details fill in automatically at checkout.</p>
+        <h2 className="section-heading mb-1">Delivery details</h2>
+        <p className="type-copy mb-4 text-[var(--muted)]">These details fill in automatically at checkout.</p>
         <form className="space-y-4" onSubmit={saveDetails}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -203,7 +203,7 @@ export function AccountView() {
       </section>
 
       <section className="card-warm p-6 md:p-8">
-        <h2 className="text-lg font-semibold mb-4">Password</h2>
+        <h2 className="section-heading mb-4">Password</h2>
         <form className="space-y-4" onSubmit={savePassword}>
           <div>
             <label htmlFor="current-password" className="block text-sm font-medium mb-1.5">Current password</label>
@@ -237,10 +237,10 @@ export function AccountView() {
       </section>
 
       <section>
-        <h2 className="text-lg font-semibold mb-4">Order history</h2>
+        <h2 className="section-heading mb-4">Order history</h2>
         {orders.length === 0 ? (
           <div className="card-warm p-8 text-center">
-            <p className="text-sm text-[var(--muted)]">You have not placed an order yet.</p>
+            <p className="type-copy text-[var(--muted)]">You have not placed an order yet.</p>
             <Link href="/" className="inline-block mt-4 text-sm font-medium text-[var(--accent)]">Continue shopping</Link>
           </div>
         ) : (

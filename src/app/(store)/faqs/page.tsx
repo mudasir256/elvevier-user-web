@@ -47,11 +47,11 @@ export default function FAQsPage() {
       {/* Header */}
       <section className="bg-[#f4e6ec] py-16 md:py-20 border-b border-[#e7d0da]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <p className="text-sm uppercase tracking-[0.25em] text-[var(--accent)] font-medium mb-3 animate-fade-down">Help Center</p>
-          <h1 className="section-heading text-4xl md:text-5xl font-semibold animate-fade-up">
+          <p className="eyebrow mb-3 animate-fade-down">Help Center</p>
+          <h1 className="section-heading animate-fade-up">
             Frequently Asked Questions
           </h1>
-          <p className="text-[var(--muted)] mt-4 animate-fade-up animation-delay-100">
+          <p className="type-copy mt-4 text-[var(--muted)] animate-fade-up animation-delay-100">
             Can&apos;t find what you need?{" "}
             <Link href="/contact" className="text-[var(--accent)] font-medium hover:text-[var(--accent-hover)] transition-colors">
               Contact us
@@ -74,8 +74,8 @@ export default function FAQsPage() {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-medium text-[var(--foreground)] mb-2">{faq.q}</h3>
-                  <p className="text-sm text-[var(--muted)] leading-relaxed">{faq.a}</p>
+                  <h3 className="section-heading mb-2 text-[var(--foreground)]">{faq.q}</h3>
+                  <p className="type-copy text-[var(--muted)]">{faq.a}</p>
                 </div>
               </div>
             </div>
@@ -83,7 +83,7 @@ export default function FAQsPage() {
         </div>
 
         <div className="mt-14 text-center animate-fade-up">
-          <p className="text-[var(--muted)] text-sm mb-5">Still have questions?</p>
+          <p className="type-copy mb-5 text-[var(--muted)]">Still have questions?</p>
           <Link href="/contact" className="btn-outline">
             Contact Us
             <svg className="w-4 h-4 text-[#4a142a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">

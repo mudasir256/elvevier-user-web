@@ -12,11 +12,11 @@ export default function LoginPage() {
     <div className="min-h-[80vh] flex items-center justify-center px-4 sm:px-6 py-16 bg-warm-radial">
       <div className="w-full max-w-md">
         <div className="text-center mb-8 animate-fade-up">
-          <p className="text-sm uppercase tracking-[0.2em] text-[var(--accent)] font-medium mb-3">Welcome Back</p>
-          <h1 className="section-heading text-3xl md:text-4xl font-semibold">
+          <p className="eyebrow mb-3">Welcome Back</p>
+          <h1 className="section-heading">
             Sign In
           </h1>
-          <p className="text-[var(--muted)] mt-2 text-sm">
+          <p className="type-copy mt-2 text-[var(--muted)]">
             Track orders and save your favourites.
           </p>
         </div>
@@ -25,7 +25,7 @@ export default function LoginPage() {
           <LoginForm />
         </div>
 
-        <p className="mt-8 text-center text-[var(--muted)] text-sm animate-fade-up animation-delay-200">
+        <p className="type-copy mt-8 text-center text-[var(--muted)] animate-fade-up animation-delay-200">
           Don&apos;t have an account?{" "}
           <Link href="/signup" className="text-[var(--accent)] font-medium hover:text-[var(--accent-hover)] transition-colors">
             Create one

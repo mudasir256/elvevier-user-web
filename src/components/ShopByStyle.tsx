@@ -49,8 +49,8 @@ export function ShopByStyle({ categories }: { categories: StyleCategory[] }) {
       <div className="mx-auto max-w-[90rem] px-4 sm:px-6">
         <div className="mb-8 flex items-end justify-between gap-4">
           <div>
-            <p className="mb-2 text-xs font-medium uppercase tracking-[0.28em] text-[#4a142a]">Explore</p>
-            <h2 className="section-heading text-3xl font-semibold md:text-4xl">Shop By Style</h2>
+            <p className="eyebrow mb-2">Explore</p>
+            <h2 className="section-heading">Shop By Style</h2>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -100,7 +100,7 @@ export function ShopByStyle({ categories }: { categories: StyleCategory[] }) {
                   <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-white/70">
                     {String(index + 1).padStart(2, "0")}
                   </p>
-                  <p className="mt-1 font-serif text-[1.65rem] leading-none text-white">{category.name}</p>
+                  <p className="section-heading mt-1 text-white">{category.name}</p>
                 </div>
               </div>
             </Link>

@@ -63,7 +63,7 @@ export default function OrderDetailPage({
         <svg className="w-16 h-16 text-[#4a142a] mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <h1 className="font-serif text-2xl font-semibold">Order not found</h1>
+        <h1 className="section-heading">Order not found</h1>
         <p className="mt-2 text-[var(--muted)] text-sm">
           We couldn&apos;t find an order with this ID. Please check and try again.
         </p>
@@ -91,7 +91,7 @@ export default function OrderDetailPage({
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-8 animate-fade-up">
         <div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-semibold">
+          <h1 className="section-heading">
             Order #{order._id.slice(-6)}
           </h1>
           <p className="text-sm text-[var(--muted)] mt-1">

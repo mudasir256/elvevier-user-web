@@ -12,8 +12,8 @@ export default function ResetPasswordPage() {
     <div className="min-h-[80vh] flex items-center justify-center px-4 sm:px-6 py-16 bg-warm-radial">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="section-heading text-3xl md:text-4xl font-semibold">New password</h1>
-          <p className="text-[var(--muted)] mt-2 text-sm">Choose a password for your Empulse account.</p>
+          <h1 className="section-heading">New password</h1>
+          <p className="type-copy mt-2 text-[var(--muted)]">Choose a password for your Empulse account.</p>
         </div>
         <div className="card-warm p-8">
           <ResetPasswordForm />

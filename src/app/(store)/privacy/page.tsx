@@ -40,11 +40,11 @@ export default function PrivacyPage() {
       {/* Header */}
       <section className="bg-[#f4e6ec] py-16 md:py-20 border-b border-[#e7d0da]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <p className="text-sm uppercase tracking-[0.25em] text-[var(--accent)] font-medium mb-3 animate-fade-down">Legal</p>
-          <h1 className="section-heading text-4xl md:text-5xl font-semibold animate-fade-up">
+          <p className="eyebrow mb-3 animate-fade-down">Legal</p>
+          <h1 className="section-heading animate-fade-up">
             Privacy Policy
           </h1>
-          <p className="text-[var(--muted)] mt-4 text-sm animate-fade-up animation-delay-100">
+          <p className="type-copy mt-4 text-[var(--muted)] animate-fade-up animation-delay-100">
             Last updated: February 2025. We respect your privacy and are committed
             to protecting your personal data.
           </p>
@@ -58,10 +58,10 @@ export default function PrivacyPage() {
               key={i}
               className={`card-warm p-6 md:p-8 animate-fade-up ${delayClasses[Math.min(i, 5)]}`}
             >
-              <h2 className="font-serif text-xl font-semibold text-[var(--foreground)] mb-3">
+              <h2 className="section-heading mb-3 text-[var(--foreground)]">
                 {section.title}
               </h2>
-              <p className="text-sm text-[var(--muted)] leading-relaxed">
+              <p className="type-copy text-[var(--muted)]">
                 {section.text}
               </p>
             </div>

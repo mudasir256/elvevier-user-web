@@ -103,7 +103,7 @@ export function ProductQuickView({ product, onClose }: { product: Product; onClo
 
         <div className="flex h-full flex-col px-5 py-6 sm:px-7 sm:py-8">
           <p className="text-sm font-medium text-[#4a142a]">{product.color}</p>
-          <h2 id={titleId} className="mt-2 text-2xl font-semibold leading-tight text-[var(--foreground)]">
+          <h2 id={titleId} className="section-heading mt-2 text-[var(--foreground)]">
             {product.name}
           </h2>
           {product.description ? (

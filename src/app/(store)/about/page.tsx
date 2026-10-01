@@ -18,11 +18,11 @@ export default function AboutPage() {
           <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-[var(--accent)]" />
         </div>
         <div className="relative max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <p className="text-sm uppercase tracking-[0.25em] text-[var(--accent)] font-medium mb-4 animate-fade-down">Our Story</p>
-          <h1 className="section-heading text-4xl md:text-5xl font-semibold animate-fade-up">
+          <p className="eyebrow mb-4 animate-fade-down">Our Story</p>
+          <h1 className="section-heading animate-fade-up">
             About Empulse
           </h1>
-          <p className="mt-5 text-lg text-[var(--muted)] max-w-xl mx-auto leading-relaxed animate-fade-up animation-delay-100">
+          <p className="type-copy mt-5 max-w-xl mx-auto text-[var(--muted)] animate-fade-up animation-delay-100">
             Built around one idea: cozy, always. We believe everyone
             deserves quality clothing that feels good and lasts.
           </p>
@@ -38,8 +38,8 @@ export default function AboutPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
             </div>
-            <h3 className="font-serif text-xl font-semibold mb-3">Our Mission</h3>
-            <p className="text-[var(--muted)] leading-relaxed text-sm">
+            <h3 className="section-heading mb-3">Our Mission</h3>
+            <p className="type-copy text-[var(--muted)]">
               Quality clothing, shoes and accessories for men, women and kids.
               We focus on timeless pieces and seasonal drops so you can dress
               for the moment without the clutter.
@@ -51,8 +51,8 @@ export default function AboutPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
               </svg>
             </div>
-            <h3 className="font-serif text-xl font-semibold mb-3">Our Promise</h3>
-            <p className="text-[var(--muted)] leading-relaxed text-sm">
+            <h3 className="section-heading mb-3">Our Promise</h3>
+            <p className="type-copy text-[var(--muted)]">
               Free shipping on orders above Rs. 2,500 is our way of making
               quality fashion a little more accessible. Easy returns within
               14 days, no questions asked.
@@ -62,7 +62,7 @@ export default function AboutPage() {
 
         {/* CEO section */}
         <section className="card-warm p-8 md:p-10 animate-fade-up">
-          <p className="text-sm uppercase tracking-[0.2em] text-[var(--accent)] font-medium mb-6">Leadership</p>
+          <p className="eyebrow mb-6">Leadership</p>
           <div className="flex flex-col sm:flex-row gap-8 items-start">
             <div className="relative w-full sm:w-52 aspect-square rounded-2xl overflow-hidden bg-[var(--cream)] shrink-0 shadow-md shadow-[var(--shadow-warm)]">
               <Image
@@ -76,17 +76,17 @@ export default function AboutPage() {
               />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-serif text-2xl font-semibold text-[var(--foreground)]">
+              <h3 className="section-heading text-[var(--foreground)]">
                 Arsal Ali
               </h3>
-              <p className="text-sm text-[var(--accent)] mt-1 font-medium">Chief Executive Officer</p>
-              <p className="text-[var(--muted)] leading-relaxed mt-5 text-sm">
+              <p className="eyebrow mt-2">Chief Executive Officer</p>
+              <p className="type-copy mt-5 text-[var(--muted)]">
                 Arsal Ali leads Empulse from Lahore, bringing a clear vision for
                 accessible, quality fashion. Under his leadership, Empulse has grown
                 around the idea of cozy, always — offering thoughtful clothing,
                 shoes and accessories for men, women and kids.
               </p>
-              <p className="text-[var(--muted)] leading-relaxed mt-3 text-sm">
+              <p className="type-copy mt-3 text-[var(--muted)]">
                 From Lahore to the rest of Pakistan, Arsal is focused on making
                 everyday style easy and enjoyable for everyone.
               </p>
@@ -95,7 +95,7 @@ export default function AboutPage() {
         </section>
 
         <div className="mt-12 text-center animate-fade-up">
-          <p className="text-[var(--muted)] mb-6">
+          <p className="type-copy mb-6 text-[var(--muted)]">
             Thank you for being here. We&apos;d love to hear from you.
           </p>
           <Link href="/contact" className="btn-primary">

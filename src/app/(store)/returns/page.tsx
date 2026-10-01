@@ -36,11 +36,11 @@ export default function ReturnsPage() {
       {/* Header */}
       <section className="bg-[#f4e6ec] py-16 md:py-20 border-b border-[#e7d0da]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <p className="text-sm uppercase tracking-[0.25em] text-[var(--accent)] font-medium mb-3 animate-fade-down">Easy Returns</p>
-          <h1 className="section-heading text-4xl md:text-5xl font-semibold animate-fade-up">
+          <p className="eyebrow mb-3 animate-fade-down">Easy Returns</p>
+          <h1 className="section-heading animate-fade-up">
             Returns & Exchanges
           </h1>
-          <p className="text-[var(--muted)] mt-4 animate-fade-up animation-delay-100">
+          <p className="type-copy mt-4 text-[var(--muted)] animate-fade-up animation-delay-100">
             14-day hassle-free returns on all eligible items.
           </p>
         </div>
@@ -56,8 +56,8 @@ export default function ReturnsPage() {
               </svg>
             </div>
             <div>
-              <h2 className="font-serif text-xl font-semibold text-[var(--foreground)] mb-2">Eligibility</h2>
-              <p className="text-sm text-[var(--muted)] leading-relaxed">
+              <h2 className="section-heading mb-2 text-[var(--foreground)]">Eligibility</h2>
+              <p className="type-copy text-[var(--muted)]">
                 Items must be unused, unwashed and in original packaging with tags
                 attached. We accept returns and exchanges within 14 days of delivery.
               </p>
@@ -66,7 +66,7 @@ export default function ReturnsPage() {
         </div>
 
         {/* Steps */}
-        <p className="text-sm uppercase tracking-[0.2em] text-[var(--accent)] font-medium mb-6 animate-fade-up">How It Works</p>
+        <p className="eyebrow mb-6 animate-fade-up">How It Works</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-10">
           {steps.map((step, i) => (
             <div
@@ -74,8 +74,8 @@ export default function ReturnsPage() {
               className={`card-warm p-6 animate-fade-up ${i === 1 ? "animation-delay-100" : i === 2 ? "animation-delay-200" : i === 3 ? "animation-delay-300" : ""}`}
             >
               <span className="text-2xl font-serif font-semibold text-[var(--accent-soft)]">{step.num}</span>
-              <h3 className="font-medium text-[var(--foreground)] mt-2 mb-1.5">{step.title}</h3>
-              <p className="text-sm text-[var(--muted)] leading-relaxed">{step.text}</p>
+              <h3 className="section-heading mt-2 mb-2 text-[var(--foreground)]">{step.title}</h3>
+              <p className="type-copy text-[var(--muted)]">{step.text}</p>
             </div>
           ))}
         </div>
@@ -83,15 +83,15 @@ export default function ReturnsPage() {
         {/* Additional info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 animate-fade-up">
           <div className="card-warm p-6">
-            <h3 className="font-serif text-lg font-semibold text-[var(--foreground)] mb-2">Refunds</h3>
-            <p className="text-sm text-[var(--muted)] leading-relaxed">
+            <h3 className="section-heading mb-2 text-[var(--foreground)]">Refunds</h3>
+            <p className="type-copy text-[var(--muted)]">
               Refunds are issued to the original payment method within 5–7 business
               days after we receive the return. Exchanges ship as soon as approved.
             </p>
           </div>
           <div className="card-warm p-6">
-            <h3 className="font-serif text-lg font-semibold text-[var(--foreground)] mb-2">Non-Returnable Items</h3>
-            <p className="text-sm text-[var(--muted)] leading-relaxed">
+            <h3 className="section-heading mb-2 text-[var(--foreground)]">Non-Returnable Items</h3>
+            <p className="type-copy text-[var(--muted)]">
               For hygiene reasons, certain items may not be returnable. This is
               noted on product pages. Sale items may have different terms.
             </p>

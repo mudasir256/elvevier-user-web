@@ -55,7 +55,7 @@ export function SearchView({
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
-      <h1 className="font-serif text-2xl font-semibold mb-6">Search</h1>
+      <h1 className="section-heading mb-6">Search</h1>
       <input
         type="search"
         placeholder="Search products..."
@@ -100,7 +100,7 @@ export function SearchView({
         ))}
       </div>
       {query && results.length === 0 && (
-        <p className="text-center text-[var(--muted)] py-12">
+        <p className="type-copy py-12 text-center text-[var(--muted)]">
           No products found for &ldquo;{query}&rdquo;
         </p>
       )}

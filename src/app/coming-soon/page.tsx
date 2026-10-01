@@ -18,9 +18,9 @@ export default function ComingSoonPage() {
         priority
         className="h-12 w-auto md:h-16"
       />
-      <p className="mt-12 text-xs font-semibold uppercase tracking-[0.32em] text-[#4a142a]">Opening soon</p>
-      <h1 className="mt-4 font-serif text-5xl font-semibold tracking-tight text-[#2c2825] md:text-7xl">Coming soon</h1>
-      <p className="mt-5 max-w-md text-base leading-7 text-[#6b6560]">
+      <p className="eyebrow mt-12">Opening soon</p>
+      <h1 className="section-heading mt-4 text-[#2c2825]">Coming soon</h1>
+      <p className="type-copy mt-5 max-w-md text-[#6b6560]">
         Fashion, footwear, and lifestyle. A new Empulse store is on the way.
       </p>
     </main>

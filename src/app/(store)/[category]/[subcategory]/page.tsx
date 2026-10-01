@@ -87,16 +87,16 @@ export default async function SubcategoryPage({ params }: Props) {
           <span className="mx-1">/</span>
           <span className="text-[var(--foreground)]">{title}</span>
         </nav>
-        <h1 className="font-serif text-3xl md:text-4xl font-semibold">
+        <h1 className="section-heading">
           {title}
         </h1>
         {category.description && (
-          <p className="mt-2 text-[var(--muted)]">{category.description}</p>
+          <p className="type-copy mt-2 text-[var(--muted)]">{category.description}</p>
         )}
         {shoeGender && <GenderShopNav gender={shoeGender} active="shoes" />}
       </div>
       {list.length === 0 ? (
-        <p className="text-[var(--muted)] py-12 text-center animate-fade-up">
+        <p className="type-copy py-12 text-center text-[var(--muted)] animate-fade-up">
           No products in this section yet.{" "}
           <Link href={`/${cat}`} className="text-[var(--accent)] hover:underline">
             View all {category.name}

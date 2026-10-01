@@ -25,8 +25,8 @@ export function WhyChooseUs() {
   return (
     <section className="mx-auto max-w-[90rem] px-4 py-16 sm:px-6 md:py-20" aria-label="Why choose us">
       <div className="mx-auto mb-10 max-w-2xl text-center">
-        <p className="mb-2 text-xs font-medium uppercase tracking-[0.28em] text-[#4a142a]">The Empulse promise</p>
-        <h2 className="section-heading text-3xl font-semibold md:text-4xl">Why Choose Us</h2>
+        <p className="eyebrow mb-2">The Empulse promise</p>
+        <h2 className="section-heading">Why Choose Us</h2>
       </div>
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {reasons.map((reason) => (
@@ -36,8 +36,8 @@ export function WhyChooseUs() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={reason.icon} />
               </svg>
             </div>
-            <h3 className="font-serif text-xl font-semibold text-[#2c2825]">{reason.title}</h3>
-            <p className="mt-2 text-sm leading-6 text-[var(--muted)]">{reason.text}</p>
+            <h3 className="section-heading text-[#2c2825]">{reason.title}</h3>
+            <p className="type-copy mt-2 text-[var(--muted)]">{reason.text}</p>
           </article>
         ))}
       </div>

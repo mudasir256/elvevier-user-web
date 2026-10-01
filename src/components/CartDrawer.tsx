@@ -34,7 +34,7 @@ export function CartDrawer() {
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-[var(--border)] shrink-0 pt-[env(safe-area-inset-top)]">
           <div>
-            <h2 className="font-serif text-xl font-semibold">Your Cart</h2>
+            <h2 className="section-heading">Your Cart</h2>
             {itemCount > 0 && (
               <p className="text-xs text-[var(--muted)] mt-0.5">{itemCount} {itemCount === 1 ? "item" : "items"}</p>
             )}

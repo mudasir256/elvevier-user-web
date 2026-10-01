@@ -38,7 +38,7 @@ export function Reels() {
 
   return (
     <section className="mx-auto max-w-[90rem] px-4 py-16 sm:px-6 md:py-20">
-      <h2 className="section-heading mb-6 text-3xl font-semibold md:text-4xl">Reels</h2>
+      <h2 className="section-heading mb-6">Reels</h2>
       <div className="relative">
         {canPrev && (
           <button

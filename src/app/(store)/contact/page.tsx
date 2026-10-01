@@ -11,11 +11,11 @@ export default function ContactPage() {
       {/* Header */}
       <section className="bg-[#f4e6ec] py-16 md:py-20 border-b border-[#e7d0da]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <p className="text-sm uppercase tracking-[0.25em] text-[var(--accent)] font-medium mb-3 animate-fade-down">Get in Touch</p>
-          <h1 className="section-heading text-4xl md:text-5xl font-semibold animate-fade-up">
+          <p className="eyebrow mb-3 animate-fade-down">Get in Touch</p>
+          <h1 className="section-heading animate-fade-up">
             Contact Us
           </h1>
-          <p className="text-[var(--muted)] mt-4 max-w-lg mx-auto animate-fade-up animation-delay-100">
+          <p className="type-copy mt-4 max-w-lg mx-auto text-[var(--muted)] animate-fade-up animation-delay-100">
             Have a question, feedback or need help with an order? We&apos;re here for you.
           </p>
         </div>
@@ -49,8 +49,8 @@ export default function ContactPage() {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-[var(--foreground)]">{item.title}</p>
-                  <p className="text-sm text-[var(--muted)] mt-0.5">{item.text}</p>
+                  <p className="section-heading text-[var(--foreground)]">{item.title}</p>
+                  <p className="type-copy mt-2 text-[var(--muted)]">{item.text}</p>
                 </div>
               </div>
             ))}
