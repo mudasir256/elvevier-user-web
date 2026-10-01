@@ -4,6 +4,7 @@ import { Poppins } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { CartProvider, type CartItem } from "@/context/CartContext";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { readCartCookie } from "@/lib/cartToken";
 import { ReduxProvider } from "@/store/ReduxProvider";
 
@@ -97,6 +98,7 @@ export default async function RootLayout({
         <ReduxProvider>
           <CartProvider initialItems={initialItems}>
             {children}
+            <WhatsAppButton />
           </CartProvider>
         </ReduxProvider>
       </body>
