@@ -20,7 +20,7 @@ export default async function ProductPage({ params }: Props) {
     .slice(0, 4);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+    <div className="mx-auto max-w-[100rem] px-4 py-8 sm:px-6 lg:px-10">
       <nav className="text-sm text-[var(--muted)] mb-6">
         <Link href="/" className="hover:text-[var(--accent)]">
           Home
@@ -55,7 +55,7 @@ export default async function ProductPage({ params }: Props) {
                     src={p.image}
                     alt={p.name}
                     fill
-                    className="object-cover group-hover:scale-105 transition"
+                    className="object-contain scale-110"
                     sizes="25vw"
                   />
                 </div>

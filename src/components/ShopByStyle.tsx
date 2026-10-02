@@ -87,12 +87,20 @@ export function ShopByStyle({ categories }: { categories: StyleCategory[] }) {
               href={category.href}
               className="group w-[72vw] shrink-0 sm:w-[230px] md:w-[250px]"
             >
-              <div className="relative aspect-[3/4] overflow-hidden rounded-[1.5rem] bg-[#efe8dc] shadow-[0_10px_30px_rgba(44,40,37,0.08)]">
+              <div
+                className={`relative aspect-[3/4] overflow-hidden rounded-[1.5rem] shadow-[0_10px_30px_rgba(44,40,37,0.08)] ${
+                  category.name === "Shoes" ? "bg-white" : "bg-[#efe8dc]"
+                }`}
+              >
                 <Image
                   src={category.image}
                   alt={category.name}
                   fill
-                  className="object-cover transition duration-700 ease-out group-hover:scale-105"
+                  className={
+                    category.name === "Shoes"
+                      ? "object-contain object-center scale-[1.08]"
+                      : "object-cover transition duration-700 ease-out group-hover:scale-105"
+                  }
                   sizes="250px"
                   loading="eager"
                 />

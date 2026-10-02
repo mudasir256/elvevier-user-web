@@ -13,6 +13,31 @@ function formatPrice(price: number) {
   return `Rs. ${price.toLocaleString()}`;
 }
 
+function backgroundFromImage(image: HTMLImageElement) {
+  if (!image.naturalWidth) return "";
+  const canvas = document.createElement("canvas");
+  canvas.width = 4;
+  canvas.height = 4;
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  if (!context) return "";
+  try {
+    context.drawImage(image, 0, 0, 16, 16, 0, 0, 4, 4);
+    const { data } = context.getImageData(0, 0, 4, 4);
+    let red = 0;
+    let green = 0;
+    let blue = 0;
+    const count = data.length / 4;
+    for (let index = 0; index < data.length; index += 4) {
+      red += data[index];
+      green += data[index + 1];
+      blue += data[index + 2];
+    }
+    return `rgb(${Math.round(red / count)}, ${Math.round(green / count)}, ${Math.round(blue / count)})`;
+  } catch {
+    return "";
+  }
+}
+
 interface ProductCardProps {
   product: Product;
   index?: number;
@@ -62,6 +87,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const closeDetails = useCallback(() => setDetailsOpen(false), []);
   const frameRef = useRef<HTMLDivElement>(null);
   const [imageReady, setImageReady] = useState(false);
+  const [frameColor, setFrameColor] = useState("#e4e4e4");
   const delayClasses = [
     "",
     "animation-delay-100",
@@ -74,23 +100,29 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const tracked = Boolean(product.variants?.length);
   const soldOut = tracked && totalStock(product.variants) < 1;
 
+  const matchFrame = useCallback((image: HTMLImageElement) => {
+    setImageReady(true);
+    const next = backgroundFromImage(image);
+    if (next) setFrameColor(next);
+  }, []);
+
   useEffect(() => {
     const image = frameRef.current?.querySelector("img");
-    if (image?.complete && image.naturalWidth > 0) setImageReady(true);
-  }, []);
+    if (image?.complete && image.naturalWidth > 0) matchFrame(image);
+  }, [matchFrame, product.image]);
 
   return (
     <article className={`group flex h-full flex-col animate-fade-up ${delayClass}`}>
-      <div ref={frameRef} className="relative aspect-[3/4] overflow-hidden rounded-[1.7rem] bg-[#e4e4e4]" style={{ backgroundColor: "#e4e4e4" }}>
+      <div ref={frameRef} className="relative aspect-[3/4] overflow-hidden rounded-[1.7rem]" style={{ backgroundColor: frameColor }}>
         <Link href={`/product/${product.slug}`} className="absolute inset-0" aria-label={product.name}>
           {!imageReady ? <div className="skeleton absolute inset-0 z-10" aria-hidden /> : null}
           <Image
             src={product.image}
             alt={product.name}
             fill
-            className="object-cover"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-            onLoad={() => setImageReady(true)}
+            className="object-contain scale-110"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            onLoad={(event) => matchFrame(event.currentTarget)}
           />
         </Link>
         {product.new && (

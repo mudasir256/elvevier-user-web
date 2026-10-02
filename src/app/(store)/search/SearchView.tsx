@@ -87,7 +87,7 @@ export function SearchView({
                 src={product.image}
                 alt={product.name}
                 fill
-                className="object-cover group-hover:scale-105 transition"
+                className="object-contain scale-110"
                 sizes="(max-width: 640px) 50vw, 33vw"
               />
             </div>

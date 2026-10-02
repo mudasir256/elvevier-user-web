@@ -10,10 +10,12 @@ export function ProductPurchase({
   product,
   onAdded,
   onColorChange,
+  compact = false,
 }: {
   product: Product;
   onAdded?: () => void;
   onColorChange?: (color: string) => void;
+  compact?: boolean;
 }) {
   const { addToCart, items } = useCart();
   const variants = product.variants ?? [];
@@ -50,7 +52,7 @@ export function ProductPurchase({
   return (
     <div>
       {colors.length > 0 ? (
-        <div className="mt-6">
+        <div className={compact ? "mt-3" : "mt-6"}>
           <p className="text-sm font-medium text-[var(--foreground)]">Color</p>
           <div className="mt-2 flex flex-wrap gap-2">
             {colors.map((item) => (
@@ -72,7 +74,7 @@ export function ProductPurchase({
       ) : null}
 
       {sizes.length > 0 ? (
-        <div className="mt-5">
+        <div className={compact ? "mt-3" : "mt-5"}>
           <p className="text-sm font-medium text-[var(--foreground)]">Size</p>
           <div className="mt-2 flex flex-wrap gap-2">
             {sizes.map((item) => {
@@ -102,7 +104,7 @@ export function ProductPurchase({
       ) : null}
 
       {tracked ? (
-        <p className={`mt-4 text-sm ${out || atLimit ? "text-red-700" : "text-[var(--muted)]"}`}>
+        <p className={`${compact ? "mt-2" : "mt-4"} text-sm ${out || atLimit ? "text-red-700" : "text-[var(--muted)]"}`}>
           {out ? "Out of stock" : atLimit ? `Only ${stock} available` : `${stock} in stock`}
         </p>
       ) : null}
@@ -121,7 +123,7 @@ export function ProductPurchase({
           flyProductToCart(event.currentTarget, galleryFor(product, activeColor)[0] || product.image);
           onAdded?.();
         }}
-        className="mt-4 w-full rounded-lg bg-[#4a142a] px-10 py-4 font-medium text-white transition hover:bg-[#350e1e] disabled:cursor-not-allowed disabled:opacity-50 md:w-auto"
+        className={`${compact ? "mt-2 py-3" : "mt-4 py-4"} w-full rounded-lg bg-[#4a142a] px-10 font-medium text-white transition hover:bg-[#350e1e] disabled:cursor-not-allowed disabled:opacity-50 md:w-auto`}
       >
         {out ? "Out of stock" : atLimit ? `Only ${stock} available` : "Add to cart"}
       </button>

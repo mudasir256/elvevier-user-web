@@ -23,14 +23,14 @@ export function ProductDetail({ product }: { product: Product }) {
   }, []);
 
   return (
-    <div className="grid grid-cols-1 items-start gap-10 md:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)] lg:gap-16">
-      <div className="relative aspect-square overflow-hidden rounded-2xl bg-[#e4e4e4]">
+    <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,32rem)_minmax(0,1fr)] xl:grid-cols-[minmax(0,36rem)_minmax(0,1fr)] lg:gap-12">
+      <div className="relative aspect-square overflow-hidden rounded-2xl bg-white">
         {current ? (
           <Image
             src={current}
             alt={product.name}
             fill
-            className="object-contain"
+            className="object-contain scale-110"
             priority
             key={current}
             sizes="(max-width: 768px) 100vw, 60vw"
@@ -52,16 +52,16 @@ export function ProductDetail({ product }: { product: Product }) {
             <span className="text-[var(--muted)] line-through">{formatPrice(product.compareAtPrice)}</span>
           ) : null}
         </div>
-        {product.description ? <p className="type-copy mt-6 text-[var(--muted)]">{product.description}</p> : null}
+        {product.description ? <p className="mt-4 text-base leading-6 text-[var(--muted)]">{product.description}</p> : null}
 
         {photos.length > 1 ? (
-          <div className="mt-8 flex gap-3 overflow-x-auto pb-3">
+          <div className="mt-5 flex gap-2 overflow-x-auto pb-1">
             {photos.map((photo, index) => (
               <button
                 key={`${photo}-${index}`}
                 type="button"
                 onClick={() => setActive(index)}
-                className={`relative h-24 w-24 shrink-0 overflow-hidden rounded-xl border-2 bg-[#e4e4e4] ${
+                className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border-2 bg-white ${
                   index === active ? "border-[#4a142a]" : "border-[var(--border)]"
                 }`}
                 aria-label={`Show image ${index + 1}`}
@@ -73,8 +73,8 @@ export function ProductDetail({ product }: { product: Product }) {
           </div>
         ) : null}
 
-        <ProductPurchase product={product} onColorChange={onColorChange} />
-        <p className="type-copy mt-4 text-[var(--muted)]">Free shipping on orders above Rs. 2,500. Easy returns.</p>
+        <ProductPurchase compact product={product} onColorChange={onColorChange} />
+        <p className="mt-3 text-sm leading-6 text-[var(--muted)]">Free shipping on orders above Rs. 2,500. Easy returns.</p>
       </div>
     </div>
   );

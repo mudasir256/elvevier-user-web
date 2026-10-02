@@ -12,6 +12,31 @@ function formatPrice(price: number) {
   return `Rs. ${price.toLocaleString()}`;
 }
 
+function backgroundFromImage(image: HTMLImageElement) {
+  if (!image.naturalWidth) return "";
+  const canvas = document.createElement("canvas");
+  canvas.width = 4;
+  canvas.height = 4;
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  if (!context) return "";
+  try {
+    context.drawImage(image, 0, 0, 16, 16, 0, 0, 4, 4);
+    const { data } = context.getImageData(0, 0, 4, 4);
+    let red = 0;
+    let green = 0;
+    let blue = 0;
+    const count = data.length / 4;
+    for (let index = 0; index < data.length; index += 4) {
+      red += data[index];
+      green += data[index + 1];
+      blue += data[index + 2];
+    }
+    return `rgb(${Math.round(red / count)}, ${Math.round(green / count)}, ${Math.round(blue / count)})`;
+  } catch {
+    return "";
+  }
+}
+
 export function ProductQuickView({ product, onClose }: { product: Product; onClose: () => void }) {
   const titleId = useId();
   const [color, setColor] = useState(uniqueValues(product.variants ?? [], "color")[0] ?? "");
@@ -23,6 +48,7 @@ export function ProductQuickView({ product, onClose }: { product: Product; onClo
       return next;
     });
   }, []);
+  const [frameColor, setFrameColor] = useState("#ffffff");
   const [closing, setClosing] = useState(false);
   const closingRef = useRef(false);
   const current = photos[active] ?? photos[0];
@@ -62,7 +88,7 @@ export function ProductQuickView({ product, onClose }: { product: Product; onClo
   if (typeof document === "undefined") return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[80] flex items-end justify-center p-3 sm:items-center sm:p-6">
+    <div className="fixed inset-0 z-[80] flex items-center justify-center p-3 pb-[4.75rem] md:p-6">
       <button
         type="button"
         className={`absolute inset-0 bg-black/40 ${closing ? "quick-view-backdrop-out" : "quick-view-backdrop"}`}
@@ -73,7 +99,7 @@ export function ProductQuickView({ product, onClose }: { product: Product; onClo
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={`relative z-10 grid max-h-[min(94vh,980px)] w-full max-w-6xl grid-cols-1 overflow-y-auto rounded-[1.4rem] bg-[var(--background)] shadow-2xl md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] ${
+        className={`relative z-10 grid max-h-[calc(100dvh-6.25rem)] w-full max-w-6xl grid-cols-1 grid-rows-[auto_auto] overflow-y-auto rounded-2xl bg-white shadow-[0_24px_80px_rgba(44,40,37,0.18)] [scrollbar-width:none] md:h-[min(780px,90dvh)] md:max-h-none md:grid-cols-[minmax(0,1.05fr)_minmax(22rem,0.95fr)] md:grid-rows-1 md:overflow-hidden md:rounded-[1.6rem] [&::-webkit-scrollbar]:hidden ${
           closing ? "quick-view-panel-out" : "quick-view-panel"
         }`}
       >
@@ -81,84 +107,81 @@ export function ProductQuickView({ product, onClose }: { product: Product; onClo
           type="button"
           onClick={requestClose}
           aria-label="Close"
-          className="absolute top-3 right-3 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-white text-[#4a142a] shadow-sm"
+          className="absolute top-3 right-3 z-20 flex h-9 w-9 items-center justify-center rounded-full border border-black/10 bg-white text-[#4a142a] transition hover:bg-[#f4e6ec] md:top-4 md:right-4"
         >
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 6l12 12M18 6L6 18" />
           </svg>
         </button>
 
-        <div className="bg-[#e4e4e4] p-4 sm:p-6" style={{ backgroundColor: "#e4e4e4" }}>
-          <div className="relative aspect-square overflow-hidden rounded-[1.2rem] bg-[#e4e4e4]" style={{ backgroundColor: "#e4e4e4" }}>
+        <div className="flex shrink-0 flex-col md:h-full md:min-h-0" style={{ backgroundColor: frameColor }}>
+          <div className="relative h-[340px] md:h-auto md:min-h-0 md:flex-1">
             {current ? (
-              <Image key={current} src={current} alt={product.name} fill className="object-contain" sizes="(max-width: 768px) 100vw, 56vw" style={{ backgroundColor: "#e4e4e4" }} />
+              <Image
+                key={current}
+                src={current}
+                alt={product.name}
+                fill
+                className="object-contain p-2 md:p-10"
+                sizes="(max-width: 768px) 100vw, 56vw"
+                onLoad={(event) => {
+                  const next = backgroundFromImage(event.currentTarget);
+                  if (next) setFrameColor(next);
+                }}
+              />
             ) : null}
             {product.new ? (
-              <span className="absolute top-3 left-3 rounded-full bg-[#f4e6ec] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#4a142a]">
+              <span className="absolute top-4 left-4 rounded-full bg-[#f4e6ec] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#4a142a]">
                 New
               </span>
             ) : null}
           </div>
-        </div>
-
-        <div className="flex h-full flex-col px-5 py-6 sm:px-7 sm:py-8">
-          <p className="text-sm font-medium text-[#4a142a]">{product.color}</p>
-          <h2 id={titleId} className="section-heading mt-2 text-[var(--foreground)]">
-            {product.name}
-          </h2>
-          {product.description ? (
-            <p className="mt-4 text-sm leading-6 text-[var(--muted)]">{product.description}</p>
-          ) : null}
-          <div className="mt-5 flex items-baseline gap-3">
-            <p className="text-lg font-semibold text-[#4a142a]">{formatPrice(product.price)}</p>
-            {product.compareAtPrice ? (
-              <p className="text-sm text-[var(--muted)] line-through">{formatPrice(product.compareAtPrice)}</p>
-            ) : null}
-          </div>
-
-          <dl className="mt-4 space-y-2 text-sm">
-            <div className="flex gap-3">
-              <dt className="w-24 shrink-0 text-[var(--muted)]">Category</dt>
-              <dd className="capitalize text-[var(--foreground)]">{product.categoryId}</dd>
-            </div>
-            {product.subcategory ? (
-              <div className="flex gap-3">
-                <dt className="w-24 shrink-0 text-[var(--muted)]">Type</dt>
-                <dd className="text-[var(--foreground)]">{product.subcategory}</dd>
-              </div>
-            ) : null}
-          </dl>
-
-          <div className="mt-auto pt-6">
           {photos.length > 1 ? (
-            <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
+            <div className="flex gap-2 overflow-x-auto px-4 pb-3 md:px-5 md:pb-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {photos.map((photo, index) => (
                 <button
                   key={`${photo}-${index}`}
                   type="button"
                   onClick={() => setActive(index)}
-                  className={`relative h-16 w-14 shrink-0 overflow-hidden rounded-xl border-2 bg-[#e4e4e4] ${
-                    index === active ? "border-[#4a142a]" : "border-transparent"
+                  className={`relative h-11 w-11 shrink-0 overflow-hidden rounded-lg border md:h-14 md:w-14 md:rounded-xl ${
+                    index === active ? "border-[#4a142a]" : "border-black/10"
                   }`}
+                  style={{ backgroundColor: frameColor }}
                   aria-label={`Show image ${index + 1}`}
                   aria-pressed={index === active}
                 >
-                  <Image src={photo} alt="" fill className="object-contain" sizes="80px" loading="eager" />
+                  <Image src={photo} alt="" fill className="object-contain p-1" sizes="56px" loading="eager" />
                 </button>
               ))}
             </div>
           ) : null}
+        </div>
 
-          <ProductPurchase product={product} onAdded={requestClose} onColorChange={onColorChange} />
-          <div className="mt-3 flex flex-col gap-3 sm:flex-row">
-            <Link
-              href={`/product/${product.slug}`}
-              className="rounded-full bg-[#f4e6ec] px-6 py-3 text-center text-sm font-medium text-[#4a142a] hover:bg-[#ead3dc]"
-            >
-              Open product page
-            </Link>
+        <div className="flex min-h-0 flex-col px-5 pt-4 md:h-full md:px-8 md:py-8">
+          <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#4a142a]">
+            {[product.subcategory, product.categoryId].filter(Boolean).join(" · ")}
+          </p>
+          <h2 id={titleId} className="section-heading mt-1.5 text-[var(--foreground)]">
+            {product.name}
+          </h2>
+          <div className="mt-2 flex items-baseline gap-3">
+            <p className="text-2xl font-semibold text-[#4a142a]">{formatPrice(product.price)}</p>
+            {product.compareAtPrice ? (
+              <p className="text-sm text-[var(--muted)] line-through">{formatPrice(product.compareAtPrice)}</p>
+            ) : null}
           </div>
-          <p className="mt-4 text-sm text-[var(--muted)]">Free shipping on orders above Rs. 2,500. Easy returns.</p>
+          {product.description ? (
+            <p className="mt-3 line-clamp-2 text-sm leading-6 text-[var(--muted)] md:line-clamp-none">{product.description}</p>
+          ) : null}
+
+          <div className="mt-3 shrink-0 border-t border-black/10 bg-white pt-1 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:mt-auto md:pb-0">
+            <ProductPurchase compact product={product} onAdded={requestClose} onColorChange={onColorChange} />
+            <div className="mt-3 flex items-center justify-between gap-3">
+              <p className="text-xs text-[var(--muted)]">Free shipping above Rs. 2,500</p>
+              <Link href={`/product/${product.slug}`} className="shrink-0 text-sm font-medium text-[#4a142a] underline-offset-4 hover:underline">
+                View full details
+              </Link>
+            </div>
           </div>
         </div>
       </div>
