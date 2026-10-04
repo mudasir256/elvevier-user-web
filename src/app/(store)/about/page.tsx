@@ -53,7 +53,7 @@ export default function AboutPage() {
             </div>
             <h3 className="section-heading mb-3">Our Promise</h3>
             <p className="type-copy text-[var(--muted)]">
-              Free shipping on orders above Rs. 2,500 is our way of making
+              Free shipping on orders above Rs. 5,000 is our way of making
               quality fashion a little more accessible. Easy returns within
               14 days, no questions asked.
             </p>

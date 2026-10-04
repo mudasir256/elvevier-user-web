@@ -72,7 +72,7 @@ export function ProductDetail({ product }: { product: Product }) {
         ) : null}
 
         <ProductPurchase compact product={product} onColorChange={onColorChange} />
-        <p className="mt-3 text-sm leading-6 text-[var(--muted)]">Free shipping on orders above Rs. 2,500. Easy returns.</p>
+        <p className="mt-3 text-sm leading-6 text-[var(--muted)]">Free shipping on orders above Rs. 5,000. Easy returns.</p>
       </div>
     </div>
   );

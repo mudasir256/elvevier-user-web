@@ -13,7 +13,7 @@ function formatPrice(price: number) {
   return `Rs. ${price.toLocaleString()}`;
 }
 
-const SHIPPING_THRESHOLD = 2500;
+const SHIPPING_THRESHOLD = 5000;
 
 type PaymentMethod = "card" | "cod";
 

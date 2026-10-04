@@ -16,7 +16,7 @@ const poppins = Poppins({
 
 const siteTitle = "Empulse – Fashion that feels like home";
 const siteDescription =
-  "Men's, women's & kids clothing, shoes, belts, caps, bags and more. Free shipping on orders above Rs. 2,500.";
+  "Men's, women's & kids clothing, shoes, belts, caps, bags and more. Free shipping on orders above Rs. 5,000.";
 
 export async function generateMetadata(): Promise<Metadata> {
   const headerList = await headers();

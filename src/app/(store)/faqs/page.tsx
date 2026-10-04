@@ -14,7 +14,7 @@ const faqs = [
   },
   {
     q: "Do you offer free shipping?",
-    a: "Yes. We offer free shipping on all orders above Rs. 2,500. Orders below that amount may incur a nominal delivery charge.",
+    a: "Yes. We offer free shipping on all orders above Rs. 5,000. Orders below that amount may incur a nominal delivery charge.",
     icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z",
   },
   {

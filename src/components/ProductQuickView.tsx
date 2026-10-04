@@ -174,7 +174,7 @@ export function ProductQuickView({ product, onClose }: { product: Product; onClo
           <div className="mt-3 shrink-0 border-t border-black/10 bg-white pt-1 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:mt-auto md:pb-0">
             <ProductPurchase compact product={product} onAdded={requestClose} onColorChange={onColorChange} />
             <div className="mt-3 flex items-center justify-between gap-3">
-              <p className="text-xs text-[var(--muted)]">Free shipping above Rs. 2,500</p>
+              <p className="text-xs text-[var(--muted)]">Free shipping above Rs. 5,000</p>
               <Link href={`/product/${product.slug}`} className="shrink-0 text-sm font-medium text-[#4a142a] underline-offset-4 hover:underline">
                 View full details
               </Link>
