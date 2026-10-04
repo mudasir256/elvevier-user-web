@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import Image from "next/image";
 import type { Product } from "@/types";
 import { ProductPurchase } from "@/components/ProductPurchase";
+import { SwipeGallery } from "@/components/SwipeGallery";
 import { galleryFor, uniqueValues } from "@/lib/variants";
 
 function formatPrice(price: number) {
@@ -14,7 +15,6 @@ export function ProductDetail({ product }: { product: Product }) {
   const [color, setColor] = useState(uniqueValues(product.variants ?? [], "color")[0] ?? "");
   const photos = galleryFor(product, color);
   const [active, setActive] = useState(0);
-  const current = photos[active] ?? photos[0];
   const onColorChange = useCallback((next: string) => {
     setColor((currentColor) => {
       if (currentColor !== next) setActive(0);
@@ -24,24 +24,22 @@ export function ProductDetail({ product }: { product: Product }) {
 
   return (
     <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,32rem)_minmax(0,1fr)] xl:grid-cols-[minmax(0,36rem)_minmax(0,1fr)] lg:gap-12">
-      <div className="relative aspect-square overflow-hidden rounded-2xl bg-white">
-        {current ? (
-          <Image
-            src={current}
-            alt={product.name}
-            fill
-            className="object-contain scale-110"
-            priority
-            key={current}
-            sizes="(max-width: 768px) 100vw, 60vw"
-          />
-        ) : null}
+      <SwipeGallery
+        photos={photos}
+        active={active}
+        onIndex={setActive}
+        alt={product.name}
+        imageClassName="object-contain"
+        sizes="(max-width: 768px) 100vw, 60vw"
+        priority
+        className="aspect-square rounded-2xl bg-white"
+      >
         {product.new ? (
-          <span className="absolute top-4 left-4 rounded bg-[var(--foreground)] px-3 py-1 text-sm font-medium text-[var(--cream)]">
+          <span className="absolute top-4 left-4 z-10 rounded bg-[var(--foreground)] px-3 py-1 text-sm font-medium text-[var(--cream)]">
             New
           </span>
         ) : null}
-      </div>
+      </SwipeGallery>
 
       <div>
         <p className="text-sm uppercase tracking-wider text-[var(--muted)]">{product.color}</p>

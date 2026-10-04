@@ -55,7 +55,7 @@ export default async function ProductPage({ params }: Props) {
                     src={p.image}
                     alt={p.name}
                     fill
-                    className="object-contain scale-110"
+                    className="object-contain"
                     sizes="25vw"
                   />
                 </div>

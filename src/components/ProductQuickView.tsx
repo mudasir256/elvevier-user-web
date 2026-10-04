@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "@/types";
 import { ProductPurchase } from "@/components/ProductPurchase";
+import { SwipeGallery } from "@/components/SwipeGallery";
 import { galleryFor, uniqueValues } from "@/lib/variants";
 
 function formatPrice(price: number) {
@@ -51,8 +52,6 @@ export function ProductQuickView({ product, onClose }: { product: Product; onClo
   const [frameColor, setFrameColor] = useState("#ffffff");
   const [closing, setClosing] = useState(false);
   const closingRef = useRef(false);
-  const current = photos[active] ?? photos[0];
-
   const requestClose = useCallback(() => {
     if (closingRef.current) return;
     closingRef.current = true;
@@ -115,27 +114,25 @@ export function ProductQuickView({ product, onClose }: { product: Product; onClo
         </button>
 
         <div className="flex shrink-0 flex-col md:h-full md:min-h-0" style={{ backgroundColor: frameColor }}>
-          <div className="relative h-[340px] md:h-auto md:min-h-0 md:flex-1">
-            {current ? (
-              <Image
-                key={current}
-                src={current}
-                alt={product.name}
-                fill
-                className="object-contain p-2 md:p-10"
-                sizes="(max-width: 768px) 100vw, 56vw"
-                onLoad={(event) => {
-                  const next = backgroundFromImage(event.currentTarget);
-                  if (next) setFrameColor(next);
-                }}
-              />
-            ) : null}
+          <SwipeGallery
+            photos={photos}
+            active={active}
+            onIndex={setActive}
+            alt={product.name}
+            imageClassName="object-contain p-2 md:p-10"
+            sizes="(max-width: 768px) 100vw, 56vw"
+            className="h-[340px] md:h-auto md:min-h-0 md:flex-1"
+            onLoad={(image) => {
+              const next = backgroundFromImage(image);
+              if (next) setFrameColor(next);
+            }}
+          >
             {product.new ? (
-              <span className="absolute top-4 left-4 rounded-full bg-[#f4e6ec] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#4a142a]">
+              <span className="pointer-events-none absolute top-4 left-4 z-10 rounded-full bg-[#f4e6ec] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#4a142a]">
                 New
               </span>
             ) : null}
-          </div>
+          </SwipeGallery>
           {photos.length > 1 ? (
             <div className="flex gap-2 overflow-x-auto px-4 pb-3 md:px-5 md:pb-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {photos.map((photo, index) => (

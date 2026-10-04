@@ -87,7 +87,7 @@ export function SearchView({
                 src={product.image}
                 alt={product.name}
                 fill
-                className="object-contain scale-110"
+                className="object-contain"
                 sizes="(max-width: 640px) 50vw, 33vw"
               />
             </div>

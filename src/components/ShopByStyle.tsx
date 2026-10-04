@@ -98,7 +98,7 @@ export function ShopByStyle({ categories }: { categories: StyleCategory[] }) {
                   fill
                   className={
                     category.name === "Shoes"
-                      ? "object-contain object-center scale-[1.08]"
+                      ? "object-contain object-center"
                       : "object-cover transition duration-700 ease-out group-hover:scale-105"
                   }
                   sizes="250px"
