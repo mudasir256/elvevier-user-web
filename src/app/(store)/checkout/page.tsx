@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
@@ -8,6 +8,7 @@ import { galleryFor } from "@/lib/variants";
 import { usePlaceOrderMutation } from "@/store/checkoutApi";
 import { readCustomerSession } from "@/lib/customerSession";
 import { useGetAccountQuery, useUpdateAccountMutation } from "@/store/accountApi";
+import { identifyMetaUser, trackAddPaymentInfo, trackInitiateCheckout, trackPurchase, type MetaContent } from "@/lib/metaPixel";
 
 function formatPrice(price: number) {
   return `Rs. ${price.toLocaleString()}`;
@@ -68,6 +69,37 @@ export default function CheckoutPage() {
 
   const shippingCost = total >= SHIPPING_THRESHOLD ? 0 : 300;
   const orderTotal = total + shippingCost;
+  const checkoutStarted = useRef(false);
+  const paymentTracked = useRef(false);
+  const metaContents = useMemo<MetaContent[]>(
+    () =>
+      items.map((item) => ({
+        id: item.product.id,
+        quantity: item.quantity,
+        item_price: item.product.price,
+      })),
+    [items]
+  );
+
+  useEffect(() => {
+    if (!ready || placed || metaContents.length === 0 || checkoutStarted.current) return;
+    checkoutStarted.current = true;
+    trackInitiateCheckout(metaContents, orderTotal);
+  }, [ready, placed, metaContents, orderTotal]);
+
+  useEffect(() => {
+    if (!email.includes("@")) return;
+    identifyMetaUser({
+      email,
+      phone,
+      firstName,
+      lastName,
+      city,
+      state: stateName,
+      postalCode,
+      externalId: account?.user?.id,
+    });
+  }, [email, phone, firstName, lastName, city, stateName, postalCode, account?.user?.id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,7 +132,12 @@ export default function CheckoutPage() {
     };
 
     try {
+      if (!paymentTracked.current) {
+        paymentTracked.current = true;
+        trackAddPaymentInfo(metaContents, orderTotal);
+      }
       const result = await placeOrder(orderData).unwrap();
+      trackPurchase(result.orderId, metaContents, orderTotal);
       if (sessionToken) {
         await updateAccount({
           firstName,
@@ -325,12 +362,12 @@ export default function CheckoutPage() {
               <div className="space-y-4">
                 <div className="flex gap-4">
                   <label className={`flex-1 flex items-center justify-center gap-2 p-4 rounded-xl border-2 cursor-pointer transition ${paymentMethod === "card" ? "border-[var(--accent)] bg-[var(--accent)]/5 text-[var(--accent)]" : "border-[var(--border)] hover:border-[var(--muted)]"}`}>
-                    <input type="radio" name="paymentMethod" value="card" checked={paymentMethod === "card"} onChange={() => setPaymentMethod("card")} className="sr-only" />
+                    <input type="radio" name="paymentMethod" value="card" checked={paymentMethod === "card"} onChange={() => { setPaymentMethod("card"); if (!paymentTracked.current) { paymentTracked.current = true; trackAddPaymentInfo(metaContents, orderTotal); } }} className="sr-only" />
                     <svg className="w-5 h-5 text-[#4a142a]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
                     <span className="font-medium">Card</span>
                   </label>
                   <label className={`flex-1 flex items-center justify-center gap-2 p-4 rounded-xl border-2 cursor-pointer transition ${paymentMethod === "cod" ? "border-[var(--accent)] bg-[var(--accent)]/5 text-[var(--accent)]" : "border-[var(--border)] hover:border-[var(--muted)]"}`}>
-                    <input type="radio" name="paymentMethod" value="cod" checked={paymentMethod === "cod"} onChange={() => setPaymentMethod("cod")} className="sr-only" />
+                    <input type="radio" name="paymentMethod" value="cod" checked={paymentMethod === "cod"} onChange={() => { setPaymentMethod("cod"); if (!paymentTracked.current) { paymentTracked.current = true; trackAddPaymentInfo(metaContents, orderTotal); } }} className="sr-only" />
                     <span className="font-medium">Cash on delivery</span>
                   </label>
                 </div>

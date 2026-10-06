@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { trackViewContent } from "@/lib/metaPixel";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
@@ -66,6 +67,15 @@ export function ProductQuickView({ product, onClose }: { product: Product; onClo
 
   const requestCloseRef = useRef(requestClose);
   requestCloseRef.current = requestClose;
+
+  useEffect(() => {
+    trackViewContent({
+      id: product.id,
+      name: product.name,
+      category: product.categoryId,
+      price: product.price,
+    });
+  }, [product.id, product.name, product.categoryId, product.price]);
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;

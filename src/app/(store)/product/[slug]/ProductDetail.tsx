@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import type { Product } from "@/types";
 import { ProductPurchase } from "@/components/ProductPurchase";
 import { SwipeGallery } from "@/components/SwipeGallery";
 import { galleryFor, uniqueValues } from "@/lib/variants";
+import { trackViewContent } from "@/lib/metaPixel";
 
 function formatPrice(price: number) {
   return `Rs. ${price.toLocaleString()}`;
@@ -21,6 +22,15 @@ export function ProductDetail({ product }: { product: Product }) {
       return next;
     });
   }, []);
+
+  useEffect(() => {
+    trackViewContent({
+      id: product.id,
+      name: product.name,
+      category: product.categoryId,
+      price: product.price,
+    });
+  }, [product.id, product.name, product.categoryId, product.price]);
 
   return (
     <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,32rem)_minmax(0,1fr)] xl:grid-cols-[minmax(0,36rem)_minmax(0,1fr)] lg:gap-12">

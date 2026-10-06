@@ -5,6 +5,7 @@ import type { Product } from "@/types";
 import { useCart } from "@/context/CartContext";
 import { flyProductToCart } from "@/lib/flyToCart";
 import { findVariant, galleryFor, uniqueValues } from "@/lib/variants";
+import { trackAddToCart } from "@/lib/metaPixel";
 
 export function ProductPurchase({
   product,
@@ -120,6 +121,12 @@ export function ProductPurchase({
           }
           if (out || atLimit) return;
           addToCart(product, 1, activeSize, activeColor);
+          trackAddToCart({
+            id: product.id,
+            name: product.name,
+            category: product.categoryId,
+            price: product.price,
+          });
           flyProductToCart(event.currentTarget, galleryFor(product, activeColor)[0] || product.image);
           onAdded?.();
         }}

@@ -8,6 +8,7 @@ import { useCart } from "@/context/CartContext";
 import { flyProductToCart } from "@/lib/flyToCart";
 import { ProductQuickView } from "@/components/ProductQuickView";
 import { totalStock } from "@/lib/variants";
+import { trackAddToCart } from "@/lib/metaPixel";
 
 function formatPrice(price: number) {
   return `Rs. ${price.toLocaleString()}`;
@@ -144,6 +145,12 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
                 return;
               }
               addToCart(product);
+              trackAddToCart({
+                id: product.id,
+                name: product.name,
+                category: product.categoryId,
+                price: product.price,
+              });
               const photo = frameRef.current ?? event.currentTarget;
               flyProductToCart(photo, product.image);
             }}

@@ -8,6 +8,7 @@ import { accountApi } from "@/store/accountApi";
 import { useSignupMutation } from "@/store/authApi";
 import { apiError } from "@/store/apiError";
 import { store } from "@/store/store";
+import { identifyMetaUser, trackCompleteRegistration } from "@/lib/metaPixel";
 
 export function SignupForm() {
   const router = useRouter();
@@ -26,6 +27,14 @@ export function SignupForm() {
       const data = await signup({ name, email, password }).unwrap();
       if (data.token && data.user) {
         saveCustomerSession({ ...data.user, token: data.token });
+        const [firstName, ...rest] = data.user.name.split(" ");
+        identifyMetaUser({
+          email: data.user.email,
+          firstName,
+          lastName: rest.join(" "),
+          externalId: data.user.id,
+        });
+        trackCompleteRegistration(data.user.email);
         store.dispatch(accountApi.util.resetApiState());
         router.push("/");
         router.refresh();

@@ -7,6 +7,7 @@ import { useDispatch } from "react-redux";
 import type { Product } from "@/types";
 import { catalogApi, useGetProductsQuery } from "@/store/catalogApi";
 import type { AppDispatch } from "@/store/store";
+import { trackSearch } from "@/lib/metaPixel";
 
 function formatPrice(price: number) {
   return `Rs. ${price.toLocaleString()}`;
@@ -52,6 +53,17 @@ export function SearchView({
             (product.subcategory?.toLowerCase().includes(q) ?? false)
         )
       : [];
+
+  const resultIds = results.map((product) => product.id).join(",");
+
+  useEffect(() => {
+    const queryText = query.trim();
+    if (queryText.length < 2) return;
+    const timer = window.setTimeout(() => {
+      trackSearch(queryText, resultIds ? resultIds.split(",") : []);
+    }, 600);
+    return () => window.clearTimeout(timer);
+  }, [query, resultIds]);
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">

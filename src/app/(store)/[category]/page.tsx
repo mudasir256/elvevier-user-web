@@ -9,6 +9,7 @@ import {
 } from "@/lib/catalog";
 import { categories } from "@/data/categories";
 import type { Product } from "@/types";
+import { MetaCatalogView } from "@/components/MetaPixel";
 
 type Props = {
   params: Promise<{ category: string }>;
@@ -54,6 +55,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
     const list = products.filter((product) => product.subcategory?.toLowerCase() === style.subcategory);
     return (
       <div className="max-w-[90rem] mx-auto px-4 sm:px-6 py-10">
+        <MetaCatalogView name={style.heading} category={style.subcategory} ids={list.map((product) => product.id)} />
         <div className="mb-8 animate-fade-up">
           <h1 className="section-heading">{style.heading}</h1>
           <div className="mt-6 flex flex-wrap gap-2">
@@ -122,6 +124,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
 
   return (
     <div className="max-w-[90rem] mx-auto px-4 sm:px-6 py-10">
+      <MetaCatalogView name={heading} category={category.id} ids={list.map((product) => product.id)} />
       <div className="mb-8 animate-fade-up">
         <h1 className="section-heading capitalize">
           {heading}

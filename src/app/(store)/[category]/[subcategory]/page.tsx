@@ -4,6 +4,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { GenderShopNav, type GenderShop } from "@/components/GenderShopNav";
 import { getProductsByCategoryAndSubcategory } from "@/lib/catalog";
 import { categories } from "@/data/categories";
+import { MetaCatalogView } from "@/components/MetaPixel";
 
 type Props = {
   params: Promise<{ category: string; subcategory: string }>;
@@ -75,6 +76,7 @@ export default async function SubcategoryPage({ params }: Props) {
 
   return (
     <div className="max-w-[90rem] mx-auto px-4 sm:px-6 py-10">
+      <MetaCatalogView name={title} category={category.id} ids={list.map((product) => product.id)} />
       <div className="mb-8 animate-fade-up">
         <nav className="text-sm text-[var(--muted)] mb-1">
           <Link href="/" className="hover:text-[var(--accent)]">
