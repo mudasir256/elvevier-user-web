@@ -12,6 +12,25 @@ export type AdminLoginResponse = {
   admin: AdminSession;
 };
 
+export type Banner = {
+  id: string;
+  image: string;
+  mobileImage: string;
+  alt: string;
+  href: string;
+  sortOrder: number;
+  active: boolean;
+};
+
+export type BannerInput = {
+  image: string;
+  mobileImage?: string;
+  alt?: string;
+  href?: string;
+  sortOrder?: number;
+  active?: boolean;
+};
+
 export type ProductPayload = {
   name: string;
   price: number;
@@ -32,7 +51,7 @@ export type ProductPayload = {
 export const adminApi = createApi({
   reducerPath: "adminApi",
   baseQuery: adminBaseQuery,
-  tagTypes: ["AdminProduct", "AdminSession"],
+  tagTypes: ["AdminProduct", "AdminSession", "AdminBanner"],
   refetchOnFocus: true,
   refetchOnReconnect: true,
   keepUnusedDataFor: 120,
@@ -81,6 +100,34 @@ export const adminApi = createApi({
     uploadProductImages: builder.mutation<{ url?: string; urls: string[] }, FormData>({
       query: (body) => ({ url: "/admin/products/image", method: "POST", body }),
     }),
+    getBanners: builder.query<Banner[], void>({
+      query: () => "/admin/banners",
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map((banner) => ({ type: "AdminBanner" as const, id: banner.id })),
+              { type: "AdminBanner" as const, id: "LIST" },
+            ]
+          : [{ type: "AdminBanner" as const, id: "LIST" }],
+    }),
+    createBanner: builder.mutation<{ id: string }, BannerInput>({
+      query: (body) => ({ url: "/admin/banners", method: "POST", body }),
+      invalidatesTags: [{ type: "AdminBanner", id: "LIST" }],
+    }),
+    updateBanner: builder.mutation<{ ok: boolean }, { id: string; body: Partial<BannerInput> }>({
+      query: ({ id, body }) => ({ url: `/admin/banners/${id}`, method: "PATCH", body }),
+      invalidatesTags: (_result, _error, { id }) => [
+        { type: "AdminBanner", id },
+        { type: "AdminBanner", id: "LIST" },
+      ],
+    }),
+    deleteBanner: builder.mutation<{ ok: boolean }, string>({
+      query: (id) => ({ url: `/admin/banners/${id}`, method: "DELETE" }),
+      invalidatesTags: [{ type: "AdminBanner", id: "LIST" }],
+    }),
+    uploadBannerImage: builder.mutation<{ url: string }, FormData>({
+      query: (body) => ({ url: "/admin/banners/image", method: "POST", body }),
+    }),
   }),
 });
 
@@ -92,4 +139,9 @@ export const {
   useUpdateProductMutation,
   useDeleteProductMutation,
   useUploadProductImagesMutation,
+  useGetBannersQuery,
+  useCreateBannerMutation,
+  useUpdateBannerMutation,
+  useDeleteBannerMutation,
+  useUploadBannerImageMutation,
 } = adminApi;
