@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ProductCard } from "@/components/ProductCard";
@@ -10,6 +11,9 @@ import {
 import { categories } from "@/data/categories";
 import type { Product } from "@/types";
 import { MetaCatalogView } from "@/components/MetaPixel";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbJsonLd, collectionJsonLd } from "@/lib/seo";
+import { pageMeta } from "@/lib/site";
 
 type Props = {
   params: Promise<{ category: string }>;
@@ -38,6 +42,53 @@ const apparelTypes: Record<string, { label: string; heading: string }> = {
   jacket: { label: "Jacket", heading: "Jackets" },
 };
 
+const styleCanonical: Record<string, string> = {
+  jacket: "/jackets",
+  hoodie: "/hoodies",
+  trouser: "/trousers",
+  sweatshirt: "/sweatshirts",
+};
+
+function categorySeo(categorySlug: string, filter?: string, type?: string) {
+  const slug = categorySlug.toLowerCase();
+  const style = stylePages[slug];
+  if (style) {
+    return {
+      title: style.heading,
+      description: `Shop original ${style.heading.toLowerCase()} for men and women at Empulse. Delivery across Pakistan and free shipping over Rs. 5,000.`,
+      path: styleCanonical[slug] ?? `/${slug}`,
+    };
+  }
+  const category = categories.find((item) => item.slug === slug);
+  if (!category) return null;
+  const gender = category.id === "men" || category.id === "women" ? category.id : null;
+  const typeKey = type?.toLowerCase();
+  const typeInfo = gender && typeKey ? apparelTypes[typeKey] : undefined;
+  const isNew = filter === "new";
+  const who = gender === "men" ? "Men" : "Women";
+  const title = isNew
+    ? `New In – ${category.name}`
+    : gender && typeInfo
+      ? `${who}'s ${typeInfo.heading}`
+      : gender
+        ? who
+        : category.name;
+  const path = isNew ? `/${slug}?filter=new` : typeInfo && typeKey ? `/${slug}?type=${typeKey}` : `/${slug}`;
+  return {
+    title,
+    description: `Shop ${title} at Empulse. Original clothing, shoes and accessories with delivery across Pakistan.`,
+    path,
+  };
+}
+
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
+  const { category: categorySlug } = await params;
+  const { filter, type } = await searchParams;
+  const seo = categorySeo(categorySlug, filter, type);
+  if (!seo) return { title: "Shop" };
+  return pageMeta(seo);
+}
+
 function forGender(product: Product, gender: GenderShop) {
   if (gender === "men") {
     return product.categoryId === "men" || (product.categoryId === "shoes" && product.subcategory?.toLowerCase() === "man");
@@ -53,8 +104,15 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   if (style) {
     const products = await getActiveProducts();
     const list = products.filter((product) => product.subcategory?.toLowerCase() === style.subcategory);
+    const styleSeo = categorySeo(categorySlug);
     return (
       <div className="max-w-[90rem] mx-auto px-4 sm:px-6 py-10">
+        {styleSeo ? (
+          <>
+            <JsonLd data={collectionJsonLd({ name: style.heading, path: styleSeo.path, products: list })} />
+            <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: style.heading, path: styleSeo.path }])} />
+          </>
+        ) : null}
         <MetaCatalogView name={style.heading} category={style.subcategory} ids={list.map((product) => product.id)} />
         <div className="mb-8 animate-fade-up">
           <h1 className="section-heading">{style.heading}</h1>
@@ -122,8 +180,15 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         ? who
         : category.name;
 
+  const seo = categorySeo(categorySlug, filter, type);
   return (
     <div className="max-w-[90rem] mx-auto px-4 sm:px-6 py-10">
+      {seo ? (
+        <>
+          <JsonLd data={collectionJsonLd({ name: heading, path: seo.path, products: list })} />
+          <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: heading, path: seo.path }])} />
+        </>
+      ) : null}
       <MetaCatalogView name={heading} category={category.id} ids={list.map((product) => product.id)} />
       <div className="mb-8 animate-fade-up">
         <h1 className="section-heading capitalize">

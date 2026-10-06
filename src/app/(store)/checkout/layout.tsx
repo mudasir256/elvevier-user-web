@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { privateMeta } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "Checkout – Empulse",
-  description: "Complete your order. Enter address and payment details.",
-};
+export const metadata: Metadata = privateMeta({
+  title: "Checkout",
+  description: "Complete your Empulse order.",
+  path: "/checkout",
+});
 
 export default function CheckoutLayout({
   children,

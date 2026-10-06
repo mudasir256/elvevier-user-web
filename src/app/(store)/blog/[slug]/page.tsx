@@ -3,6 +3,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { blogs, formatBlogDate, getBlog } from "@/data/blogs";
+import { JsonLd } from "@/components/JsonLd";
+import { articleJsonLd, breadcrumbJsonLd } from "@/lib/seo";
+import { pageMeta } from "@/lib/site";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -13,10 +16,21 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = getBlog(slug);
-  if (!post) return { title: "Blog – Empulse" };
+  if (!post) return { title: "Blog" };
   return {
-    title: `${post.title} – Empulse`,
-    description: post.excerpt,
+    ...pageMeta({
+      title: post.title,
+      description: post.excerpt,
+      path: `/blog/${post.slug}`,
+    }),
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      url: `/blog/${post.slug}`,
+      type: "article",
+      publishedTime: post.date,
+      images: [{ url: post.image, alt: post.title }],
+    },
   };
 }
 
@@ -28,6 +42,14 @@ export default async function BlogPostPage({ params }: Props) {
 
   return (
     <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6 md:py-16">
+      <JsonLd data={articleJsonLd(post)} />
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Blogs", path: "/blog" },
+          { name: post.title, path: `/blog/${post.slug}` },
+        ])}
+      />
       <p className="text-sm text-[var(--muted)]">
         <Link href="/blog" className="hover:text-[#4a142a]">
           Blogs

@@ -1,4 +1,10 @@
+import type { Metadata } from "next";
 import { AdminAppShell } from "@/components/admin/AppShell";
+
+export const metadata: Metadata = {
+  title: { absolute: "Empulse admin" },
+  robots: { index: false, follow: false },
+};
 
 export default function AdminLayout({
   children,

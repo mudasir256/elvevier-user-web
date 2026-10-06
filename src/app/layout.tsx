@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { Poppins } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
@@ -8,6 +8,7 @@ import { MetaPixelPageView } from "@/components/MetaPixel";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { readCartCookie } from "@/lib/cartToken";
 import { ReduxProvider } from "@/store/ReduxProvider";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -15,52 +16,59 @@ const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
 });
 
-const siteTitle = "Empulse – Fashion that feels like home";
-const siteDescription =
-  "Men's, women's & kids clothing, shoes, belts, caps, bags and more. Free shipping on orders above Rs. 5,000.";
+const defaultTitle = "Empulse | Original Fashion, Shoes & Accessories in Pakistan";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const headerList = await headers();
-  const host = headerList.get("x-forwarded-host") ?? headerList.get("host");
-  const proto =
-    headerList.get("x-forwarded-proto") ??
-    (host?.includes("localhost") ? "http" : "https");
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    (host ? `${proto}://${host}` : "http://localhost:3000");
-
-  return {
-  metadataBase: new URL(siteUrl),
-  title: siteTitle,
-  description: siteDescription,
-  applicationName: "Empulse",
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: defaultTitle,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  category: "shopping",
+  authors: [{ name: SITE_NAME, url: SITE_URL }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   icons: {
     icon: [{ url: "/favicon.png?v=4", type: "image/png", sizes: "512x512" }],
     apple: [{ url: "/apple-icon.png?v=4", sizes: "180x180" }],
     shortcut: "/favicon.ico?v=4",
   },
   openGraph: {
-    title: siteTitle,
-    description: siteDescription,
-    siteName: "Empulse",
+    title: defaultTitle,
+    description: SITE_DESCRIPTION,
+    siteName: SITE_NAME,
     type: "website",
+    url: SITE_URL,
+    locale: "en_PK",
     images: [
       {
         url: "/og.png?v=4",
         width: 1200,
         height: 630,
-        alt: "Empulse",
+        alt: "Empulse fashion, shoes and accessories",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: siteTitle,
-    description: siteDescription,
+    title: defaultTitle,
+    description: SITE_DESCRIPTION,
     images: ["/og.png?v=4"],
   },
-  };
-}
+};
 
 export const dynamic = "force-dynamic";
 
@@ -73,7 +81,7 @@ export default async function RootLayout({
   const initialItems = readCartCookie(cookieStore.get("empulse_cart_items")?.value) as CartItem[];
 
   return (
-    <html lang="en" className={poppins.variable} suppressHydrationWarning>
+    <html lang="en-PK" className={poppins.variable} suppressHydrationWarning>
       <head>
         <Script id="meta-pixel" strategy="beforeInteractive">{`
           !function(f,b,e,v,n,t,s)

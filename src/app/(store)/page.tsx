@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { HeroSlider } from "@/components/HeroSlider";
 import { ProductCard } from "@/components/ProductCard";
@@ -9,6 +10,19 @@ import { AboutUs } from "@/components/AboutUs";
 import { blogs } from "@/data/blogs";
 import { getActiveProducts } from "@/lib/catalog";
 import type { Product } from "@/types";
+import { JsonLd } from "@/components/JsonLd";
+import { siteGraphJsonLd } from "@/lib/seo";
+import { pageMeta } from "@/lib/site";
+
+export const metadata: Metadata = {
+  ...pageMeta({
+    title: "Original Fashion, Shoes & Accessories in Pakistan",
+    description:
+      "Shop original men's, women's and kids' clothing, shoes, belts, caps and bags at Empulse. Nationwide delivery in Pakistan. Free shipping over Rs. 5,000.",
+    path: "/",
+  }),
+  title: { absolute: "Empulse | Original Fashion, Shoes & Accessories in Pakistan" },
+};
 
 const styleCategories: {
   name: string;
@@ -34,7 +48,16 @@ export default async function HomePage() {
 
   return (
     <div className="grain-overlay">
+      <JsonLd data={siteGraphJsonLd()} />
       <HeroSlider />
+
+      <section className="mx-auto max-w-[90rem] px-4 pt-10 sm:px-6 md:pt-14">
+        <h1 className="section-heading">Original fashion, shoes and accessories</h1>
+        <p className="type-copy mt-3 max-w-2xl text-[var(--muted)]">
+          Empulse is a Pakistan store for men&apos;s, women&apos;s and kids&apos; clothing, shoes, belts, caps and bags.
+          Original brands, nationwide delivery, and free shipping on orders above Rs. 5,000.
+        </p>
+      </section>
 
       <ShopByStyle categories={styles} />
 

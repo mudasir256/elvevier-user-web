@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { JsonLd } from "@/components/JsonLd";
+import { faqJsonLd } from "@/lib/seo";
+import { pageMeta } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "FAQs – Empulse",
-  description: "Frequently asked questions about orders, shipping, returns and more.",
-};
+export const metadata: Metadata = pageMeta({
+  title: "FAQs",
+  description: "Answers about Empulse shipping, free delivery, order tracking, returns and sizing in Pakistan.",
+  path: "/faqs",
+});
 
 const faqs = [
   {
@@ -44,6 +48,7 @@ const delayClasses = ["", "animation-delay-100", "animation-delay-200", "animati
 export default function FAQsPage() {
   return (
     <div className="bg-warm-radial">
+      <JsonLd data={faqJsonLd(faqs)} />
       {/* Header */}
       <section className="bg-[#f4e6ec] py-16 md:py-20 border-b border-[#e7d0da]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">

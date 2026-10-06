@@ -29,7 +29,7 @@ export function HeroMedia() {
       {!desktopReady ? <div className="skeleton absolute inset-0 z-10 hidden md:block" aria-hidden /> : null}
       <Image
         src={assets.heroMobile}
-        alt="Empulse, we sell all original brands, coming soon"
+        alt="Empulse fashion banner for original clothing, shoes and accessories"
         fill
         priority
         className="object-cover object-center md:hidden"
@@ -38,7 +38,7 @@ export function HeroMedia() {
       />
       <Image
         src={assets.hero}
-        alt="Empulse, we sell all original brands, coming soon"
+        alt="Empulse fashion banner for original clothing, shoes and accessories"
         fill
         priority
         className="hidden object-cover object-center md:block"

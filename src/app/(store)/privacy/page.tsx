@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "Privacy Policy – Empulse",
-  description: "How Empulse collects, uses and protects your personal information.",
-};
+export const metadata: Metadata = pageMeta({
+  title: "Privacy Policy",
+  description: "How Empulse collects, uses and protects your personal information when you shop or create an account.",
+  path: "/privacy",
+});
 
 const sections = [
   {

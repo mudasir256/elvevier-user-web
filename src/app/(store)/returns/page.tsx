@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { pageMeta } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "Returns & Exchanges – Empulse",
-  description:
-    "How to return or exchange your Empulse order. Easy process within 14 days.",
-};
+export const metadata: Metadata = pageMeta({
+  title: "Returns and Exchanges",
+  description: "Return or exchange most unused Empulse items within 14 days of delivery in Pakistan.",
+  path: "/returns",
+});
 
 const steps = [
   {

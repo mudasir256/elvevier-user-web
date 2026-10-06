@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { assets } from "@/data/assets";
+import { pageMeta } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "About Us – Empulse",
+export const metadata: Metadata = pageMeta({
+  title: "About Us",
   description:
-    "Learn about Empulse – cozy fashion for everyone. Meet our CEO Arsal Ali. Quality clothing, shoes and accessories for men, women and kids.",
-};
+    "Empulse is a Pakistan fashion store for clothing, shoes and accessories. Read our story and how we choose original brands.",
+  path: "/about",
+});
 
 export default function AboutPage() {
   return (

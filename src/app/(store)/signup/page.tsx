@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SignupForm } from "@/components/SignupForm";
+import { privateMeta } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "Sign up – Empulse",
+export const metadata: Metadata = privateMeta({
+  title: "Sign up",
   description: "Create your Empulse account for faster checkout and order tracking.",
-};
+  path: "/signup",
+});
 
 export default function SignupPage() {
   return (

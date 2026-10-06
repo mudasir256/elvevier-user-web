@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { contact } from "@/data/contact";
+import { pageMeta } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "Contact Us – Empulse",
-  description: "Get in touch with Empulse. We're here to help with orders, returns and questions.",
-};
+export const metadata: Metadata = pageMeta({
+  title: "Contact Us",
+  description: "Contact Empulse by email or WhatsApp for orders, shipping and returns. We reply within 1–2 business days.",
+  path: "/contact",
+});
 
 const channels = [
   {

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ProductCard } from "@/components/ProductCard";
@@ -5,6 +6,9 @@ import { GenderShopNav, type GenderShop } from "@/components/GenderShopNav";
 import { getProductsByCategoryAndSubcategory } from "@/lib/catalog";
 import { categories } from "@/data/categories";
 import { MetaCatalogView } from "@/components/MetaPixel";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbJsonLd, collectionJsonLd } from "@/lib/seo";
+import { pageMeta } from "@/lib/site";
 
 type Props = {
   params: Promise<{ category: string; subcategory: string }>;
@@ -54,6 +58,27 @@ const validSubcategories: Record<string, string[]> = {
   accessories: ["eyewear"],
 };
 
+function subcategoryTitle(cat: string, sub: string) {
+  const shoeGender = cat === "shoes" && (sub === "men" || sub === "women") ? sub : null;
+  if (shoeGender) return `${shoeGender === "men" ? "Men" : "Women"}'s Shoes`;
+  return subcategoryTitles[cat]?.[sub] ?? sub.charAt(0).toUpperCase() + sub.slice(1);
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { category: categorySlug, subcategory: subcategorySlug } = await params;
+  const cat = categorySlug.toLowerCase();
+  const sub = subcategorySlug.toLowerCase();
+  if (!categorySlugs.includes(cat as (typeof categorySlugs)[number])) return { title: "Shop" };
+  if (!validSubcategories[cat]?.includes(sub)) return { title: "Shop" };
+  const category = categories.find((item) => item.slug === cat);
+  const title = subcategoryTitle(cat, sub);
+  return pageMeta({
+    title,
+    description: `Shop ${title} at Empulse${category ? ` in ${category.name}` : ""}. Original styles with delivery across Pakistan.`,
+    path: `/${cat}/${sub}`,
+  });
+}
+
 export default async function SubcategoryPage({ params }: Props) {
   const { category: categorySlug, subcategory: subcategorySlug } = await params;
   const cat = categorySlug.toLowerCase();
@@ -67,15 +92,20 @@ export default async function SubcategoryPage({ params }: Props) {
   if (!category) notFound();
 
   const shoeGender: GenderShop | null = cat === "shoes" && (sub === "men" || sub === "women") ? sub : null;
-  const title = shoeGender
-    ? `${shoeGender === "men" ? "Men" : "Women"}'s Shoes`
-    : subcategoryTitles[cat]?.[sub] ??
-      subcategorySlug.charAt(0).toUpperCase() + subcategorySlug.slice(1);
+  const title = subcategoryTitle(cat, sub);
 
   const list = await getProductsByCategoryAndSubcategory(category.id, sub);
 
   return (
     <div className="max-w-[90rem] mx-auto px-4 sm:px-6 py-10">
+      <JsonLd data={collectionJsonLd({ name: title, path: `/${cat}/${sub}`, products: list })} />
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: category.name, path: `/${cat}` },
+          { name: title, path: `/${cat}/${sub}` },
+        ])}
+      />
       <MetaCatalogView name={title} category={category.id} ids={list.map((product) => product.id)} />
       <div className="mb-8 animate-fade-up">
         <nav className="text-sm text-[var(--muted)] mb-1">

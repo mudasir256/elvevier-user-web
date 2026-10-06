@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { BlogCard } from "@/components/BlogCard";
 import { blogs } from "@/data/blogs";
+import { pageMeta } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "Blogs – Empulse",
-  description: "Notes on hoodies, trousers, jeans, and shoes from Empulse.",
-};
+export const metadata: Metadata = pageMeta({
+  title: "Blogs",
+  description: "Style notes from Empulse on hoodies, trousers, jeans and shoes, and how to wear them.",
+  path: "/blog",
+});
 
 export default function BlogsPage() {
   return (

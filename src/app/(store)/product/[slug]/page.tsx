@@ -1,13 +1,41 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { getActiveProducts, getProductBySlug } from "@/lib/catalog";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbJsonLd, productJsonLd } from "@/lib/seo";
+import { pageMeta } from "@/lib/site";
 import { ProductDetail } from "./ProductDetail";
 
 type Props = { params: Promise<{ slug: string }> };
 
 function formatPrice(price: number) {
   return `Rs. ${price.toLocaleString()}`;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const product = await getProductBySlug(slug);
+  if (!product) return { title: "Product" };
+  const description =
+    product.description?.trim() ||
+    `${product.name}${product.color ? ` in ${product.color}` : ""}. Shop original ${product.categoryId} at Empulse with delivery across Pakistan.`;
+  const images = (product.images?.length ? product.images : [product.image]).filter(Boolean);
+  return {
+    ...pageMeta({
+      title: product.name,
+      description: description.slice(0, 160),
+      path: `/product/${product.slug}`,
+    }),
+    openGraph: {
+      title: product.name,
+      description: description.slice(0, 160),
+      url: `/product/${product.slug}`,
+      type: "website",
+      images: images.slice(0, 4).map((url) => ({ url, alt: product.name })),
+    },
+  };
 }
 
 export default async function ProductPage({ params }: Props) {
@@ -21,7 +49,15 @@ export default async function ProductPage({ params }: Props) {
 
   return (
     <div className="mx-auto max-w-[100rem] px-4 py-8 sm:px-6 lg:px-10">
-      <nav className="text-sm text-[var(--muted)] mb-6">
+      <JsonLd data={productJsonLd(product)} />
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: product.categoryId, path: `/${product.categoryId}` },
+          { name: product.name, path: `/product/${product.slug}` },
+        ])}
+      />
+      <nav aria-label="Breadcrumb" className="text-sm text-[var(--muted)] mb-6">
         <Link href="/" className="hover:text-[var(--accent)]">
           Home
         </Link>

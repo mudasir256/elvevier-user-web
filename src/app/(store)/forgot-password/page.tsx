@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ForgotPasswordForm } from "@/components/ForgotPasswordForm";
+import { privateMeta } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "Forgot password – Empulse",
+export const metadata: Metadata = privateMeta({
+  title: "Forgot password",
   description: "Reset your Empulse account password.",
-};
+  path: "/forgot-password",
+});
 
 export default function ForgotPasswordPage() {
   return (

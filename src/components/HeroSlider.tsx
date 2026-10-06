@@ -17,7 +17,6 @@ const offers: { label: string; icon?: "shoe" | "truck" }[] = [
   { label: "100% original" },
   { label: "First check then pay", icon: "shoe" },
   { label: "Nationwide delivery", icon: "truck" },
-  { label: "Coming soon" },
 ];
 
 function OfferTicker() {
