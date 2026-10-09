@@ -21,7 +21,7 @@ export const metadata: Metadata = {
       "Shop original men's, women's and kids' clothing, shoes, belts, caps and bags at Empulse. Nationwide delivery in Pakistan. Free shipping over Rs. 5,000.",
     path: "/",
   }),
-  title: { absolute: "Empulse | Original Fashion, Shoes & Accessories in Pakistan" },
+  title: { absolute: "Empulse | Premium   By Origin" },
 };
 
 const styleCategories: {

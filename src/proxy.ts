@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+const COMING_SOON_ENABLED = process.env.COMING_SOON === "true";
 const COMING_SOON_HOSTS = new Set(["empulse.store", "www.empulse.store"]);
 
 function hostname(request: NextRequest) {
@@ -9,7 +10,9 @@ function hostname(request: NextRequest) {
 }
 
 export function proxy(request: NextRequest) {
-  if (!COMING_SOON_HOSTS.has(hostname(request))) return NextResponse.next();
+  if (!COMING_SOON_ENABLED || !COMING_SOON_HOSTS.has(hostname(request))) {
+    return NextResponse.next();
+  }
 
   const { pathname } = request.nextUrl;
   if (
