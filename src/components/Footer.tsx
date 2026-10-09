@@ -44,8 +44,8 @@ export function Footer() {
               />
             </Link>
             <p className="type-copy mt-5 max-w-xs text-[var(--cream)]/70">
-              Cozy fashion for everyone. Quality clothing, shoes and accessories
-              crafted with care for men, women and kids.
+              Quality clothing, shoes and accessories crafted with care for men,
+              women and kids.
             </p>
             <ul className="mt-5 space-y-2 text-sm text-[var(--cream)]/80">
               <li>
