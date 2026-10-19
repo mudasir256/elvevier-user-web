@@ -37,6 +37,7 @@ export type ProductPayload = {
   compareAtPrice: string;
   categoryId: string;
   subcategory: string;
+  brand: string;
   color: string;
   variants: ProductVariant[];
   colorImages: ColorGallery[];
@@ -51,7 +52,7 @@ export type ProductPayload = {
 export const adminApi = createApi({
   reducerPath: "adminApi",
   baseQuery: adminBaseQuery,
-  tagTypes: ["AdminProduct", "AdminSession", "AdminBanner"],
+  tagTypes: ["AdminProduct", "AdminSession", "AdminBanner", "AdminBrand"],
   refetchOnFocus: true,
   refetchOnReconnect: true,
   keepUnusedDataFor: 120,
@@ -81,13 +82,14 @@ export const adminApi = createApi({
     }),
     createProduct: builder.mutation<{ id: string }, ProductPayload>({
       query: (body) => ({ url: "/admin/products", method: "POST", body }),
-      invalidatesTags: [{ type: "AdminProduct", id: "LIST" }],
+      invalidatesTags: [{ type: "AdminProduct", id: "LIST" }, { type: "AdminBrand", id: "LIST" }],
     }),
     updateProduct: builder.mutation<{ ok: boolean }, { id: string; body: ProductPayload }>({
       query: ({ id, body }) => ({ url: `/admin/products/${id}`, method: "PATCH", body }),
       invalidatesTags: (_result, _error, { id }) => [
         { type: "AdminProduct", id },
         { type: "AdminProduct", id: "LIST" },
+        { type: "AdminBrand", id: "LIST" },
       ],
     }),
     deleteProduct: builder.mutation<{ ok: boolean }, string>({
@@ -99,6 +101,14 @@ export const adminApi = createApi({
     }),
     uploadProductImages: builder.mutation<{ url?: string; urls: string[] }, FormData>({
       query: (body) => ({ url: "/admin/products/image", method: "POST", body }),
+    }),
+    getAdminBrands: builder.query<{ slug: string; name: string }[], void>({
+      query: () => "/admin/brands",
+      providesTags: [{ type: "AdminBrand", id: "LIST" }],
+    }),
+    createBrand: builder.mutation<{ ok: boolean }, { name: string }>({
+      query: (body) => ({ url: "/admin/brands", method: "POST", body }),
+      invalidatesTags: [{ type: "AdminBrand", id: "LIST" }],
     }),
     getBanners: builder.query<Banner[], void>({
       query: () => "/admin/banners",
@@ -139,6 +149,8 @@ export const {
   useUpdateProductMutation,
   useDeleteProductMutation,
   useUploadProductImagesMutation,
+  useGetAdminBrandsQuery,
+  useCreateBrandMutation,
   useGetBannersQuery,
   useCreateBannerMutation,
   useUpdateBannerMutation,

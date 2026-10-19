@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { getActiveProducts, getProductBySlug } from "@/lib/catalog";
+import { getActiveProducts, getProductBySlug, slugify } from "@/lib/catalog";
 import { JsonLd } from "@/components/JsonLd";
 import { breadcrumbJsonLd, productJsonLd } from "@/lib/seo";
 import { pageMeta } from "@/lib/site";
 import { ProductDetail } from "./ProductDetail";
 
-type Props = { params: Promise<{ slug: string }> };
+type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ color?: string }> };
 
 function formatPrice(price: number) {
   return `Rs. ${price.toLocaleString()}`;
@@ -38,10 +38,29 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function ProductPage({ params }: Props) {
+// Old one-colour links (e.g. /product/zara-relaxed-fit-trouser-black) point at products
+// that are now a single product with colour options.
+async function findMergedProduct(slug: string) {
+  const products = await getActiveProducts();
+  return products
+    .filter((item) => slug.startsWith(`${item.slug}-`))
+    .map((item) => {
+      const rest = slug.slice(item.slug.length + 1);
+      const color = (item.variants ?? []).map((variant) => variant.color).find((value) => slugify(value) === rest);
+      return color ? { product: item, color } : null;
+    })
+    .find(Boolean);
+}
+
+export default async function ProductPage({ params, searchParams }: Props) {
   const { slug } = await params;
+  const { color } = await searchParams;
   const product = await getProductBySlug(slug);
-  if (!product) notFound();
+  if (!product) {
+    const merged = await findMergedProduct(slug);
+    if (merged) permanentRedirect(`/product/${merged.product.slug}?color=${encodeURIComponent(merged.color)}`);
+    notFound();
+  }
 
   const related = (await getActiveProducts())
     .filter((item) => item.categoryId === product.categoryId && item.id !== product.id)
@@ -72,7 +91,7 @@ export default async function ProductPage({ params }: Props) {
         <span>{product.name}</span>
       </nav>
 
-      <ProductDetail product={product} />
+      <ProductDetail product={product} initialColor={color} />
 
       {related.length > 0 && (
         <section className="mt-20 pt-16 border-t border-[var(--border)]">

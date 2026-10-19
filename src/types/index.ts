@@ -1,6 +1,7 @@
 export type CategoryId =
   | "women"
   | "men"
+  | "unisex"
   | "kids"
   | "shoes"
   | "accessories"
@@ -37,6 +38,7 @@ export interface Product {
   compareAtPrice?: number;
   categoryId: CategoryId;
   subcategory?: string;
+  brand?: string;
   color: string;
   variants?: ProductVariant[];
   colorImages?: ColorGallery[];

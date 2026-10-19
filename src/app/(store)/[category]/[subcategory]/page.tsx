@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ProductCard } from "@/components/ProductCard";
+import { BrandSections } from "@/components/BrandSections";
+import { ComingSoon, whoLabel } from "@/components/ComingSoon";
 import { GenderShopNav, type GenderShop } from "@/components/GenderShopNav";
 import { getProductsByCategoryAndSubcategory } from "@/lib/catalog";
 import { categories } from "@/data/categories";
@@ -12,6 +13,7 @@ import { pageMeta } from "@/lib/site";
 
 type Props = {
   params: Promise<{ category: string; subcategory: string }>;
+  searchParams: Promise<{ brand?: string }>;
 };
 
 const categorySlugs = ["women", "men", "kids", "shoes", "accessories"] as const;
@@ -79,8 +81,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   });
 }
 
-export default async function SubcategoryPage({ params }: Props) {
+export default async function SubcategoryPage({ params, searchParams }: Props) {
   const { category: categorySlug, subcategory: subcategorySlug } = await params;
+  const { brand } = await searchParams;
   const cat = categorySlug.toLowerCase();
   const sub = subcategorySlug.toLowerCase();
 
@@ -95,6 +98,24 @@ export default async function SubcategoryPage({ params }: Props) {
   const title = subcategoryTitle(cat, sub);
 
   const list = await getProductsByCategoryAndSubcategory(category.id, sub);
+  const otherShoes = shoeGender && !list.length
+    ? await getProductsByCategoryAndSubcategory(category.id, shoeGender === "men" ? "women" : "men")
+    : [];
+  const shoeWho = cat === "shoes" ? whoLabel(sub) : "";
+  const emptyState = shoeWho
+    ? {
+        title: `${shoeWho} shoes are on their way`,
+        text: `We're putting together a new range of ${sub === "women" ? "women's" : sub === "men" ? "men's" : "kids'"} sneakers, sandals and more. Check back soon.`,
+        ...(otherShoes.length && shoeGender
+          ? { href: `/shoes/${shoeGender === "men" ? "women" : "men"}`, cta: `Shop ${shoeGender === "men" ? "Women" : "Men"}'s Shoes` }
+          : {}),
+      }
+    : {
+        title: `${whoLabel(cat)} ${title.toLowerCase()} ${title.endsWith("s") ? "are on their way" : "is on its way"}`.trim(),
+        text: `We're putting together a new range of ${title.toLowerCase()}. Check back soon.`,
+        href: `/${cat}`,
+        cta: whoLabel(cat) ? `Shop ${whoLabel(cat)} Collection` : `Shop all ${category.name}`,
+      };
 
   return (
     <div className="max-w-[90rem] mx-auto px-4 sm:px-6 py-10">
@@ -128,23 +149,9 @@ export default async function SubcategoryPage({ params }: Props) {
         {shoeGender && <GenderShopNav gender={shoeGender} active="shoes" />}
       </div>
       {list.length === 0 ? (
-        <p className="type-copy py-12 text-center text-[var(--muted)] animate-fade-up">
-          No products in this section yet.{" "}
-          <Link href={`/${cat}`} className="text-[var(--accent)] hover:underline">
-            View all {category.name}
-          </Link>
-        </p>
+        <ComingSoon {...emptyState} />
       ) : (
-        <>
-          <p className="text-sm text-[var(--muted)] mb-6 animate-fade-up">
-            {list.length} product{list.length !== 1 ? "s" : ""}
-          </p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-            {list.map((product, i) => (
-              <ProductCard key={product.id} product={product} index={i} />
-            ))}
-          </div>
-        </>
+        <BrandSections products={list} basePath={`/${cat}/${sub}`} brand={brand} heading={title} />
       )}
     </div>
   );

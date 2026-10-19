@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { verifyAdmin, unauthorizedResponse } from "@/lib/auth";
 import { isCategoryId } from "@/data/productCategories";
-import { ensureCatalog, listProducts, slugify, resolveProductPhotos } from "@/lib/catalog";
+import { listProducts, slugify, resolveProductPhotos, saveBrand } from "@/lib/catalog";
 import { getSupabase } from "@/lib/supabase";
 import { colorLabel, normalizeColorImages, normalizeVariants } from "@/lib/variants";
 
@@ -12,6 +12,7 @@ function cleanProduct(body: Record<string, unknown>, existingSlug?: string) {
   const compareAtPrice = compareRaw === "" || compareRaw == null ? null : Number(compareRaw);
   const categoryId = String(body.categoryId ?? "");
   const subcategory = String(body.subcategory ?? "").trim();
+  const brand = String(body.brand ?? "").trim().slice(0, 60);
   const color = String(body.color ?? "").trim();
   const description = String(body.description ?? "").trim();
   const colorImages = normalizeColorImages(body.colorImages);
@@ -34,6 +35,7 @@ function cleanProduct(body: Record<string, unknown>, existingSlug?: string) {
       compare_at_price: compareAtPrice,
       category_id: categoryId,
       subcategory,
+      brand,
       color: colorLabel(variants, color),
       variants,
       color_images: colorImages,
@@ -64,7 +66,7 @@ export async function GET(request: Request) {
     }
     if (search) {
       products = products.filter((product) =>
-        [product.name, product.color, product.subcategory, product.slug].join(" ").toLowerCase().includes(search)
+        [product.name, product.brand, product.color, product.subcategory, product.slug].join(" ").toLowerCase().includes(search)
       );
     }
     return NextResponse.json(products);
@@ -87,7 +89,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: parsed.error }, { status: 400 });
     }
     const value = parsed.value;
-    await ensureCatalog();
     const supabase = getSupabase();
 
     let slug = value.slug || `product-${Date.now()}`;
@@ -100,6 +101,7 @@ export async function POST(request: Request) {
       .select("id")
       .single();
     if (error) throw error;
+    await saveBrand(value.brand).catch((err) => console.error("Save brand error:", err));
     return NextResponse.json({ id: data.id }, { status: 201 });
   } catch (err) {
     console.error("Create product error:", err);

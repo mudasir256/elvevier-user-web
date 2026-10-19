@@ -2,9 +2,12 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { brandHref } from "@/lib/brands";
 import type { Product } from "@/types";
 import { ProductPurchase } from "@/components/ProductPurchase";
 import { SwipeGallery } from "@/components/SwipeGallery";
+import { ImageMagnifier } from "@/components/ImageMagnifier";
 import { galleryFor, uniqueValues } from "@/lib/variants";
 import { trackViewContent } from "@/lib/metaPixel";
 
@@ -12,8 +15,11 @@ function formatPrice(price: number) {
   return `Rs. ${price.toLocaleString()}`;
 }
 
-export function ProductDetail({ product }: { product: Product }) {
-  const [color, setColor] = useState(uniqueValues(product.variants ?? [], "color")[0] ?? "");
+export function ProductDetail({ product, initialColor }: { product: Product; initialColor?: string }) {
+  const [color, setColor] = useState(() => {
+    const colors = uniqueValues(product.variants ?? [], "color");
+    return colors.find((item) => item.toLowerCase() === initialColor?.trim().toLowerCase()) ?? colors[0] ?? "";
+  });
   const photos = galleryFor(product, color);
   const [active, setActive] = useState(0);
   const onColorChange = useCallback((next: string) => {
@@ -44,6 +50,7 @@ export function ProductDetail({ product }: { product: Product }) {
         priority
         className="aspect-square rounded-2xl bg-white"
       >
+        <ImageMagnifier src={photos[active] ?? photos[0] ?? product.image} />
         {product.new ? (
           <span className="absolute top-4 left-4 z-10 rounded bg-[var(--foreground)] px-3 py-1 text-sm font-medium text-[var(--cream)]">
             New
@@ -52,7 +59,17 @@ export function ProductDetail({ product }: { product: Product }) {
       </SwipeGallery>
 
       <div>
-        <p className="text-sm uppercase tracking-wider text-[var(--muted)]">{product.color}</p>
+        <p className="text-sm uppercase tracking-wider text-[var(--muted)]">
+          {product.brand ? (
+            <>
+              <Link href={brandHref(product.brand)} className="font-semibold text-[#4a142a] hover:underline">
+                {product.brand}
+              </Link>
+              <span className="mx-2">·</span>
+            </>
+          ) : null}
+          {product.color}
+        </p>
         <h1 className="section-heading mt-2">{product.name}</h1>
         <div className="mt-4 flex items-baseline gap-3">
           <span className="text-xl font-semibold">{formatPrice(product.price)}</span>
@@ -81,7 +98,7 @@ export function ProductDetail({ product }: { product: Product }) {
           </div>
         ) : null}
 
-        <ProductPurchase compact product={product} onColorChange={onColorChange} />
+        <ProductPurchase compact product={product} onColorChange={onColorChange} initialColor={color} />
         <p className="mt-3 text-sm leading-6 text-[var(--muted)]">Free shipping on orders above Rs. 5,000. Easy returns.</p>
       </div>
     </div>

@@ -6,9 +6,11 @@ export async function HeroSlider() {
   const banners = await listActiveBanners();
   return (
     <>
-    <section className="px-3 sm:px-4 md:px-6 pt-3 md:pt-4 pb-3 md:pb-5" aria-label="Featured banners">
-      <HeroMedia banners={banners} />
-    </section>
+    {banners.length ? (
+      <section className="px-3 sm:px-4 md:px-6 pt-3 md:pt-4 pb-3 md:pb-5" aria-label="Featured banners">
+        <HeroMedia banners={banners} />
+      </section>
+    ) : null}
     <OfferTicker />
     <BrandPartners />
     </>

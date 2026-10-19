@@ -49,6 +49,7 @@ export function SearchView({
           (product) =>
             product.name.toLowerCase().includes(q) ||
             product.color.toLowerCase().includes(q) ||
+            (product.brand?.toLowerCase().includes(q) ?? false) ||
             product.categoryId.includes(q) ||
             (product.subcategory?.toLowerCase().includes(q) ?? false)
         )

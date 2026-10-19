@@ -12,16 +12,20 @@ export function ProductPurchase({
   onAdded,
   onColorChange,
   compact = false,
+  initialColor,
 }: {
   product: Product;
   onAdded?: () => void;
   onColorChange?: (color: string) => void;
   compact?: boolean;
+  initialColor?: string;
 }) {
   const { addToCart, items } = useCart();
   const variants = product.variants ?? [];
   const colors = useMemo(() => uniqueValues(variants, "color"), [variants]);
-  const [color, setColor] = useState(colors[0] ?? "");
+  const [color, setColor] = useState(
+    () => colors.find((item) => item.toLowerCase() === initialColor?.trim().toLowerCase()) ?? colors[0] ?? ""
+  );
   const sizes = useMemo(
     () => uniqueValues(variants.filter((variant) => !color || variant.color === color), "size"),
     [variants, color]

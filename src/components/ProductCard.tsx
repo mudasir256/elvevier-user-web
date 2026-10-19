@@ -163,7 +163,12 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
         <span className="inline-flex w-fit max-w-full truncate rounded-full bg-[#f4e6ec] px-2.5 py-0.5 text-[11px] font-medium text-[#4a142a]">
           {product.color}
         </span>
-        <h3 className="mt-2 h-10 overflow-hidden text-[15px] font-medium leading-5 text-[var(--foreground)] line-clamp-2 transition-colors duration-200 group-hover:text-[#4a142a]">
+        {product.brand || product.categoryId === "unisex" ? (
+          <span className="mt-2 block truncate text-[11px] font-semibold uppercase tracking-wider text-[var(--muted)]">
+            {[product.brand, product.categoryId === "unisex" ? "Unisex" : ""].filter(Boolean).join(" · ")}
+          </span>
+        ) : null}
+        <h3 className={`${product.brand || product.categoryId === "unisex" ? "mt-0.5" : "mt-2"} h-10 overflow-hidden text-[15px] font-medium leading-5 text-[var(--foreground)] line-clamp-2 transition-colors duration-200 group-hover:text-[#4a142a]`}>
           {product.name}
         </h3>
         <p className="mt-1.5 text-[15px] font-semibold text-[#4a142a]">{formatPrice(product.price)}</p>

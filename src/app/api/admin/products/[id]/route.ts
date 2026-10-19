@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { verifyAdmin, unauthorizedResponse } from "@/lib/auth";
 import { isCategoryId } from "@/data/productCategories";
-import { resolveProductPhotos } from "@/lib/catalog";
+import { resolveProductPhotos, saveBrand } from "@/lib/catalog";
 import { getSupabase } from "@/lib/supabase";
 import { colorLabel, normalizeColorImages, normalizeVariants } from "@/lib/variants";
 
@@ -52,6 +52,7 @@ export async function PATCH(request: Request, { params }: Params) {
         compare_at_price: compareAtPrice,
         category_id: categoryId,
         subcategory: String(body.subcategory ?? "").trim(),
+        brand: String(body.brand ?? "").trim().slice(0, 60),
         color,
         variants,
         color_images: colorImages,
@@ -65,6 +66,7 @@ export async function PATCH(request: Request, { params }: Params) {
       })
       .eq("id", id);
     if (error) throw error;
+    await saveBrand(String(body.brand ?? "")).catch((err) => console.error("Save brand error:", err));
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("Update product error:", err);

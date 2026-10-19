@@ -1,8 +1,8 @@
 import type { MetadataRoute } from "next";
 import { categories } from "@/data/categories";
 import { blogs } from "@/data/blogs";
-import { products as seedProducts } from "@/data/products";
-import { getActiveProducts } from "@/lib/catalog";
+import { getActiveProducts, listSavedBrands } from "@/lib/catalog";
+import { summarizeBrands } from "@/lib/brands";
 import { SITE_URL } from "@/lib/site";
 import type { Product } from "@/types";
 
@@ -30,12 +30,12 @@ function entry(path: string, priority: number): MetadataRoute.Sitemap[number] {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  let products: Product[] = seedProducts.filter((product) => product.active !== false);
+  let products: Product[] = [];
+  let savedBrands: { slug: string; name: string }[] = [];
   try {
-    const live = await getActiveProducts();
-    if (live.length) products = live;
+    [products, savedBrands] = await Promise.all([getActiveProducts(), listSavedBrands()]);
   } catch {
-    // Seed catalog keeps the sitemap available if the live catalog is unreachable.
+    // Keep the sitemap available if the live catalog is unreachable.
   }
 
   const genderPaths = ["men", "women"].flatMap((gender) => [
@@ -50,6 +50,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...subcategoryPaths.map((path) => entry(path, 0.7)),
     ...genderPaths.map((path) => entry(path, 0.7)),
     ...products.map((product) => entry(`/product/${product.slug}`, 0.8)),
+    entry("/brands", 0.7),
+    ...summarizeBrands(products, savedBrands).map((brand) => entry(`/brands/${brand.slug}`, 0.7)),
     entry("/blog", 0.6),
     ...blogs.map((post) => entry(`/blog/${post.slug}`, 0.6)),
     entry("/about", 0.5),

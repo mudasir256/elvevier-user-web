@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ProductCard } from "@/components/ProductCard";
+import { BrandSections } from "@/components/BrandSections";
+import { ComingSoon, whoLabel } from "@/components/ComingSoon";
 import { GenderShopNav, type GenderShop, type GenderShopType } from "@/components/GenderShopNav";
 import {
   getActiveProducts,
+  getBrandNamesForType,
   getProductsByCategory,
   getProductsByCategoryNew,
 } from "@/lib/catalog";
@@ -17,7 +19,7 @@ import { pageMeta } from "@/lib/site";
 
 type Props = {
   params: Promise<{ category: string }>;
-  searchParams: Promise<{ filter?: string; type?: string }>;
+  searchParams: Promise<{ filter?: string; type?: string; brand?: string }>;
 };
 
 const categorySlugs = categories.map((c) => c.slug);
@@ -91,18 +93,18 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 
 function forGender(product: Product, gender: GenderShop) {
   if (gender === "men") {
-    return product.categoryId === "men" || (product.categoryId === "shoes" && product.subcategory?.toLowerCase() === "man");
+    return product.categoryId === "men" || product.categoryId === "unisex" || (product.categoryId === "shoes" && product.subcategory?.toLowerCase() === "man");
   }
-  return product.categoryId === "women" || (product.categoryId === "shoes" && product.subcategory?.toLowerCase() === "woman");
+  return product.categoryId === "women" || product.categoryId === "unisex" || (product.categoryId === "shoes" && product.subcategory?.toLowerCase() === "woman");
 }
 
 export default async function CategoryPage({ params, searchParams }: Props) {
   const { category: categorySlug } = await params;
-  const { filter, type } = await searchParams;
+  const { filter, type, brand } = await searchParams;
 
   const style = stylePages[categorySlug.toLowerCase()];
   if (style) {
-    const products = await getActiveProducts();
+    const [products, upcoming] = await Promise.all([getActiveProducts(), getBrandNamesForType(style.subcategory)]);
     const list = products.filter((product) => product.subcategory?.toLowerCase() === style.subcategory);
     const styleSeo = categorySeo(categorySlug);
     return (
@@ -125,24 +127,13 @@ export default async function CategoryPage({ params, searchParams }: Props) {
             </Link>
           </div>
         </div>
-        {list.length === 0 ? (
-          <p className="type-copy py-12 text-center text-[var(--muted)]">
-            No products in this category yet.{" "}
-            <Link href="/" className="text-[var(--accent)] hover:underline">
-              Back to home
-            </Link>
-          </p>
+        {list.length === 0 && !upcoming.length ? (
+          <ComingSoon
+            title={`${style.heading} are on their way`}
+            text={`We're putting together a new range of ${style.heading.toLowerCase()} for men and women. Check back soon.`}
+          />
         ) : (
-          <>
-            <p className="mb-6 text-sm text-[var(--muted)]">
-              {list.length} product{list.length !== 1 ? "s" : ""}
-            </p>
-            <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-              {list.map((product, i) => (
-                <ProductCard key={product.id} product={product} index={i} />
-              ))}
-            </div>
-          </>
+          <BrandSections products={list} basePath={`/${categorySlug.toLowerCase()}`} brand={brand} heading={style.heading} upcoming={upcoming} />
         )}
       </div>
     );
@@ -159,8 +150,15 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const isNewFilter = filter === "new";
 
   let list: Product[];
+  let otherList: Product[] = [];
   if (gender && !isNewFilter) {
     const products = await getActiveProducts();
+    const other: GenderShop = gender === "men" ? "women" : "men";
+    otherList = products.filter(
+      (product) =>
+        forGender(product, other) &&
+        (!typeInfo || product.subcategory?.toLowerCase() === typeInfo.label.toLowerCase())
+    );
     const mine = products.filter((product) => forGender(product, gender));
     list = typeInfo
       ? mine.filter((product) => product.subcategory?.toLowerCase() === typeInfo.label.toLowerCase())
@@ -181,6 +179,34 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         : category.name;
 
   const seo = categorySeo(categorySlug, filter, type);
+  const upcoming = gender && typeInfo ? await getBrandNamesForType(typeInfo.label) : [];
+  const thing = typeInfo ? typeInfo.heading.toLowerCase() : "styles";
+  const otherWho = gender === "men" ? "Women" : "Men";
+  const emptyState = isNewFilter
+    ? {
+        title: "New arrivals are on their way",
+        text: `We're adding fresh ${category.name.toLowerCase()} pieces. Check back soon.`,
+      }
+    : gender
+      ? {
+          title: `${whoLabel(gender)} ${thing} are on their way`,
+          text: `We're putting together a new range of ${gender === "women" ? "women's" : "men's"} ${thing}. Check back soon.`,
+          ...(otherList.length
+            ? {
+                href: `/${gender === "men" ? "women" : "men"}${typeInfo && typeKey ? `?type=${typeKey}` : ""}`,
+                cta: `Shop ${otherWho}'s ${typeInfo ? typeInfo.heading : ""}`.trim(),
+              }
+            : {}),
+        }
+      : whoLabel(category.id)
+        ? {
+            title: `${whoLabel(category.id)} styles are on their way`,
+            text: `We're putting together a new range of ${whoLabel(category.id).toLowerCase()} clothing. Check back soon.`,
+          }
+        : {
+            title: `${category.name} ${category.name.endsWith("s") ? "are on their way" : "is on its way"}`,
+            text: `We're putting together a new range of ${category.name.toLowerCase()}. Check back soon.`,
+          };
   return (
     <div className="max-w-[90rem] mx-auto px-4 sm:px-6 py-10">
       {seo ? (
@@ -211,24 +237,17 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           </div>
         )}
       </div>
-      {list.length === 0 ? (
-        <p className="type-copy py-12 text-center text-[var(--muted)]">
-          No products in this category yet.{" "}
-          <Link href="/" className="text-[var(--accent)] hover:underline">
-            Back to home
-          </Link>
-        </p>
+      {list.length === 0 && !upcoming.length ? (
+        <ComingSoon {...emptyState} />
       ) : (
-        <>
-          <p className="text-sm text-[var(--muted)] mb-6">
-            {list.length} product{list.length !== 1 ? "s" : ""}
-          </p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-            {list.map((product, i) => (
-              <ProductCard key={product.id} product={product} index={i} />
-            ))}
-          </div>
-        </>
+        <BrandSections
+          products={list}
+          basePath={seo?.path ?? `/${category.slug}`}
+          brand={brand}
+          heading={typeInfo?.heading ?? category.name}
+          upcoming={upcoming}
+          empty={emptyState}
+        />
       )}
     </div>
   );

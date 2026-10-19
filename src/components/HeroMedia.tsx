@@ -3,23 +3,10 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { assets } from "@/data/assets";
 import type { Banner } from "@/lib/banners";
 
-const fallback: Banner[] = [
-  {
-    id: "default",
-    image: assets.hero,
-    mobileImage: assets.heroMobile,
-    alt: "Empulse fashion banner for original clothing, shoes and accessories",
-    href: "",
-    sortOrder: 0,
-    active: true,
-  },
-];
-
 export function HeroMedia({ banners }: { banners: Banner[] }) {
-  const slides = banners.length ? banners : fallback;
+  const slides = banners;
   const [index, setIndex] = useState(0);
   const [ready, setReady] = useState<Record<string, boolean>>({});
   const current = slides[index] ?? slides[0];

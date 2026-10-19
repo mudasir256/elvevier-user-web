@@ -8,12 +8,17 @@ export const productCategories: {
   {
     id: "women",
     name: "Woman",
-    subcategories: ["Tops", "Dresses", "T-Shirts", "Bottoms", "Blazers", "Sweaters", "Jackets"],
+    subcategories: ["Tops", "Dresses", "T-Shirts", "Bottoms", "Trouser", "Blazers", "Sweaters", "Jackets"],
   },
   {
     id: "men",
     name: "Man",
-    subcategories: ["Shirts", "T-Shirts", "Polo", "Bottoms", "Blazers", "Sweaters", "Jackets"],
+    subcategories: ["Shirts", "T-Shirts", "Polo", "Bottoms", "Trouser", "Blazers", "Sweaters", "Jackets"],
+  },
+  {
+    id: "unisex",
+    name: "Unisex",
+    subcategories: ["Trouser", "Jeans", "Sweatshirt", "Hoodie", "Jacket", "T-Shirts"],
   },
   {
     id: "kids",

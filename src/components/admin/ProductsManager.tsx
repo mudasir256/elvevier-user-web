@@ -7,6 +7,7 @@ import { totalStock } from "@/lib/variants";
 import {
   useCreateProductMutation,
   useDeleteProductMutation,
+  useGetAdminBrandsQuery,
   useGetAdminProductsQuery,
   useUpdateProductMutation,
   useUploadProductImagesMutation,
@@ -22,6 +23,7 @@ type Draft = {
   compareAtPrice: string;
   categoryId: string;
   subcategory: string;
+  brand: string;
   color: string;
   variants: DraftVariant[];
   colorImages: ColorGallery[];
@@ -32,6 +34,8 @@ type Draft = {
   new: boolean;
   active: boolean;
 };
+
+const NEW_BRAND = "__new_brand__";
 
 const waistSizes = ["28", "30", "32", "34", "36", "38", "40", "42"];
 const shoeSizes = ["36", "37", "38", "39", "40", "41", "42", "43", "44", "45"];
@@ -44,7 +48,7 @@ function sizeGuide(categoryId: string) {
       hint: "Shoes use 40, 41, 42 and so on. Tap a size or type another number.",
     };
   }
-  if (categoryId === "women" || categoryId === "men" || categoryId === "kids" || categoryId === "belts") {
+  if (categoryId === "women" || categoryId === "men" || categoryId === "unisex" || categoryId === "kids" || categoryId === "belts") {
     return {
       label: "Waist",
       sizes: waistSizes,
@@ -64,6 +68,7 @@ const emptyDraft: Draft = {
   compareAtPrice: "",
   categoryId: "women",
   subcategory: "",
+  brand: "",
   color: "",
   variants: [],
   colorImages: [],
@@ -86,6 +91,7 @@ export function ProductsManager() {
   const [customSize, setCustomSize] = useState("");
   const [colorInput, setColorInput] = useState("");
   const [palette, setPalette] = useState<string[]>([]);
+  const [typingBrand, setTypingBrand] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const { data, isLoading: loading, error: loadError } = useGetAdminProductsQuery({
     category,
@@ -110,6 +116,12 @@ export function ProductsManager() {
     [draft.categoryId]
   );
   const sizes = useMemo(() => sizeGuide(draft.categoryId), [draft.categoryId]);
+  const { data: savedBrands } = useGetAdminBrandsQuery();
+  const brandOptions = useMemo(
+    () =>
+      [...new Set([...(savedBrands ?? []).map((brand) => brand.name), ...(data ?? []).map((product) => product.brand?.trim() ?? "")].filter(Boolean))].sort(),
+    [savedBrands, data]
+  );
 
   function sameOption(variant: DraftVariant, size: string, color: string) {
     return variant.size.trim().toLowerCase() === size.trim().toLowerCase() && variant.color.trim().toLowerCase() === color.trim().toLowerCase();
@@ -231,12 +243,14 @@ export function ProductsManager() {
     setColorInput("");
     setCustomSize("");
     setFormError("");
+    setTypingBrand(false);
     setCreating(true);
   }
 
   function openEdit(product: Product) {
     setCreating(false);
     setEditing(product);
+    setTypingBrand(false);
     setCustomSize("");
     setColorInput("");
     setFormError("");
@@ -249,6 +263,7 @@ export function ProductsManager() {
       compareAtPrice: product.compareAtPrice ? String(product.compareAtPrice) : "",
       categoryId: product.categoryId,
       subcategory: product.subcategory ?? "",
+      brand: product.brand ?? "",
       color: product.color === "—" ? "" : product.color,
       variants: (product.variants ?? []).map((variant) => ({
         size: variant.size,
@@ -421,7 +436,7 @@ export function ProductsManager() {
                         </div>
                         <div>
                           <p className="font-medium text-gray-900">{product.name}</p>
-                          <p className="text-xs text-gray-500">{product.color}{product.subcategory ? ` · ${product.subcategory}` : ""}</p>
+                          <p className="text-xs text-gray-500">{product.brand ? `${product.brand} · ` : ""}{product.color}{product.subcategory ? ` · ${product.subcategory}` : ""}</p>
                         </div>
                       </div>
                     </td>
@@ -499,6 +514,46 @@ export function ProductsManager() {
                   </select>
                 </Field>
               ) : null}
+              <Field label="Brand">
+                {typingBrand ? (
+                  <div className="flex gap-2">
+                    <input
+                      autoFocus
+                      value={draft.brand}
+                      onChange={(event) => setDraft({ ...draft, brand: event.target.value })}
+                      placeholder="New brand name, e.g. Nike"
+                      className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTypingBrand(false);
+                        if (!brandOptions.includes(draft.brand.trim())) setDraft({ ...draft, brand: "" });
+                      }}
+                      className="shrink-0 rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-600"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <select
+                    value={draft.brand}
+                    onChange={(event) => {
+                      if (event.target.value === NEW_BRAND) {
+                        setTypingBrand(true);
+                        setDraft({ ...draft, brand: "" });
+                      } else setDraft({ ...draft, brand: event.target.value });
+                    }}
+                    className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm"
+                  >
+                    <option value="">No brand</option>
+                    {[...new Set([...brandOptions, draft.brand].filter(Boolean))].map((item) => (
+                      <option key={item} value={item}>{item}</option>
+                    ))}
+                    <option value={NEW_BRAND}>+ New brand…</option>
+                  </select>
+                )}
+              </Field>
               <div>
                 <div className="mb-2 flex items-center justify-between">
                   <span className="text-sm font-medium text-gray-700">Colors</span>

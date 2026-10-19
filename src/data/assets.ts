@@ -8,8 +8,6 @@ export const assets = {
   logo: `${K}/finallogo.png`,
   ceo: `${K}/CEO.jpg`,
   // Hero & marketing
-  hero: `${K}/empulse_banner_same_size_as_reference.png`,
-  heroMobile: `${K}/MOBILESCREEN.png`,
   saleBanner1: `${K}/Lama-Sale-End-of-Season-2-683x1024.webp`,
   saleBanner2: `${K}/Lama-Sale-End-of-Season-4-683x1024.webp`,
   fashion: `${K}/F81162s.jpg`,

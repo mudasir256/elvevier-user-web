@@ -1,6 +1,6 @@
 import type { Product } from "@/types";
-import { products as seedProducts } from "@/data/products";
 import { getSupabase } from "@/lib/supabase";
+import { brandSlug, summarizeBrands } from "@/lib/brands";
 import { normalizeColorImages, normalizeVariants, type ColorGallery } from "@/lib/variants";
 
 type ProductRow = {
@@ -11,6 +11,7 @@ type ProductRow = {
   compare_at_price: number | null;
   category_id: Product["categoryId"];
   subcategory: string;
+  brand?: string | null;
   color: string;
   variants: unknown;
   color_images?: unknown;
@@ -61,6 +62,7 @@ function toProduct(row: ProductRow): Product {
     compareAtPrice: row.compare_at_price == null ? undefined : Number(row.compare_at_price),
     categoryId: row.category_id,
     subcategory: row.subcategory || undefined,
+    brand: row.brand?.trim() || undefined,
     color: row.color,
     variants: normalizeVariants(row.variants),
     colorImages: normalizeColorImages(row.color_images),
@@ -92,47 +94,7 @@ export function resolveProductPhotos(body: Record<string, unknown>, colorImages:
   return photos;
 }
 
-let seedPromise: Promise<void> | null = null;
-
-async function seedIfEmpty() {
-  const supabase = getSupabase();
-  const { count, error } = await supabase.from("products").select("id", { count: "exact", head: true });
-  if (error) throw error;
-  if ((count ?? 0) > 0) return;
-
-  const rows = seedProducts.map((product) => ({
-    id: product.id,
-    name: product.name,
-    slug: product.slug,
-    price: product.price,
-    compare_at_price: product.compareAtPrice ?? null,
-    category_id: product.categoryId,
-    subcategory: product.subcategory ?? "",
-    color: product.color,
-    image: product.image,
-    images: product.images?.length ? product.images : [product.image],
-    description: product.description ?? "",
-    featured: Boolean(product.featured),
-    is_new: Boolean(product.new),
-    active: true,
-  }));
-
-  const inserted = await supabase.from("products").upsert(rows, { onConflict: "id" });
-  if (inserted.error) throw inserted.error;
-}
-
-export function ensureCatalog() {
-  if (!seedPromise) {
-    seedPromise = seedIfEmpty().catch((error) => {
-      seedPromise = null;
-      throw error;
-    });
-  }
-  return seedPromise;
-}
-
 export async function listProducts(options?: { activeOnly?: boolean }) {
-  await ensureCatalog();
   const supabase = getSupabase();
   let query = supabase.from("products").select("*").order("created_at", { ascending: false });
   if (options?.activeOnly) query = query.eq("active", true);
@@ -143,6 +105,49 @@ export async function listProducts(options?: { activeOnly?: boolean }) {
 
 export async function getActiveProducts() {
   return listProducts({ activeOnly: true });
+}
+
+export async function listSavedBrands() {
+  const { data, error } = await getSupabase().from("brands").select("slug, name, types").order("name", { ascending: true });
+  if (error) throw error;
+  return ((data ?? []) as { slug: string; name: string; types: string[] | null }[]).map((brand) => ({
+    slug: brand.slug,
+    name: brand.name,
+    types: (brand.types ?? []).map((type) => type.toLowerCase()),
+  }));
+}
+
+// Brands set up for a product type (e.g. "trouser") that may not have products yet.
+export async function getBrandNamesForType(type: string) {
+  const key = type.toLowerCase();
+  try {
+    return (await listSavedBrands()).filter((brand) => brand.types.includes(key)).map((brand) => brand.name);
+  } catch (err) {
+    console.error("Brands error:", err);
+    return [];
+  }
+}
+
+export async function saveBrand(name: string) {
+  const clean = name.trim();
+  const slug = brandSlug(clean);
+  if (!clean || !slug) return;
+  const { error } = await getSupabase().from("brands").upsert({ slug, name: clean }, { onConflict: "slug", ignoreDuplicates: true });
+  if (error) throw error;
+}
+
+export async function getBrands() {
+  const [products, saved] = await Promise.all([getActiveProducts(), listSavedBrands()]);
+  return summarizeBrands(products, saved);
+}
+
+export async function getBrand(slug: string) {
+  return (await getBrands()).find((brand) => brand.slug === slug.toLowerCase());
+}
+
+export async function getProductsByBrand(slug: string) {
+  const products = await getActiveProducts();
+  return products.filter((product) => product.brand && brandSlug(product.brand) === slug.toLowerCase());
 }
 
 export async function getProductsByCategory(categoryId: string) {

@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import type { Product } from "@/types";
-import { ensureCatalog } from "@/lib/catalog";
 import { getCustomer } from "@/lib/customerAuth";
 import { getSupabase } from "@/lib/supabase";
 import { findVariant, lineStock, normalizeColorImages, normalizeVariants } from "@/lib/variants";
@@ -209,7 +208,6 @@ export async function resolveCartOwner(request: Request) {
 }
 
 export async function getCartItems(userId: string | null, guestToken: string | null) {
-  await ensureCatalog();
   if (userId && guestToken) {
     const guestRow = await findByGuest(guestToken);
     const userRow = await findByUser(userId);
@@ -246,7 +244,6 @@ export async function addCartItem(
   size: string,
   color: string
 ) {
-  await ensureCatalog();
   const supabase = getSupabase();
   const { data: product, error: productError } = await supabase
     .from("products")
@@ -305,7 +302,6 @@ export async function updateCartItem(
   size: string,
   color: string
 ) {
-  await ensureCatalog();
   const cart = await openCart(userId, guestToken);
   const cartId = cart.cartId;
 
@@ -341,7 +337,6 @@ export async function removeCartItem(
   size = "",
   color = ""
 ) {
-  await ensureCatalog();
   const cart = guestToken || userId ? await openCart(userId, guestToken) : null;
   if (!cart) return [] as StoredCartItem[];
   const { error } = await getSupabase()
@@ -369,7 +364,6 @@ export async function clearCartItems(userId: string | null, guestToken: string |
 }
 
 export async function mergeGuestCart(userId: string, guestToken: string) {
-  await ensureCatalog();
   const cart = await openCart(userId, guestToken);
   return readItems(cart.cartId);
 }

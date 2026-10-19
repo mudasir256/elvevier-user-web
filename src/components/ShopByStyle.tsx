@@ -10,37 +10,83 @@ export type StyleCategory = {
   image: string;
 };
 
+const SPEED = 35; // px per second, like the partners strip
+
 export function ShopByStyle({ categories }: { categories: StyleCategory[] }) {
   const scroller = useRef<HTMLDivElement>(null);
-  const [canPrev, setCanPrev] = useState(false);
-  const [canNext, setCanNext] = useState(false);
+  const position = useRef(0);
+  const holdUntil = useRef(0);
+  const hovering = useRef(false);
+  const [looping, setLooping] = useState(false);
 
-  const updateArrows = () => {
+  // Loop only when one set of cards is wider than the row.
+  useEffect(() => {
     const el = scroller.current;
     if (!el) return;
-    setCanPrev(el.scrollLeft > 8);
-    setCanNext(el.scrollLeft + el.clientWidth < el.scrollWidth - 8);
-  };
+    const check = () => {
+      const cards = el.querySelectorAll<HTMLElement>("[data-style-card]");
+      const count = categories.length;
+      const last = cards[count - 1];
+      const oneSet = last ? last.offsetLeft + last.offsetWidth - (cards[0]?.offsetLeft ?? 0) : 0;
+      setLooping(oneSet > el.clientWidth + 8);
+    };
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, [categories.length]);
 
   useEffect(() => {
-    updateArrows();
     const el = scroller.current;
-    if (!el) return;
-    el.addEventListener("scroll", updateArrows, { passive: true });
-    window.addEventListener("resize", updateArrows);
-    return () => {
-      el.removeEventListener("scroll", updateArrows);
-      window.removeEventListener("resize", updateArrows);
+    if (!el || !looping) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const loopWidth = () => {
+      const cards = el.querySelectorAll<HTMLElement>("[data-style-card]");
+      const copy = cards[categories.length];
+      return copy ? copy.offsetLeft - cards[0].offsetLeft : 0;
     };
-  }, [categories.length]);
+
+    position.current = el.scrollLeft;
+    let frame = 0;
+    let last = performance.now();
+    const tick = (now: number) => {
+      const dt = Math.min(now - last, 100) / 1000;
+      last = now;
+      const width = loopWidth();
+      if (Math.abs(el.scrollLeft - position.current) > 2) position.current = el.scrollLeft; // user scrolled
+      if (!hovering.current && now > holdUntil.current && width > 0) {
+        position.current += SPEED * dt;
+        if (position.current >= width) position.current -= width;
+        el.scrollLeft = position.current;
+      } else if (width > 0 && el.scrollLeft >= width) {
+        position.current = el.scrollLeft - width;
+        el.scrollLeft = position.current;
+      }
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [looping, categories.length]);
+
+  const pause = (ms: number) => {
+    holdUntil.current = performance.now() + ms;
+  };
 
   const scrollByCard = (direction: number) => {
     const el = scroller.current;
     if (!el) return;
-    const card = el.querySelector("a");
+    pause(1500);
+    const cards = el.querySelectorAll<HTMLElement>("[data-style-card]");
+    const card = cards[0];
     const amount = card ? card.getBoundingClientRect().width + 20 : el.clientWidth * 0.8;
+    if (looping && direction < 0 && el.scrollLeft < amount) {
+      const copy = cards[categories.length];
+      if (copy) el.scrollLeft += copy.offsetLeft - cards[0].offsetLeft;
+    }
     el.scrollBy({ left: direction * amount, behavior: "smooth" });
   };
+
+  const items = looping ? [...categories, ...categories] : categories;
 
   if (!categories.length) return null;
 
@@ -56,7 +102,6 @@ export function ShopByStyle({ categories }: { categories: StyleCategory[] }) {
             <button
               type="button"
               aria-label="Previous styles"
-              disabled={!canPrev}
               onClick={() => scrollByCard(-1)}
               className="flex h-11 w-11 items-center justify-center rounded-full border border-[#e4ddd2] bg-white text-[#4a142a] transition hover:border-[#4a142a] disabled:opacity-35"
             >
@@ -67,7 +112,6 @@ export function ShopByStyle({ categories }: { categories: StyleCategory[] }) {
             <button
               type="button"
               aria-label="Next styles"
-              disabled={!canNext}
               onClick={() => scrollByCard(1)}
               className="flex h-11 w-11 items-center justify-center rounded-full bg-[#4a142a] text-white shadow-[0_8px_20px_rgba(74,20,42,0.22)] transition hover:bg-[#350e1e] disabled:opacity-35"
             >
@@ -79,12 +123,24 @@ export function ShopByStyle({ categories }: { categories: StyleCategory[] }) {
         </div>
         <div
           ref={scroller}
-          className="flex gap-5 overflow-x-auto scroll-smooth pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex gap-5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          onMouseEnter={() => (hovering.current = true)}
+          onMouseLeave={() => (hovering.current = false)}
+          onTouchStart={() => pause(4000)}
+          onTouchEnd={() => pause(2500)}
+          onWheel={() => pause(2500)}
+          onFocus={() => pause(4000)}
         >
-          {categories.map((category, index) => (
+          {items.map((category, i) => {
+            const index = i % categories.length;
+            const copy = i >= categories.length;
+            return (
             <Link
-              key={category.name}
+              key={`${category.name}-${i}`}
               href={category.href}
+              data-style-card
+              aria-hidden={copy || undefined}
+              tabIndex={copy ? -1 : undefined}
               className="group w-[72vw] shrink-0 sm:w-[230px] md:w-[250px]"
             >
               <div
@@ -112,7 +168,8 @@ export function ShopByStyle({ categories }: { categories: StyleCategory[] }) {
                 </div>
               </div>
             </Link>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
