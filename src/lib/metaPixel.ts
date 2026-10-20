@@ -1,4 +1,4 @@
-export const META_PIXEL_ID = "2266171220896490";
+export const META_PIXEL_ID = "2346883336121456";
 const CURRENCY = "PKR";
 
 type MetaParams = Record<string, unknown>;
