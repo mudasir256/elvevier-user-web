@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-// Add "empulse.store" and "www.empulse.store" back here to show the coming-soon page again.
-const COMING_SOON_HOSTS = new Set<string>([]);
+// Only these hosts get the coming-soon page. The vercel.app URL shows the full store.
+const COMING_SOON_HOSTS = new Set(["empulse.store", "www.empulse.store"]);
 
 function hostname(request: NextRequest) {
   const raw = request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? "";
