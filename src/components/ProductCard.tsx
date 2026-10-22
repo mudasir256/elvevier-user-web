@@ -7,7 +7,7 @@ import type { Product } from "@/types";
 import { useCart } from "@/context/CartContext";
 import { flyProductToCart } from "@/lib/flyToCart";
 import { ProductQuickView } from "@/components/ProductQuickView";
-import { isSold } from "@/lib/variants";
+import { galleryFor, isSold } from "@/lib/variants";
 import { SoldBadge } from "@/components/SoldBadge";
 import { SaleTag } from "@/components/SaleTag";
 import { trackAddToCart } from "@/lib/metaPixel";
@@ -46,6 +46,96 @@ interface ProductCardProps {
   index?: number;
 }
 
+const HOLD_DELAY = 220;
+const PHOTO_INTERVAL = 950;
+const MOVE_TOLERANCE = 10;
+
+// Press and hold on touch screens (or hover with a mouse) to flip through a product's photos.
+// Extra photos only load once someone starts interacting with the card.
+function usePhotoPreview(count: number) {
+  const [active, setActive] = useState(0);
+  const [armed, setArmed] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const loop = useRef<ReturnType<typeof setInterval> | null>(null);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const suppressClick = useRef(false);
+
+  const clearTimers = useCallback(() => {
+    if (holdTimer.current) clearTimeout(holdTimer.current);
+    if (loop.current) clearInterval(loop.current);
+    holdTimer.current = null;
+    loop.current = null;
+  }, []);
+
+  const play = useCallback(() => {
+    if (count < 2) return;
+    setArmed(true);
+    setPlaying(true);
+    setActive(1);
+    loop.current = setInterval(() => setActive((current) => (current + 1) % count), PHOTO_INTERVAL);
+  }, [count]);
+
+  const stop = useCallback(() => {
+    clearTimers();
+    setPlaying(false);
+    setActive(0);
+  }, [clearTimers]);
+
+  useEffect(() => clearTimers, [clearTimers]);
+
+  const handlers = {
+    onTouchStart(event: React.TouchEvent) {
+      if (count < 2 || event.touches.length > 1) return;
+      if ((event.target as HTMLElement).closest("button")) return;
+      const touch = event.touches[0];
+      touchStart.current = { x: touch.clientX, y: touch.clientY };
+      suppressClick.current = false;
+      setArmed(true);
+      clearTimers();
+      holdTimer.current = setTimeout(() => {
+        suppressClick.current = true;
+        if (typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate?.(8);
+        play();
+      }, HOLD_DELAY);
+    },
+    onTouchMove(event: React.TouchEvent) {
+      const origin = touchStart.current;
+      const touch = event.touches[0];
+      if (!origin || !touch) return;
+      if (Math.abs(touch.clientX - origin.x) > MOVE_TOLERANCE || Math.abs(touch.clientY - origin.y) > MOVE_TOLERANCE) {
+        touchStart.current = null;
+        stop();
+      }
+    },
+    onTouchEnd() {
+      touchStart.current = null;
+      stop();
+    },
+    onContextMenu(event: React.MouseEvent) {
+      if (suppressClick.current || playing) event.preventDefault();
+    },
+    onPointerEnter(event: React.PointerEvent) {
+      if (event.pointerType !== "mouse") return;
+      clearTimers();
+      play();
+    },
+    onPointerLeave(event: React.PointerEvent) {
+      if (event.pointerType !== "mouse") return;
+      stop();
+    },
+  };
+
+  // A hold that showed photos should not also open the product when the finger lifts.
+  function consumeClick(event: React.MouseEvent) {
+    if (!suppressClick.current) return;
+    suppressClick.current = false;
+    event.preventDefault();
+  }
+
+  return { active, armed, playing, handlers, consumeClick };
+}
+
 function CardActions({
   product,
   onAdd,
@@ -56,7 +146,7 @@ function CardActions({
   onView: () => void;
 }) {
   const button =
-    "flex h-9 w-9 items-center justify-center rounded-full transition duration-200 hover:scale-105";
+    "flex h-10 w-10 items-center justify-center rounded-full shadow-sm transition duration-200 hover:scale-105 active:scale-90 sm:h-9 sm:w-9";
   return (
     <div className="flex items-center gap-1.5">
       <button
@@ -102,6 +192,9 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const delayClass = delayClasses[Math.min(index, 5)] ?? "animation-delay-500";
   const tracked = Boolean(product.variants?.length);
   const soldOut = isSold(product);
+  const firstColor = product.variants?.find((variant) => variant.color)?.color;
+  const photos = [...new Set([product.image, ...galleryFor(product, firstColor)].filter(Boolean))].slice(0, 6);
+  const preview = usePhotoPreview(photos.length);
 
   const matchFrame = useCallback((image: HTMLImageElement) => {
     setImageReady(true);
@@ -116,18 +209,55 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
 
   return (
     <article className={`group flex h-full flex-col animate-fade-up ${delayClass}`}>
-      <div ref={frameRef} className="relative aspect-[3/4] overflow-hidden rounded-[1.7rem]" style={{ backgroundColor: frameColor }}>
-        <Link href={`/product/${product.slug}`} className="absolute inset-0" aria-label={product.name}>
+      <div
+        ref={frameRef}
+        className="relative aspect-[3/4] select-none overflow-hidden rounded-[1.7rem] transition-transform duration-200 active:scale-[0.985] [-webkit-touch-callout:none]"
+        style={{ backgroundColor: frameColor }}
+        {...preview.handlers}
+      >
+        <Link
+          href={`/product/${product.slug}`}
+          className="absolute inset-0"
+          aria-label={product.name}
+          draggable={false}
+          onClick={preview.consumeClick}
+        >
           {!imageReady ? <div className="skeleton absolute inset-0 z-10" aria-hidden /> : null}
-          <Image
-            src={product.image}
-            alt={product.name}
-            fill
-            className="object-contain"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            onLoad={(event) => matchFrame(event.currentTarget)}
-          />
+          {photos.map((photo, photoIndex) =>
+            photoIndex === 0 || preview.armed ? (
+              <Image
+                key={photo}
+                src={photo}
+                alt={photoIndex === 0 ? product.name : ""}
+                fill
+                draggable={false}
+                className={`object-contain transition-[opacity,transform] duration-500 ease-out ${
+                  preview.active === photoIndex ? "opacity-100" : "opacity-0"
+                } ${preview.playing && preview.active === photoIndex ? "motion-safe:scale-[1.04]" : "scale-100"}`}
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                onLoad={photoIndex === 0 ? (event) => matchFrame(event.currentTarget) : undefined}
+              />
+            ) : null
+          )}
         </Link>
+        {photos.length > 1 ? (
+          <div
+            className={`pointer-events-none absolute inset-x-3 top-12 z-20 flex gap-1 rounded-full bg-black/25 px-2 py-1.5 backdrop-blur-sm transition-opacity duration-300 ${
+              preview.playing ? "opacity-100" : "opacity-0"
+            }`}
+            aria-hidden
+          >
+            {photos.map((photo, photoIndex) => (
+              <span key={photo} className="h-[3px] flex-1 overflow-hidden rounded-full bg-white/35">
+                <span
+                  className={`block h-full rounded-full bg-white transition-[width] duration-300 ${
+                    photoIndex <= preview.active ? "w-full" : "w-0"
+                  }`}
+                />
+              </span>
+            ))}
+          </div>
+        ) : null}
         {product.new && (
           <span className="absolute top-3 left-3 z-20 rounded-full bg-[#f4e6ec] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#4a142a]">
             New

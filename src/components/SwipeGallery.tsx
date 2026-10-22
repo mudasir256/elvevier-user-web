@@ -159,6 +159,18 @@ export function SwipeGallery({
           </div>
         ) : null}
       </div>
+      {count > 1 ? (
+        <div className="pointer-events-none absolute inset-x-0 bottom-3 z-10 flex justify-center md:hidden" aria-hidden>
+          <div className="flex items-center gap-1.5 rounded-full bg-black/25 px-2.5 py-1.5 backdrop-blur-sm">
+            {photos.map((photo, index) => (
+              <span
+                key={`${photo}-${index}`}
+                className={`h-1.5 rounded-full bg-white transition-all duration-300 ${index === shown ? "w-4" : "w-1.5 opacity-60"}`}
+              />
+            ))}
+          </div>
+        </div>
+      ) : null}
       {children}
     </div>
   );
