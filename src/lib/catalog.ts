@@ -1,3 +1,4 @@
+import { revalidateTag, unstable_cache } from "next/cache";
 import type { Product } from "@/types";
 import { getSupabase } from "@/lib/supabase";
 import { brandSlug, summarizeBrands } from "@/lib/brands";
@@ -106,9 +107,23 @@ export async function listProducts(options?: { activeOnly?: boolean }) {
   return ((data ?? []) as ProductRow[]).map(toProduct);
 }
 
+const PRODUCTS_TAG = "products";
+
+// Store pages read the catalog from a server cache instead of Supabase on every request.
+// Anything that changes products or stock calls refreshCatalog(); the 5 minute expiry is a fallback.
 // Store pages get sale prices applied. Admin uses listProducts() and sees the original price.
-export async function getActiveProducts() {
-  return (await listProducts({ activeOnly: true })).map(withSale);
+export const getActiveProducts = unstable_cache(
+  async () => (await listProducts({ activeOnly: true })).map(withSale),
+  ["active-products"],
+  { tags: [PRODUCTS_TAG], revalidate: 300 }
+);
+
+export function refreshCatalog() {
+  try {
+    revalidateTag(PRODUCTS_TAG, { expire: 0 });
+  } catch (err) {
+    console.error("Catalog refresh error:", err);
+  }
 }
 
 export async function listSavedBrands() {

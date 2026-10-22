@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { verifyAdmin, unauthorizedResponse } from "@/lib/auth";
 import { getSupabase } from "@/lib/supabase";
+import { refreshCatalog } from "@/lib/catalog";
 import { MAX_SALE_PERCENT } from "@/lib/sale";
 
 type Params = { params: Promise<{ id: string }> };
@@ -28,6 +29,7 @@ export async function POST(request: Request, { params }: Params) {
       .select("id");
     if (error) throw error;
     if (!data?.length) return NextResponse.json({ error: "Product not found." }, { status: 404 });
+    refreshCatalog();
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("Product sale error:", err);

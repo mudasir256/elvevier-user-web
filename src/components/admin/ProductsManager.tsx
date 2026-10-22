@@ -17,6 +17,8 @@ import {
   type ProductPayload,
 } from "@/store/adminApi";
 import { apiError } from "@/store/apiError";
+import { Skeleton } from "@/components/Skeleton";
+import { Spinner } from "@/components/Spinner";
 
 type DraftVariant = { size: string; color: string; stock: string };
 
@@ -101,7 +103,8 @@ export function ProductsManager() {
   const [saleProduct, setSaleProduct] = useState<Product | null>(null);
   const [saleInput, setSaleInput] = useState("");
   const [saleError, setSaleError] = useState("");
-  const { data, isLoading: loading, error: loadError } = useGetAdminProductsQuery({
+  const [listError, setListError] = useState("");
+  const { data, isLoading: loading, isFetching, error: loadError } = useGetAdminProductsQuery({
     category,
     search: debouncedSearch,
   });
@@ -109,7 +112,7 @@ export function ProductsManager() {
   const error = loadError ? apiError(loadError, "Could not load products.") : "";
   const [createProduct, { isLoading: creatingProduct }] = useCreateProductMutation();
   const [updateProduct, { isLoading: updatingProduct }] = useUpdateProductMutation();
-  const [deleteProduct] = useDeleteProductMutation();
+  const [deleteProduct, { isLoading: deleting }] = useDeleteProductMutation();
   const [markProductSold, { isLoading: markingSold }] = useMarkProductSoldMutation();
   const [setProductSale, { isLoading: savingSale }] = useSetProductSaleMutation();
   const [uploadImagesRequest, { isLoading: uploading }] = useUploadProductImagesMutation();
@@ -360,20 +363,22 @@ export function ProductsManager() {
   }
 
   async function remove(id: string) {
+    setListError("");
     try {
       await deleteProduct(id).unwrap();
       setDeleteId(null);
     } catch (err) {
-      setFormError(apiError(err, "Could not delete the product."));
+      setListError(apiError(err, "Could not delete the product."));
     }
   }
 
   async function markSold(id: string) {
+    setListError("");
     try {
       await markProductSold(id).unwrap();
       setSoldId(null);
     } catch (err) {
-      setFormError(apiError(err, "Could not mark the product as sold."));
+      setListError(apiError(err, "Could not mark the product as sold."));
     }
   }
 
@@ -458,10 +463,29 @@ export function ProductsManager() {
       />
 
       {error ? <p className="mb-4 text-sm text-red-700">{error}</p> : null}
+      {listError ? <p className="mb-4 rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-700">{listError}</p> : null}
 
-      <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+      <div className="relative bg-white border border-gray-200 rounded-2xl overflow-hidden">
+        {isFetching && !loading ? (
+          <div className="absolute right-3 top-3 z-10 flex items-center gap-2 rounded-full bg-white/90 px-3 py-1 text-xs text-gray-500 shadow-sm">
+            <Spinner className="h-3.5 w-3.5" /> Updating…
+          </div>
+        ) : null}
         {loading ? (
-          <p className="p-8 text-sm text-gray-500">Loading products…</p>
+          <div aria-busy="true" aria-label="Loading products">
+            {Array.from({ length: 6 }, (_, index) => (
+              <div key={index} className="flex items-center gap-3 border-t border-gray-100 px-4 py-3 first:border-t-0">
+                <Skeleton className="h-14 w-11 rounded-lg" />
+                <div className="flex-1">
+                  <Skeleton className="h-4 w-1/3 rounded" />
+                  <Skeleton className="mt-2 h-3 w-1/4 rounded" />
+                </div>
+                <Skeleton className="hidden h-4 w-20 rounded sm:block" />
+                <Skeleton className="hidden h-4 w-12 rounded md:block" />
+                <Skeleton className="h-4 w-24 rounded" />
+              </div>
+            ))}
+          </div>
         ) : products.length === 0 ? (
           <p className="p-8 text-sm text-gray-500">No products in this category yet.</p>
         ) : (
@@ -520,8 +544,8 @@ export function ProductsManager() {
                     <td className="px-4 py-3 text-right whitespace-nowrap">
                       {product.variants?.length && !isSold(product) ? (
                         soldId === product.id ? (
-                          <button type="button" disabled={markingSold} onClick={() => markSold(product.id)} className="text-[#4a142a] font-semibold mr-3 disabled:opacity-50">
-                            Confirm sold
+                          <button type="button" disabled={markingSold} onClick={() => markSold(product.id)} className="inline-flex items-center gap-1.5 text-[#4a142a] font-semibold mr-3 disabled:opacity-60">
+                            {markingSold ? <><Spinner className="h-3.5 w-3.5" /> Marking…</> : "Confirm sold"}
                           </button>
                         ) : (
                           <button type="button" onClick={() => setSoldId(product.id)} className="text-gray-700 font-medium mr-3">Mark sold</button>
@@ -532,7 +556,9 @@ export function ProductsManager() {
                       </button>
                       <button type="button" onClick={() => openEdit(product)} className="text-[#4a142a] font-medium mr-3">Edit</button>
                       {deleteId === product.id ? (
-                        <button type="button" onClick={() => remove(product.id)} className="text-red-700 font-medium">Confirm</button>
+                        <button type="button" disabled={deleting} onClick={() => remove(product.id)} className="inline-flex items-center gap-1.5 text-red-700 font-medium disabled:opacity-60">
+                          {deleting ? <><Spinner className="h-3.5 w-3.5" /> Deleting…</> : "Confirm"}
+                        </button>
                       ) : (
                         <button type="button" onClick={() => setDeleteId(product.id)} className="text-gray-500">Delete</button>
                       )}
@@ -580,8 +606,8 @@ export function ProductsManager() {
               </p>
             ) : null}
             {saleError ? <p className="mt-3 text-sm text-red-700">{saleError}</p> : null}
-            <button type="submit" disabled={savingSale || salePreview == null} className="mt-5 w-full rounded-xl bg-[#4a142a] py-3 font-semibold text-white disabled:opacity-50">
-              {saleProduct.salePercent ? "Update sale" : "Add sale"}
+            <button type="submit" disabled={savingSale || salePreview == null} className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#4a142a] py-3 font-semibold text-white disabled:opacity-50">
+              {savingSale ? <><Spinner /> Saving…</> : saleProduct.salePercent ? "Update sale" : "Add sale"}
             </button>
             {saleProduct.salePercent ? (
               <button type="button" disabled={savingSale} onClick={() => saveSale(0)} className="mt-2 w-full rounded-xl border border-gray-200 py-3 text-sm font-medium text-red-700 disabled:opacity-50">
@@ -803,9 +829,10 @@ export function ProductsManager() {
                               </button>
                             </div>
                           ))}
+                          {uploadingColor === color ? <Skeleton className="h-16 w-full rounded-lg" /> : null}
                         </div>
-                        <label className="mt-2 inline-flex cursor-pointer text-sm font-medium text-[#4a142a]">
-                          {uploadingColor === color ? "Uploading…" : `Upload ${color} photos`}
+                        <label className="mt-2 inline-flex cursor-pointer items-center gap-1.5 text-sm font-medium text-[#4a142a]">
+                          {uploadingColor === color ? <><Spinner className="h-3.5 w-3.5" /> Uploading…</> : `Upload ${color} photos`}
                           <input
                             type="file"
                             accept="image/jpeg,image/png,image/webp"
@@ -866,9 +893,10 @@ export function ProductsManager() {
                       ) : null}
                     </div>
                   ))}
+                  {uploading && !uploadingColor ? <Skeleton className="h-24 w-full rounded-lg" /> : null}
                 </div>
-                <label className="mt-3 inline-flex cursor-pointer text-sm font-medium text-[#4a142a]">
-                  {uploading ? "Uploading…" : "Upload images"}
+                <label className="mt-3 inline-flex cursor-pointer items-center gap-1.5 text-sm font-medium text-[#4a142a]">
+                  {uploading && !uploadingColor ? <><Spinner className="h-3.5 w-3.5" /> Uploading…</> : "Upload images"}
                   <input
                     type="file"
                     accept="image/jpeg,image/png,image/webp"
@@ -900,7 +928,7 @@ export function ProductsManager() {
               </div>
               {formError ? <p className="text-sm text-red-700">{formError}</p> : null}
               <button type="submit" disabled={saving || uploading} className="w-full py-3 rounded-xl bg-[#4a142a] text-white font-semibold disabled:opacity-50">
-                {saving ? "Saving…" : "Save product"}
+                {saving ? <span className="inline-flex items-center gap-2"><Spinner /> Saving…</span> : "Save product"}
               </button>
             </div>
           </form>

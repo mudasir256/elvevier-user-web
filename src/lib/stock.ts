@@ -1,4 +1,5 @@
 import { getSupabase } from "@/lib/supabase";
+import { refreshCatalog } from "@/lib/catalog";
 import { findVariant, normalizeVariants, type ProductVariant } from "@/lib/variants";
 
 type StockLine = {
@@ -49,6 +50,7 @@ export async function reserveStock(lines: StockLine[]) {
     applied.push({ id: productId, previous });
   }
 
+  if (applied.length) refreshCatalog();
   return { applied };
 }
 
@@ -57,6 +59,7 @@ export async function restoreStock(applied: Snapshot[]) {
   for (const row of [...applied].reverse()) {
     await supabase.from("products").update({ variants: row.previous }).eq("id", row.id);
   }
+  if (applied.length) refreshCatalog();
 }
 
 export function stockLimit(variants: ProductVariant[] | undefined, size: string, color: string) {

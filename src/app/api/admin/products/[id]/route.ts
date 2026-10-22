@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { verifyAdmin, unauthorizedResponse } from "@/lib/auth";
 import { isCategoryId } from "@/data/productCategories";
-import { resolveProductPhotos, saveBrand } from "@/lib/catalog";
+import { refreshCatalog, resolveProductPhotos, saveBrand } from "@/lib/catalog";
 import { getSupabase } from "@/lib/supabase";
+import { productPhotoUrls, removeUnusedPhotos } from "@/lib/productImages";
 import { colorLabel, normalizeColorImages, normalizeVariants } from "@/lib/variants";
 
 type Params = { params: Promise<{ id: string }> };
@@ -44,6 +45,12 @@ export async function PATCH(request: Request, { params }: Params) {
     const color = colorLabel(variants, String(body.color ?? ""));
 
     const supabase = getSupabase();
+    const { data: previous, error: previousError } = await supabase
+      .from("products")
+      .select("image, images, color_images")
+      .eq("id", id)
+      .maybeSingle();
+    if (previousError) throw previousError;
     const { error } = await supabase
       .from("products")
       .update({
@@ -66,6 +73,10 @@ export async function PATCH(request: Request, { params }: Params) {
       })
       .eq("id", id);
     if (error) throw error;
+    const before = productPhotoUrls(previous);
+    const kept = productPhotoUrls({ image: photos.image, images: photos.images, color_images: colorImages });
+    after(() => removeUnusedPhotos(before, kept));
+    refreshCatalog();
     await saveBrand(String(body.brand ?? "")).catch((err) => console.error("Save brand error:", err));
     return NextResponse.json({ ok: true });
   } catch (err) {
@@ -84,8 +95,17 @@ export async function DELETE(request: Request, { params }: Params) {
   try {
     const { id } = await params;
     const supabase = getSupabase();
+    const { data: previous, error: previousError } = await supabase
+      .from("products")
+      .select("image, images, color_images")
+      .eq("id", id)
+      .maybeSingle();
+    if (previousError) throw previousError;
     const { error } = await supabase.from("products").delete().eq("id", id);
     if (error) throw error;
+    const before = productPhotoUrls(previous);
+    after(() => removeUnusedPhotos(before));
+    refreshCatalog();
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("Delete product error:", err);

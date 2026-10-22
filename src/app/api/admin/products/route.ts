@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { verifyAdmin, unauthorizedResponse } from "@/lib/auth";
 import { isCategoryId } from "@/data/productCategories";
-import { listProducts, slugify, resolveProductPhotos, saveBrand } from "@/lib/catalog";
+import { listProducts, refreshCatalog, slugify, resolveProductPhotos, saveBrand } from "@/lib/catalog";
 import { getSupabase } from "@/lib/supabase";
 import { colorLabel, normalizeColorImages, normalizeVariants } from "@/lib/variants";
 
@@ -102,6 +102,7 @@ export async function POST(request: Request) {
       .single();
     if (error) throw error;
     await saveBrand(value.brand).catch((err) => console.error("Save brand error:", err));
+    refreshCatalog();
     return NextResponse.json({ id: data.id }, { status: 201 });
   } catch (err) {
     console.error("Create product error:", err);

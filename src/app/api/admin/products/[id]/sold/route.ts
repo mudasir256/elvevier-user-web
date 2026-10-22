@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { verifyAdmin, unauthorizedResponse } from "@/lib/auth";
 import { getSupabase } from "@/lib/supabase";
+import { refreshCatalog } from "@/lib/catalog";
 import { normalizeVariants } from "@/lib/variants";
 
 type Params = { params: Promise<{ id: string }> };
@@ -32,6 +33,7 @@ export async function POST(request: Request, { params }: Params) {
       })
       .eq("id", id);
     if (updateError) throw updateError;
+    refreshCatalog();
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("Mark sold error:", err);
