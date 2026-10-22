@@ -93,6 +93,7 @@ export function ProductsManager() {
   const [formError, setFormError] = useState("");
   const [customSize, setCustomSize] = useState("");
   const [colorInput, setColorInput] = useState("");
+  const [sizeError, setSizeError] = useState("");
   const [palette, setPalette] = useState<string[]>([]);
   const [typingBrand, setTypingBrand] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -144,6 +145,7 @@ export function ProductsManager() {
       return;
     }
     setFormError("");
+    setSizeError("");
     setPalette((current) => [...current, color]);
     setDraft((current) => {
       const sizes = [...new Set(current.variants.map((variant) => variant.size.trim()).filter(Boolean))];
@@ -214,14 +216,19 @@ export function ProductsManager() {
   function addVariantSize(size: string) {
     const next = size.trim();
     if (!next) return;
-    if (!palette.length) {
-      setFormError("Add a color first. The same size is then added in every color.");
+    // A color typed in the box but not added yet is added first, so the size has a color to go with.
+    const typedColor = colorInput.trim().replace(/\s+/g, " ");
+    const colors = palette.length ? palette : typedColor ? [typedColor] : [];
+    if (!colors.length) {
+      setSizeError("Add a color first (e.g. Black, Blue), then tap a size. Each size gets its own stock per color.");
       return;
     }
+    if (!palette.length) addColor(typedColor);
+    setSizeError("");
     setFormError("");
     setDraft((current) => {
       const variants = [...current.variants];
-      for (const color of palette) {
+      for (const color of colors) {
         if (!variants.some((variant) => sameOption(variant, next, color))) {
           variants.push({ size: next, color, stock: "1" });
         }
@@ -292,6 +299,7 @@ export function ProductsManager() {
   function closeForm() {
     setCreating(false);
     setEditing(null);
+    setSizeError("");
   }
 
   async function uploadImages(files: File[]) {
@@ -751,6 +759,7 @@ export function ProductsManager() {
                     Add size
                   </button>
                 </div>
+                {sizeError ? <p className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-xs font-medium text-red-700">{sizeError}</p> : null}
                 <div className="space-y-3">
                   {palette.map((color) => {
                     const rows = draft.variants.filter((variant) => variant.color.trim().toLowerCase() === color.toLowerCase() && variant.size.trim());
