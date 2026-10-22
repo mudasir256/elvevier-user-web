@@ -2,6 +2,7 @@ import type { Product } from "@/types";
 import { getSupabase } from "@/lib/supabase";
 import { brandSlug, summarizeBrands } from "@/lib/brands";
 import { normalizeColorImages, normalizeVariants, type ColorGallery } from "@/lib/variants";
+import { cleanSalePercent, withSale } from "@/lib/sale";
 
 type ProductRow = {
   id: string;
@@ -9,6 +10,7 @@ type ProductRow = {
   slug: string;
   price: number;
   compare_at_price: number | null;
+  sale_percent?: number | null;
   category_id: Product["categoryId"];
   subcategory: string;
   brand?: string | null;
@@ -60,6 +62,7 @@ function toProduct(row: ProductRow): Product {
     slug: row.slug,
     price: Number(row.price),
     compareAtPrice: row.compare_at_price == null ? undefined : Number(row.compare_at_price),
+    salePercent: cleanSalePercent(row.sale_percent) || undefined,
     categoryId: row.category_id,
     subcategory: row.subcategory || undefined,
     brand: row.brand?.trim() || undefined,
@@ -103,8 +106,9 @@ export async function listProducts(options?: { activeOnly?: boolean }) {
   return ((data ?? []) as ProductRow[]).map(toProduct);
 }
 
+// Store pages get sale prices applied. Admin uses listProducts() and sees the original price.
 export async function getActiveProducts() {
-  return listProducts({ activeOnly: true });
+  return (await listProducts({ activeOnly: true })).map(withSale);
 }
 
 export async function listSavedBrands() {

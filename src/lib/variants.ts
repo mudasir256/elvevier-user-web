@@ -50,6 +50,10 @@ export function totalStock(variants: ProductVariant[] | undefined) {
   return (variants ?? []).reduce((sum, variant) => sum + variant.stock, 0);
 }
 
+export function isSold(product: { variants?: ProductVariant[] }) {
+  return Boolean(product.variants?.length) && totalStock(product.variants) < 1;
+}
+
 export function uniqueValues(variants: ProductVariant[], key: "size" | "color") {
   return [...new Set(variants.map((variant) => variant[key]).filter(Boolean))];
 }

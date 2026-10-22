@@ -8,7 +8,9 @@ import Link from "next/link";
 import type { Product } from "@/types";
 import { ProductPurchase } from "@/components/ProductPurchase";
 import { SwipeGallery } from "@/components/SwipeGallery";
-import { galleryFor, uniqueValues } from "@/lib/variants";
+import { galleryFor, isSold, uniqueValues } from "@/lib/variants";
+import { SoldBadge } from "@/components/SoldBadge";
+import { SaleTag } from "@/components/SaleTag";
 
 function formatPrice(price: number) {
   return `Rs. ${price.toLocaleString()}`;
@@ -142,6 +144,8 @@ export function ProductQuickView({ product, onClose }: { product: Product; onClo
                 New
               </span>
             ) : null}
+            {product.salePercent ? <SaleTag percent={product.salePercent} large /> : null}
+            {isSold(product) ? <SoldBadge large /> : null}
           </SwipeGallery>
           {photos.length > 1 ? (
             <div className="flex gap-2 overflow-x-auto px-4 pb-3 md:px-5 md:pb-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -175,6 +179,9 @@ export function ProductQuickView({ product, onClose }: { product: Product; onClo
             <p className="text-2xl font-semibold text-[#4a142a]">{formatPrice(product.price)}</p>
             {product.compareAtPrice ? (
               <p className="text-sm text-[var(--muted)] line-through">{formatPrice(product.compareAtPrice)}</p>
+            ) : null}
+            {product.salePercent ? (
+              <span className="rounded-full bg-red-50 px-2.5 py-0.5 text-sm font-semibold text-red-600">{product.salePercent}% off</span>
             ) : null}
           </div>
           {product.description ? (

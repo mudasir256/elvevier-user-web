@@ -3,6 +3,7 @@ import type { Product } from "@/types";
 import { getCustomer } from "@/lib/customerAuth";
 import { getSupabase } from "@/lib/supabase";
 import { findVariant, lineStock, normalizeColorImages, normalizeVariants } from "@/lib/variants";
+import { cleanSalePercent, withSale } from "@/lib/sale";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -12,6 +13,7 @@ type ProductRow = {
   slug: string;
   price: number;
   compare_at_price: number | null;
+  sale_percent?: number | null;
   category_id: Product["categoryId"];
   subcategory: string;
   color: string;
@@ -43,12 +45,13 @@ export type StoredCartItem = {
 function toProduct(row: ProductRow): Product {
   const gallery = Array.isArray(row.images) ? row.images.map(String).filter(Boolean) : [];
   const images = gallery.length ? gallery : row.image ? [row.image] : [];
-  return {
+  return withSale({
     id: row.id,
     name: row.name,
     slug: row.slug,
     price: Number(row.price),
     compareAtPrice: row.compare_at_price == null ? undefined : Number(row.compare_at_price),
+    salePercent: cleanSalePercent(row.sale_percent) || undefined,
     categoryId: row.category_id,
     subcategory: row.subcategory || undefined,
     color: row.color,
@@ -60,7 +63,7 @@ function toProduct(row: ProductRow): Product {
     featured: row.featured,
     new: row.is_new,
     active: row.active,
-  };
+  });
 }
 
 function oneProduct(value: ItemRow["product"]) {

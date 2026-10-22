@@ -40,6 +40,7 @@ const styleCategories: {
 export default async function HomePage() {
   const catalog = await getActiveProducts();
   const newProducts = catalog.filter((product) => product.new);
+  const saleProducts = catalog.filter((product) => product.salePercent);
   const styles = styleCategories.flatMap((category) => {
     const product = catalog.find(category.match);
     if (!product) return [];
@@ -60,6 +61,20 @@ export default async function HomePage() {
       </section>
 
       <ShopByStyle categories={styles} />
+
+      {saleProducts.length ? (
+        <section className="max-w-[90rem] mx-auto px-4 sm:px-6 pt-4 pb-16 md:pb-20">
+          <div className="mb-10 animate-fade-up">
+            <p className="eyebrow mb-2">Limited time</p>
+            <h2 className="section-heading">Sale</h2>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 md:gap-7">
+            {saleProducts.map((product, i) => (
+              <ProductCard key={product.id} product={product} index={i} />
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       {/* New Arrivals */}
       <section className="max-w-[90rem] mx-auto px-4 sm:px-6 pt-4 pb-16 md:pb-20">

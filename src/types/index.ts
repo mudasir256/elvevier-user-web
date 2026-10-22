@@ -36,6 +36,7 @@ export interface Product {
   slug: string;
   price: number;
   compareAtPrice?: number;
+  salePercent?: number;
   categoryId: CategoryId;
   subcategory?: string;
   brand?: string;

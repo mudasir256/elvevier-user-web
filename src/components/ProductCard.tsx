@@ -7,7 +7,9 @@ import type { Product } from "@/types";
 import { useCart } from "@/context/CartContext";
 import { flyProductToCart } from "@/lib/flyToCart";
 import { ProductQuickView } from "@/components/ProductQuickView";
-import { totalStock } from "@/lib/variants";
+import { isSold } from "@/lib/variants";
+import { SoldBadge } from "@/components/SoldBadge";
+import { SaleTag } from "@/components/SaleTag";
 import { trackAddToCart } from "@/lib/metaPixel";
 
 function formatPrice(price: number) {
@@ -99,7 +101,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
   ];
   const delayClass = delayClasses[Math.min(index, 5)] ?? "animation-delay-500";
   const tracked = Boolean(product.variants?.length);
-  const soldOut = tracked && totalStock(product.variants) < 1;
+  const soldOut = isSold(product);
 
   const matchFrame = useCallback((image: HTMLImageElement) => {
     setImageReady(true);
@@ -131,11 +133,8 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
             New
           </span>
         )}
-        {soldOut ? (
-          <span className="absolute top-3 right-3 z-20 rounded-full bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#4a142a]">
-            Sold out
-          </span>
-        ) : null}
+        {product.salePercent ? <SaleTag percent={product.salePercent} /> : null}
+        {soldOut ? <SoldBadge /> : null}
         <div className="absolute bottom-3 right-3 z-20">
           <CardActions
             product={product}
@@ -171,7 +170,15 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
         <h3 className={`${product.brand || product.categoryId === "unisex" ? "mt-0.5" : "mt-2"} h-10 overflow-hidden text-[15px] font-medium leading-5 text-[var(--foreground)] line-clamp-2 transition-colors duration-200 group-hover:text-[#4a142a]`}>
           {product.name}
         </h3>
-        <p className="mt-1.5 text-[15px] font-semibold text-[#4a142a]">{formatPrice(product.price)}</p>
+        <p className="mt-1.5 flex flex-wrap items-baseline gap-x-2 text-[15px] font-semibold text-[#4a142a]">
+          {formatPrice(product.price)}
+          {product.salePercent && product.compareAtPrice ? (
+            <>
+              <span className="text-[13px] font-normal text-[var(--muted)] line-through">{formatPrice(product.compareAtPrice)}</span>
+              <span className="text-[12px] font-semibold text-red-600">{product.salePercent}% off</span>
+            </>
+          ) : null}
+        </p>
       </Link>
     </article>
   );

@@ -8,7 +8,9 @@ import type { Product } from "@/types";
 import { ProductPurchase } from "@/components/ProductPurchase";
 import { SwipeGallery } from "@/components/SwipeGallery";
 import { ImageMagnifier } from "@/components/ImageMagnifier";
-import { galleryFor, uniqueValues } from "@/lib/variants";
+import { galleryFor, isSold, uniqueValues } from "@/lib/variants";
+import { SoldBadge } from "@/components/SoldBadge";
+import { SaleTag } from "@/components/SaleTag";
 import { trackViewContent } from "@/lib/metaPixel";
 
 function formatPrice(price: number) {
@@ -56,6 +58,8 @@ export function ProductDetail({ product, initialColor }: { product: Product; ini
             New
           </span>
         ) : null}
+        {product.salePercent ? <SaleTag percent={product.salePercent} large /> : null}
+        {isSold(product) ? <SoldBadge large /> : null}
       </SwipeGallery>
 
       <div>
@@ -75,6 +79,9 @@ export function ProductDetail({ product, initialColor }: { product: Product; ini
           <span className="text-xl font-semibold">{formatPrice(product.price)}</span>
           {product.compareAtPrice ? (
             <span className="text-[var(--muted)] line-through">{formatPrice(product.compareAtPrice)}</span>
+          ) : null}
+          {product.salePercent ? (
+            <span className="rounded-full bg-red-50 px-2.5 py-0.5 text-sm font-semibold text-red-600">{product.salePercent}% off</span>
           ) : null}
         </div>
         {product.description ? <p className="mt-4 text-base leading-6 text-[var(--muted)]">{product.description}</p> : null}

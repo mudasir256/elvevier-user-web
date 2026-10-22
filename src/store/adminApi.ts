@@ -99,6 +99,20 @@ export const adminApi = createApi({
         { type: "AdminProduct", id: "LIST" },
       ],
     }),
+    markProductSold: builder.mutation<{ ok: boolean }, string>({
+      query: (id) => ({ url: `/admin/products/${id}/sold`, method: "POST" }),
+      invalidatesTags: (_result, _error, id) => [
+        { type: "AdminProduct", id },
+        { type: "AdminProduct", id: "LIST" },
+      ],
+    }),
+    setProductSale: builder.mutation<{ ok: boolean }, { id: string; percent: number }>({
+      query: ({ id, percent }) => ({ url: `/admin/products/${id}/sale`, method: "POST", body: { percent } }),
+      invalidatesTags: (_result, _error, { id }) => [
+        { type: "AdminProduct", id },
+        { type: "AdminProduct", id: "LIST" },
+      ],
+    }),
     uploadProductImages: builder.mutation<{ url?: string; urls: string[] }, FormData>({
       query: (body) => ({ url: "/admin/products/image", method: "POST", body }),
     }),
@@ -148,6 +162,8 @@ export const {
   useCreateProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,
+  useMarkProductSoldMutation,
+  useSetProductSaleMutation,
   useUploadProductImagesMutation,
   useGetAdminBrandsQuery,
   useCreateBrandMutation,

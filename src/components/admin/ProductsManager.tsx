@@ -3,12 +3,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { productCategories } from "@/data/productCategories";
 import type { ColorGallery, Product } from "@/types";
-import { totalStock } from "@/lib/variants";
+import { isSold, totalStock } from "@/lib/variants";
+import { MAX_SALE_PERCENT, salePrice } from "@/lib/sale";
 import {
   useCreateProductMutation,
   useDeleteProductMutation,
+  useMarkProductSoldMutation,
   useGetAdminBrandsQuery,
   useGetAdminProductsQuery,
+  useSetProductSaleMutation,
   useUpdateProductMutation,
   useUploadProductImagesMutation,
   type ProductPayload,
@@ -93,6 +96,10 @@ export function ProductsManager() {
   const [palette, setPalette] = useState<string[]>([]);
   const [typingBrand, setTypingBrand] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [soldId, setSoldId] = useState<string | null>(null);
+  const [saleProduct, setSaleProduct] = useState<Product | null>(null);
+  const [saleInput, setSaleInput] = useState("");
+  const [saleError, setSaleError] = useState("");
   const { data, isLoading: loading, error: loadError } = useGetAdminProductsQuery({
     category,
     search: debouncedSearch,
@@ -102,6 +109,8 @@ export function ProductsManager() {
   const [createProduct, { isLoading: creatingProduct }] = useCreateProductMutation();
   const [updateProduct, { isLoading: updatingProduct }] = useUpdateProductMutation();
   const [deleteProduct] = useDeleteProductMutation();
+  const [markProductSold, { isLoading: markingSold }] = useMarkProductSoldMutation();
+  const [setProductSale, { isLoading: savingSale }] = useSetProductSaleMutation();
   const [uploadImagesRequest, { isLoading: uploading }] = useUploadProductImagesMutation();
   const [uploadingColor, setUploadingColor] = useState("");
   const saving = creatingProduct || updatingProduct;
@@ -351,6 +360,41 @@ export function ProductsManager() {
     }
   }
 
+  async function markSold(id: string) {
+    try {
+      await markProductSold(id).unwrap();
+      setSoldId(null);
+    } catch (err) {
+      setFormError(apiError(err, "Could not mark the product as sold."));
+    }
+  }
+
+  function openSale(product: Product) {
+    setSaleProduct(product);
+    setSaleInput(product.salePercent ? String(product.salePercent) : "");
+    setSaleError("");
+  }
+
+  async function saveSale(percent: number) {
+    if (!saleProduct) return;
+    if (!Number.isInteger(percent) || percent < 0 || percent > MAX_SALE_PERCENT) {
+      setSaleError(`Enter a whole number from 1 to ${MAX_SALE_PERCENT}.`);
+      return;
+    }
+    try {
+      await setProductSale({ id: saleProduct.id, percent }).unwrap();
+      setSaleProduct(null);
+    } catch (err) {
+      setSaleError(apiError(err, "Could not update the sale."));
+    }
+  }
+
+  const salePercentDraft = Number(saleInput);
+  const salePreview =
+    saleProduct && Number.isInteger(salePercentDraft) && salePercentDraft > 0 && salePercentDraft <= MAX_SALE_PERCENT
+      ? salePrice(saleProduct.price, salePercentDraft)
+      : null;
+
   const formOpen = creating || Boolean(editing);
 
   useEffect(() => {
@@ -443,18 +487,41 @@ export function ProductsManager() {
                     <td className="px-4 py-3 text-gray-600">
                       {productCategories.find((item) => item.id === product.categoryId)?.name ?? product.categoryId}
                     </td>
-                    <td className="px-4 py-3 font-medium">Rs. {Number(product.price).toLocaleString()}</td>
+                    <td className="px-4 py-3 font-medium">
+                      {product.salePercent ? (
+                        <>
+                          <span className="block">Rs. {salePrice(product.price, product.salePercent).toLocaleString()}</span>
+                          <span className="block text-xs font-normal text-gray-400 line-through">Rs. {Number(product.price).toLocaleString()}</span>
+                        </>
+                      ) : (
+                        <>Rs. {Number(product.price).toLocaleString()}</>
+                      )}
+                    </td>
                     <td className="px-4 py-3 text-gray-700">
                       {product.variants?.length ? totalStock(product.variants) : "—"}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex flex-wrap gap-1">
                         {product.active === false ? <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px]">Hidden</span> : <span className="rounded-full bg-green-50 px-2 py-0.5 text-[11px] text-green-700">Live</span>}
+                        {isSold(product) ? <span className="rounded-full bg-[#4a142a] px-2 py-0.5 text-[11px] text-white">Sold</span> : null}
+                        {product.salePercent ? <span className="rounded-full bg-red-50 px-2 py-0.5 text-[11px] text-red-700">Sale {product.salePercent}% off</span> : null}
                         {product.new ? <span className="rounded-full bg-[#f4e6ec] px-2 py-0.5 text-[11px] text-[#4a142a]">New</span> : null}
                         {product.featured ? <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[11px] text-amber-800">Featured</span> : null}
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="px-4 py-3 text-right whitespace-nowrap">
+                      {product.variants?.length && !isSold(product) ? (
+                        soldId === product.id ? (
+                          <button type="button" disabled={markingSold} onClick={() => markSold(product.id)} className="text-[#4a142a] font-semibold mr-3 disabled:opacity-50">
+                            Confirm sold
+                          </button>
+                        ) : (
+                          <button type="button" onClick={() => setSoldId(product.id)} className="text-gray-700 font-medium mr-3">Mark sold</button>
+                        )
+                      ) : null}
+                      <button type="button" onClick={() => openSale(product)} className="text-red-700 font-medium mr-3">
+                        {product.salePercent ? "Edit sale" : "Sale"}
+                      </button>
                       <button type="button" onClick={() => openEdit(product)} className="text-[#4a142a] font-medium mr-3">Edit</button>
                       {deleteId === product.id ? (
                         <button type="button" onClick={() => remove(product.id)} className="text-red-700 font-medium">Confirm</button>
@@ -469,6 +536,54 @@ export function ProductsManager() {
           </div>
         )}
       </div>
+
+      {saleProduct ? (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4" onClick={() => setSaleProduct(null)}>
+          <form
+            className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl"
+            onClick={(event) => event.stopPropagation()}
+            onSubmit={(event) => {
+              event.preventDefault();
+              saveSale(Number(saleInput));
+            }}
+          >
+            <h2 className="text-lg font-semibold">Sale</h2>
+            <p className="mt-1 text-sm text-gray-500">{saleProduct.name}</p>
+            <p className="mt-3 text-sm text-gray-700">Original price: Rs. {Number(saleProduct.price).toLocaleString()}</p>
+            <Field label="How much % off?">
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min="1"
+                  max={MAX_SALE_PERCENT}
+                  step="1"
+                  autoFocus
+                  value={saleInput}
+                  onChange={(event) => setSaleInput(event.target.value)}
+                  placeholder="e.g. 50"
+                  className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm"
+                />
+                <span className="text-sm text-gray-500">%</span>
+              </div>
+            </Field>
+            {salePreview != null ? (
+              <p className="mt-3 text-sm">
+                Sale price: <span className="font-semibold text-[#4a142a]">Rs. {salePreview.toLocaleString()}</span>
+              </p>
+            ) : null}
+            {saleError ? <p className="mt-3 text-sm text-red-700">{saleError}</p> : null}
+            <button type="submit" disabled={savingSale || salePreview == null} className="mt-5 w-full rounded-xl bg-[#4a142a] py-3 font-semibold text-white disabled:opacity-50">
+              {saleProduct.salePercent ? "Update sale" : "Add sale"}
+            </button>
+            {saleProduct.salePercent ? (
+              <button type="button" disabled={savingSale} onClick={() => saveSale(0)} className="mt-2 w-full rounded-xl border border-gray-200 py-3 text-sm font-medium text-red-700 disabled:opacity-50">
+                Remove sale
+              </button>
+            ) : null}
+            <button type="button" onClick={() => setSaleProduct(null)} className="mt-2 w-full py-2 text-sm text-gray-500">Cancel</button>
+          </form>
+        </div>
+      ) : null}
 
       {formOpen ? (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4" onClick={closeForm}>
