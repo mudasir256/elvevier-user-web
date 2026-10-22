@@ -12,7 +12,7 @@ export const productCategories: {
   },
   {
     id: "men",
-    name: "Man",
+    name: "Men",
     subcategories: ["Shirts", "T-Shirts", "Polo", "Bottoms", "Trouser", "Jeans", "Blazers", "Sweaters", "Jackets"],
   },
   {
@@ -25,7 +25,7 @@ export const productCategories: {
     name: "Kids",
     subcategories: ["Tops", "Bottoms", "Dresses"],
   },
-  { id: "shoes", name: "Shoes", subcategories: ["Woman", "Man", "Kids"] },
+  { id: "shoes", name: "Shoes", subcategories: ["Woman", "Men", "Kids"] },
   { id: "accessories", name: "Accessories", subcategories: ["Eyewear"] },
   { id: "belts", name: "Belts", subcategories: [] },
   { id: "caps", name: "Caps & Headwear", subcategories: [] },

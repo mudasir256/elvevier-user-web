@@ -2,7 +2,7 @@ import type { Category } from "@/types";
 
 export const categories: Category[] = [
   { id: "women", name: "Woman", slug: "women", description: "Women's fashion" },
-  { id: "men", name: "Man", slug: "men", description: "Men's fashion" },
+  { id: "men", name: "Men", slug: "men", description: "Men's fashion" },
   { id: "unisex", name: "Unisex", slug: "unisex", description: "Styles for everyone" },
   { id: "kids", name: "Kids", slug: "kids", description: "Children's wear" },
   { id: "shoes", name: "Shoes", slug: "shoes", description: "Footwear for all" },

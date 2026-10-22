@@ -44,7 +44,7 @@ const subcategoryTitles: Record<string, Record<string, string>> = {
   },
   shoes: {
     women: "Shoes – Woman",
-    men: "Shoes – Man",
+    men: "Shoes – Men",
     kids: "Shoes – Kids",
   },
   accessories: {

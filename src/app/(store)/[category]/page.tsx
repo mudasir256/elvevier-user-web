@@ -93,7 +93,8 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 
 function forGender(product: Product, gender: GenderShop) {
   if (gender === "men") {
-    return product.categoryId === "men" || product.categoryId === "unisex" || (product.categoryId === "shoes" && product.subcategory?.toLowerCase() === "man");
+    const shoeType = product.subcategory?.toLowerCase();
+    return product.categoryId === "men" || product.categoryId === "unisex" || (product.categoryId === "shoes" && (shoeType === "men" || shoeType === "man"));
   }
   return product.categoryId === "women" || product.categoryId === "unisex" || (product.categoryId === "shoes" && product.subcategory?.toLowerCase() === "woman");
 }
