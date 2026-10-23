@@ -47,7 +47,7 @@ interface ProductCardProps {
 }
 
 const HOLD_DELAY = 220;
-const PHOTO_INTERVAL = 950;
+const PHOTO_INTERVAL = 1200;
 const MOVE_TOLERANCE = 10;
 
 // Press and hold on touch screens (or hover with a mouse) to flip through a product's photos.
@@ -231,33 +231,15 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
                 alt={photoIndex === 0 ? product.name : ""}
                 fill
                 draggable={false}
-                className={`object-contain transition-[opacity,transform] duration-500 ease-out ${
+                className={`object-contain will-change-[opacity,transform] [transition:opacity_800ms_cubic-bezier(0.4,0,0.2,1),transform_1600ms_cubic-bezier(0.25,0.1,0.25,1)] ${
                   preview.active === photoIndex ? "opacity-100" : "opacity-0"
-                } ${preview.playing && preview.active === photoIndex ? "motion-safe:scale-[1.04]" : "scale-100"}`}
+                } ${preview.playing && preview.active === photoIndex ? "motion-safe:scale-[1.025]" : "scale-100"}`}
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 onLoad={photoIndex === 0 ? (event) => matchFrame(event.currentTarget) : undefined}
               />
             ) : null
           )}
         </Link>
-        {photos.length > 1 ? (
-          <div
-            className={`pointer-events-none absolute inset-x-3 top-12 z-20 flex gap-1 rounded-full bg-black/25 px-2 py-1.5 backdrop-blur-sm transition-opacity duration-300 ${
-              preview.playing ? "opacity-100" : "opacity-0"
-            }`}
-            aria-hidden
-          >
-            {photos.map((photo, photoIndex) => (
-              <span key={photo} className="h-[3px] flex-1 overflow-hidden rounded-full bg-white/35">
-                <span
-                  className={`block h-full rounded-full bg-white transition-[width] duration-300 ${
-                    photoIndex <= preview.active ? "w-full" : "w-0"
-                  }`}
-                />
-              </span>
-            ))}
-          </div>
-        ) : null}
         {product.new && (
           <span className="absolute top-3 left-3 z-20 rounded-full bg-[#f4e6ec] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#4a142a]">
             New
