@@ -2,6 +2,9 @@
 // Products stay in the database and admin keeps working. Set to false to show them again.
 export const PRODUCTS_PAUSED = true;
 
+// While true, admin pages show PAUSED_NOTICE instead of their data (login still works).
+export const ADMIN_PAUSED = true;
+
 export const PAUSED_NOTICE = {
   label: "Error 507 · Insufficient Storage",
   title: "Database is full",
