@@ -17,6 +17,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { breadcrumbJsonLd, collectionJsonLd } from "@/lib/seo";
 import { pageMeta } from "@/lib/site";
 import { sameType } from "@/lib/productTypes";
+import { productsOfType, typeLabel } from "@/lib/styles";
 
 type Props = {
   params: Promise<{ category: string }>;
@@ -88,8 +89,66 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const { category: categorySlug } = await params;
   const { filter, type } = await searchParams;
   const seo = categorySeo(categorySlug, filter, type);
-  if (!seo) return { title: "Shop" };
-  return pageMeta(seo);
+  if (seo) return pageMeta(seo);
+  const label = typeLabel(await getActiveProducts(), categorySlug);
+  if (!label) return { title: "Shop" };
+  return pageMeta({
+    title: label,
+    description: `Shop original ${label.toLowerCase()} for men and women at Empulse. Delivery across Pakistan and free shipping over Rs. 5,000.`,
+    path: `/${categorySlug.toLowerCase()}`,
+  });
+}
+
+// A type added in admin (e.g. "Shorts") that has no entry in apparelTypes.
+async function customType(typeKey: string | undefined) {
+  if (!typeKey || apparelTypes[typeKey]) return undefined;
+  const label = typeLabel(await getActiveProducts(), typeKey);
+  return label ? { label, heading: label } : undefined;
+}
+
+function StylePage({
+  heading,
+  path,
+  typeKey,
+  category,
+  list,
+  upcoming,
+  brand,
+}: {
+  heading: string;
+  path: string;
+  typeKey: string;
+  category: string;
+  list: Product[];
+  upcoming: string[];
+  brand?: string;
+}) {
+  return (
+    <div className="max-w-[90rem] mx-auto px-4 sm:px-6 py-10">
+      <JsonLd data={collectionJsonLd({ name: heading, path, products: list })} />
+      <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: heading, path }])} />
+      <MetaCatalogView name={heading} category={category} ids={list.map((product) => product.id)} />
+      <div className="mb-8 animate-fade-up">
+        <h1 className="section-heading">{heading}</h1>
+        <div className="mt-6 flex flex-wrap gap-2">
+          <Link href={`/men?type=${typeKey}`} className="rounded-full border border-[var(--border)] bg-[var(--card)] px-5 py-2 text-sm font-medium hover:border-[#4a142a] hover:text-[#4a142a]">
+            Men
+          </Link>
+          <Link href={`/women?type=${typeKey}`} className="rounded-full border border-[var(--border)] bg-[var(--card)] px-5 py-2 text-sm font-medium hover:border-[#4a142a] hover:text-[#4a142a]">
+            Women
+          </Link>
+        </div>
+      </div>
+      {list.length === 0 && !upcoming.length ? (
+        <ComingSoon
+          title={`${heading} are on their way`}
+          text={`We're putting together a new range of ${heading.toLowerCase()} for men and women. Check back soon.`}
+        />
+      ) : (
+        <BrandSections products={list} basePath={path} brand={brand} heading={heading} upcoming={upcoming} />
+      )}
+    </div>
+  );
 }
 
 function forGender(product: Product, gender: GenderShop) {
@@ -104,51 +163,46 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const { category: categorySlug } = await params;
   const { filter, type, brand } = await searchParams;
 
-  const style = stylePages[categorySlug.toLowerCase()];
+  const slug = categorySlug.toLowerCase();
+  const style = stylePages[slug];
   if (style) {
     const [products, upcoming] = await Promise.all([getActiveProducts(), getBrandNamesForType(style.subcategory)]);
-    const list = products.filter((product) => sameType(product.subcategory, style.subcategory));
-    const styleSeo = categorySeo(categorySlug);
     return (
-      <div className="max-w-[90rem] mx-auto px-4 sm:px-6 py-10">
-        {styleSeo ? (
-          <>
-            <JsonLd data={collectionJsonLd({ name: style.heading, path: styleSeo.path, products: list })} />
-            <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: style.heading, path: styleSeo.path }])} />
-          </>
-        ) : null}
-        <MetaCatalogView name={style.heading} category={style.subcategory} ids={list.map((product) => product.id)} />
-        <div className="mb-8 animate-fade-up">
-          <h1 className="section-heading">{style.heading}</h1>
-          <div className="mt-6 flex flex-wrap gap-2">
-            <Link href={style.men} className="rounded-full border border-[var(--border)] bg-[var(--card)] px-5 py-2 text-sm font-medium hover:border-[#4a142a] hover:text-[#4a142a]">
-              Men
-            </Link>
-            <Link href={style.women} className="rounded-full border border-[var(--border)] bg-[var(--card)] px-5 py-2 text-sm font-medium hover:border-[#4a142a] hover:text-[#4a142a]">
-              Women
-            </Link>
-          </div>
-        </div>
-        {list.length === 0 && !upcoming.length ? (
-          <ComingSoon
-            title={`${style.heading} are on their way`}
-            text={`We're putting together a new range of ${style.heading.toLowerCase()} for men and women. Check back soon.`}
-          />
-        ) : (
-          <BrandSections products={list} basePath={`/${categorySlug.toLowerCase()}`} brand={brand} heading={style.heading} upcoming={upcoming} />
-        )}
-      </div>
+      <StylePage
+        heading={style.heading}
+        path={styleCanonical[slug] ?? `/${slug}`}
+        typeKey={style.subcategory}
+        category={style.subcategory}
+        list={products.filter((product) => sameType(product.subcategory, style.subcategory))}
+        upcoming={upcoming}
+        brand={brand}
+      />
     );
   }
 
-  const category = categories.find(
-    (c) => c.slug === categorySlug.toLowerCase()
-  );
-  if (!category) notFound();
+  const category = categories.find((c) => c.slug === slug);
+  if (!category) {
+    // Any other type in use, e.g. /shorts for products typed "Shorts".
+    const products = await getActiveProducts();
+    const list = productsOfType(products, slug);
+    if (!list.length) notFound();
+    const label = typeLabel(products, slug);
+    return (
+      <StylePage
+        heading={label}
+        path={`/${slug}`}
+        typeKey={slug}
+        category={label.toLowerCase()}
+        list={list}
+        upcoming={await getBrandNamesForType(label)}
+        brand={brand}
+      />
+    );
+  }
 
   const gender: GenderShop | null = category.id === "men" || category.id === "women" ? category.id : null;
   const typeKey = type?.toLowerCase();
-  const typeInfo = gender && typeKey ? apparelTypes[typeKey] : undefined;
+  const typeInfo = gender && typeKey ? apparelTypes[typeKey] ?? (await customType(typeKey)) : undefined;
   const isNewFilter = filter === "new";
 
   let list: Product[];

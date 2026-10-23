@@ -9,11 +9,10 @@ import { WhyChooseUs } from "@/components/WhyChooseUs";
 import { AboutUs } from "@/components/AboutUs";
 import { blogs } from "@/data/blogs";
 import { getActiveProducts } from "@/lib/catalog";
-import type { Product } from "@/types";
 import { JsonLd } from "@/components/JsonLd";
 import { siteGraphJsonLd } from "@/lib/seo";
 import { pageMeta } from "@/lib/site";
-import { sameType } from "@/lib/productTypes";
+import { styleCards } from "@/lib/styles";
 
 export const metadata: Metadata = {
   ...pageMeta({
@@ -25,28 +24,11 @@ export const metadata: Metadata = {
   title: { absolute: "Empulse | Premium   By Origin" },
 };
 
-const styleCategories: {
-  name: string;
-  href: string;
-  match: (product: Product) => boolean;
-}[] = [
-  { name: "Shoes", href: "/shoes", match: (product) => product.categoryId === "shoes" },
-  { name: "Jackets", href: "/jackets", match: (product) => sameType(product.subcategory, "jacket") },
-  { name: "Hoodies", href: "/hoodies", match: (product) => sameType(product.subcategory, "hoodie") },
-  { name: "Sweatshirts", href: "/sweatshirts", match: (product) => sameType(product.subcategory, "sweatshirt") },
-  { name: "Trousers", href: "/trousers", match: (product) => sameType(product.subcategory, "trouser") },
-  { name: "Jeans", href: "/jeans", match: (product) => sameType(product.subcategory, "jeans") },
-];
-
 export default async function HomePage() {
   const catalog = await getActiveProducts();
   const newProducts = catalog.filter((product) => product.new);
   const saleProducts = catalog.filter((product) => product.salePercent);
-  const styles = styleCategories.flatMap((category) => {
-    const product = catalog.find(category.match);
-    if (!product) return [];
-    return [{ name: category.name, href: category.href, image: product.image }];
-  });
+  const styles = styleCards(catalog);
 
   return (
     <div className="grain-overlay">
