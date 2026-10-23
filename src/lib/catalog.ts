@@ -5,6 +5,7 @@ import { brandSlug, summarizeBrands } from "@/lib/brands";
 import { normalizeColorImages, normalizeVariants, type ColorGallery } from "@/lib/variants";
 import { cleanSalePercent, withSale } from "@/lib/sale";
 import { sameType } from "@/lib/productTypes";
+import { PRODUCTS_PAUSED } from "@/lib/storeStatus";
 
 type ProductRow = {
   id: string;
@@ -113,11 +114,16 @@ const PRODUCTS_TAG = "products";
 // Store pages read the catalog from a server cache instead of Supabase on every request.
 // Anything that changes products or stock calls refreshCatalog(); the 5 minute expiry is a fallback.
 // Store pages get sale prices applied. Admin uses listProducts() and sees the original price.
-export const getActiveProducts = unstable_cache(
+const cachedActiveProducts = unstable_cache(
   async () => (await listProducts({ activeOnly: true })).map(withSale),
   ["active-products"],
   { tags: [PRODUCTS_TAG], revalidate: 300 }
 );
+
+export async function getActiveProducts() {
+  if (PRODUCTS_PAUSED) return [];
+  return cachedActiveProducts();
+}
 
 export function refreshCatalog() {
   try {

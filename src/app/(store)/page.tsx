@@ -13,6 +13,8 @@ import { JsonLd } from "@/components/JsonLd";
 import { siteGraphJsonLd } from "@/lib/seo";
 import { pageMeta } from "@/lib/site";
 import { styleCards } from "@/lib/styles";
+import { PRODUCTS_PAUSED } from "@/lib/storeStatus";
+import { ProductsPausedNotice } from "@/components/ComingSoon";
 
 export const metadata: Metadata = {
   ...pageMeta({
@@ -45,6 +47,12 @@ export default async function HomePage() {
 
       <ShopByStyle categories={styles} />
 
+      {PRODUCTS_PAUSED ? (
+        <section className="max-w-[90rem] mx-auto px-4 sm:px-6 pb-8">
+          <ProductsPausedNotice />
+        </section>
+      ) : null}
+
       {saleProducts.length ? (
         <section className="max-w-[90rem] mx-auto px-4 sm:px-6 pt-4 pb-16 md:pb-20">
           <div className="mb-10 animate-fade-up">
@@ -60,7 +68,7 @@ export default async function HomePage() {
       ) : null}
 
       {/* New Arrivals */}
-      <section className="max-w-[90rem] mx-auto px-4 sm:px-6 pt-4 pb-16 md:pb-20">
+      <section className={`max-w-[90rem] mx-auto px-4 sm:px-6 pt-4 pb-16 md:pb-20 ${PRODUCTS_PAUSED ? "hidden" : ""}`}>
         <div className="flex items-end justify-between mb-10 animate-fade-up">
           <div>
             <p className="eyebrow mb-2">Just Dropped</p>

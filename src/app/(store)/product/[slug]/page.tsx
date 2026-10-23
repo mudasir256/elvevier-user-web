@@ -3,6 +3,8 @@ import { notFound, permanentRedirect } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { getActiveProducts, getProductBySlug, slugify } from "@/lib/catalog";
+import { PRODUCTS_PAUSED } from "@/lib/storeStatus";
+import { ProductsPausedNotice } from "@/components/ComingSoon";
 import { JsonLd } from "@/components/JsonLd";
 import { breadcrumbJsonLd, productJsonLd } from "@/lib/seo";
 import { pageMeta } from "@/lib/site";
@@ -55,6 +57,13 @@ async function findMergedProduct(slug: string) {
 export default async function ProductPage({ params, searchParams }: Props) {
   const { slug } = await params;
   const { color } = await searchParams;
+  if (PRODUCTS_PAUSED) {
+    return (
+      <div className="mx-auto max-w-[100rem] px-4 py-8 sm:px-6 lg:px-10">
+        <ProductsPausedNotice />
+      </div>
+    );
+  }
   const product = await getProductBySlug(slug);
   if (!product) {
     const merged = await findMergedProduct(slug);

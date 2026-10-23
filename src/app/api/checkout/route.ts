@@ -2,8 +2,12 @@ import { NextResponse } from "next/server";
 import { getCustomer } from "@/lib/customerAuth";
 import { reserveStock, restoreStock } from "@/lib/stock";
 import { getSupabase } from "@/lib/supabase";
+import { PAUSED_NOTICE, PRODUCTS_PAUSED } from "@/lib/storeStatus";
 
 export async function POST(request: Request) {
+  if (PRODUCTS_PAUSED) {
+    return NextResponse.json({ error: `${PAUSED_NOTICE.title}. ${PAUSED_NOTICE.text}` }, { status: 507 });
+  }
   try {
     const customer = await getCustomer(request);
     const {

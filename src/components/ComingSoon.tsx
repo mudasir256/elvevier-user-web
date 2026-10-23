@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PAUSED_NOTICE, PRODUCTS_PAUSED } from "@/lib/storeStatus";
 
 export function ComingSoon({
   title,
@@ -11,6 +12,7 @@ export function ComingSoon({
   href?: string;
   cta?: string;
 }) {
+  if (PRODUCTS_PAUSED) return <ProductsPausedNotice />;
   return (
     <div className="py-16 text-center animate-fade-up">
       <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#4a142a]">Coming Soon</p>
@@ -22,6 +24,17 @@ export function ComingSoon({
       >
         {cta}
       </Link>
+    </div>
+  );
+}
+
+// Shown wherever products would be while PRODUCTS_PAUSED is on.
+export function ProductsPausedNotice() {
+  return (
+    <div className="py-16 text-center animate-fade-up">
+      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#4a142a]">{PAUSED_NOTICE.label}</p>
+      <h2 className="section-heading mt-3">{PAUSED_NOTICE.title}</h2>
+      <p className="type-copy mx-auto mt-3 max-w-md text-[var(--muted)]">{PAUSED_NOTICE.text}</p>
     </div>
   );
 }
