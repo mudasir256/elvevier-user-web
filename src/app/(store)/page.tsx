@@ -13,6 +13,7 @@ import type { Product } from "@/types";
 import { JsonLd } from "@/components/JsonLd";
 import { siteGraphJsonLd } from "@/lib/seo";
 import { pageMeta } from "@/lib/site";
+import { sameType } from "@/lib/productTypes";
 
 export const metadata: Metadata = {
   ...pageMeta({
@@ -30,11 +31,11 @@ const styleCategories: {
   match: (product: Product) => boolean;
 }[] = [
   { name: "Shoes", href: "/shoes", match: (product) => product.categoryId === "shoes" },
-  { name: "Jackets", href: "/jackets", match: (product) => product.subcategory?.toLowerCase() === "jacket" },
-  { name: "Hoodies", href: "/hoodies", match: (product) => product.subcategory?.toLowerCase() === "hoodie" },
-  { name: "Sweatshirts", href: "/sweatshirts", match: (product) => product.subcategory?.toLowerCase() === "sweatshirt" },
-  { name: "Trousers", href: "/trousers", match: (product) => product.subcategory?.toLowerCase() === "trouser" },
-  { name: "Jeans", href: "/jeans", match: (product) => product.subcategory?.toLowerCase() === "jeans" },
+  { name: "Jackets", href: "/jackets", match: (product) => sameType(product.subcategory, "jacket") },
+  { name: "Hoodies", href: "/hoodies", match: (product) => sameType(product.subcategory, "hoodie") },
+  { name: "Sweatshirts", href: "/sweatshirts", match: (product) => sameType(product.subcategory, "sweatshirt") },
+  { name: "Trousers", href: "/trousers", match: (product) => sameType(product.subcategory, "trouser") },
+  { name: "Jeans", href: "/jeans", match: (product) => sameType(product.subcategory, "jeans") },
 ];
 
 export default async function HomePage() {

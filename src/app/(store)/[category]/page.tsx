@@ -16,6 +16,7 @@ import { MetaCatalogView } from "@/components/MetaPixel";
 import { JsonLd } from "@/components/JsonLd";
 import { breadcrumbJsonLd, collectionJsonLd } from "@/lib/seo";
 import { pageMeta } from "@/lib/site";
+import { sameType } from "@/lib/productTypes";
 
 type Props = {
   params: Promise<{ category: string }>;
@@ -106,7 +107,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const style = stylePages[categorySlug.toLowerCase()];
   if (style) {
     const [products, upcoming] = await Promise.all([getActiveProducts(), getBrandNamesForType(style.subcategory)]);
-    const list = products.filter((product) => product.subcategory?.toLowerCase() === style.subcategory);
+    const list = products.filter((product) => sameType(product.subcategory, style.subcategory));
     const styleSeo = categorySeo(categorySlug);
     return (
       <div className="max-w-[90rem] mx-auto px-4 sm:px-6 py-10">
@@ -158,11 +159,11 @@ export default async function CategoryPage({ params, searchParams }: Props) {
     otherList = products.filter(
       (product) =>
         forGender(product, other) &&
-        (!typeInfo || product.subcategory?.toLowerCase() === typeInfo.label.toLowerCase())
+        (!typeInfo || sameType(product.subcategory, typeInfo.label))
     );
     const mine = products.filter((product) => forGender(product, gender));
     list = typeInfo
-      ? mine.filter((product) => product.subcategory?.toLowerCase() === typeInfo.label.toLowerCase())
+      ? mine.filter((product) => sameType(product.subcategory, typeInfo.label))
       : mine;
   } else {
     list = isNewFilter

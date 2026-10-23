@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { productCategories } from "@/data/productCategories";
 import type { ColorGallery, Product } from "@/types";
 import { isSold, totalStock } from "@/lib/variants";
@@ -41,6 +41,7 @@ type Draft = {
 };
 
 const NEW_BRAND = "__new_brand__";
+const NEW_TYPE = "__new_type__";
 
 const waistSizes = ["28", "30", "32", "34", "36", "38", "40", "42"];
 const shoeSizes = ["36", "37", "38", "39", "40", "41", "42", "43", "44", "45"];
@@ -98,6 +99,7 @@ export function ProductsManager() {
   const [sizeError, setSizeError] = useState("");
   const [palette, setPalette] = useState<string[]>([]);
   const [typingBrand, setTypingBrand] = useState(false);
+  const [typingType, setTypingType] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [soldId, setSoldId] = useState<string | null>(null);
   const [saleProduct, setSaleProduct] = useState<Product | null>(null);
@@ -124,10 +126,26 @@ export function ProductsManager() {
     return () => clearTimeout(timer);
   }, [search]);
 
-  const subcategoryOptions = useMemo(
-    () => productCategories.find((item) => item.id === draft.categoryId)?.subcategories ?? [],
-    [draft.categoryId]
+  // Built-in types for the category, plus custom types already used on products in it.
+  const typeOptionsFor = useCallback(
+    (categoryId: string) => {
+      const builtIn = productCategories.find((item) => item.id === categoryId)?.subcategories ?? [];
+      const used = (data ?? []).filter((product) => product.categoryId === categoryId).map((product) => product.subcategory?.trim() ?? "");
+      const seen = new Set<string>();
+      return [...builtIn, ...used].filter((item) => {
+        const key = item.toLowerCase();
+        if (!item || seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    },
+    [data]
   );
+  const subcategoryOptions = useMemo(() => {
+    const options = typeOptionsFor(draft.categoryId);
+    const current = draft.subcategory.trim();
+    return current && !options.some((item) => item.toLowerCase() === current.toLowerCase()) ? [...options, current] : options;
+  }, [typeOptionsFor, draft.categoryId, draft.subcategory]);
   const sizes = useMemo(() => sizeGuide(draft.categoryId), [draft.categoryId]);
   const { data: savedBrands } = useGetAdminBrandsQuery();
   const brandOptions = useMemo(
@@ -263,6 +281,7 @@ export function ProductsManager() {
     setCustomSize("");
     setFormError("");
     setTypingBrand(false);
+    setTypingType(false);
     setCreating(true);
   }
 
@@ -270,6 +289,7 @@ export function ProductsManager() {
     setCreating(false);
     setEditing(product);
     setTypingBrand(false);
+    setTypingType(false);
     setCustomSize("");
     setColorInput("");
     setFormError("");
@@ -645,7 +665,13 @@ export function ProductsManager() {
               <Field label="Category">
                 <select
                   value={draft.categoryId}
-                  onChange={(event) => setDraft({ ...draft, categoryId: event.target.value, subcategory: "" })}
+                  onChange={(event) => {
+                    const categoryId = event.target.value;
+                    // Keep the chosen type when the new category offers it too.
+                    const kept = typeOptionsFor(categoryId).find((item) => item.toLowerCase() === draft.subcategory.trim().toLowerCase());
+                    setTypingType(false);
+                    setDraft({ ...draft, categoryId, subcategory: kept ?? "" });
+                  }}
                   className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm"
                 >
                   {productCategories.map((item) => (
@@ -653,16 +679,62 @@ export function ProductsManager() {
                   ))}
                 </select>
               </Field>
-              {subcategoryOptions.length > 0 ? (
-                <Field label="Type">
-                  <select value={draft.subcategory} onChange={(event) => setDraft({ ...draft, subcategory: event.target.value })} className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm">
+              <Field label="Type">
+                {typingType ? (
+                  <div className="flex gap-2">
+                    <input
+                      autoFocus
+                      value={draft.subcategory}
+                      onChange={(event) => setDraft({ ...draft, subcategory: event.target.value.slice(0, 40) })}
+                      onKeyDown={(event) => {
+                        if (event.key !== "Enter") return;
+                        event.preventDefault();
+                        setDraft({ ...draft, subcategory: draft.subcategory.trim().replace(/\s+/g, " ") });
+                        setTypingType(false);
+                      }}
+                      placeholder="Custom type, e.g. Shorts"
+                      className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDraft({ ...draft, subcategory: draft.subcategory.trim().replace(/\s+/g, " ") });
+                        setTypingType(false);
+                      }}
+                      className="shrink-0 rounded-xl bg-[#f4e6ec] px-3 py-2 text-sm font-medium text-[#4a142a]"
+                    >
+                      Done
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDraft({ ...draft, subcategory: "" });
+                        setTypingType(false);
+                      }}
+                      className="shrink-0 rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-600"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <select
+                    value={draft.subcategory}
+                    onChange={(event) => {
+                      if (event.target.value === NEW_TYPE) {
+                        setTypingType(true);
+                        setDraft({ ...draft, subcategory: "" });
+                      } else setDraft({ ...draft, subcategory: event.target.value });
+                    }}
+                    className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm"
+                  >
                     <option value="">Any</option>
                     {subcategoryOptions.map((item) => (
                       <option key={item} value={item}>{item}</option>
                     ))}
+                    <option value={NEW_TYPE}>+ Custom type…</option>
                   </select>
-                </Field>
-              ) : null}
+                )}
+              </Field>
               <Field label="Brand">
                 {typingBrand ? (
                   <div className="flex gap-2">
@@ -670,9 +742,25 @@ export function ProductsManager() {
                       autoFocus
                       value={draft.brand}
                       onChange={(event) => setDraft({ ...draft, brand: event.target.value })}
+                      onKeyDown={(event) => {
+                        if (event.key !== "Enter") return;
+                        event.preventDefault();
+                        setDraft({ ...draft, brand: draft.brand.trim().replace(/\s+/g, " ") });
+                        setTypingBrand(false);
+                      }}
                       placeholder="New brand name, e.g. Nike"
                       className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm"
                     />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDraft({ ...draft, brand: draft.brand.trim().replace(/\s+/g, " ") });
+                        setTypingBrand(false);
+                      }}
+                      className="shrink-0 rounded-xl bg-[#f4e6ec] px-3 py-2 text-sm font-medium text-[#4a142a]"
+                    >
+                      Done
+                    </button>
                     <button
                       type="button"
                       onClick={() => {

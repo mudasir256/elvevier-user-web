@@ -4,6 +4,7 @@ import { getSupabase } from "@/lib/supabase";
 import { brandSlug, summarizeBrands } from "@/lib/brands";
 import { normalizeColorImages, normalizeVariants, type ColorGallery } from "@/lib/variants";
 import { cleanSalePercent, withSale } from "@/lib/sale";
+import { sameType } from "@/lib/productTypes";
 
 type ProductRow = {
   id: string;
@@ -36,7 +37,7 @@ const subcategorySlugToLabel: Record<string, Record<string, string>> = {
     bottoms: "Bottoms",
     blazers: "Blazers",
     sweaters: "Sweaters",
-    jackets: "Jackets",
+    jackets: "Jacket",
   },
   men: {
     shirts: "Shirts",
@@ -45,7 +46,7 @@ const subcategorySlugToLabel: Record<string, Record<string, string>> = {
     bottoms: "Bottoms",
     blazers: "Blazers",
     sweaters: "Sweaters",
-    jackets: "Jackets",
+    jackets: "Jacket",
   },
   kids: {
     tops: "Tops",
@@ -140,7 +141,7 @@ export async function listSavedBrands() {
 export async function getBrandNamesForType(type: string) {
   const key = type.toLowerCase();
   try {
-    return (await listSavedBrands()).filter((brand) => brand.types.includes(key)).map((brand) => brand.name);
+    return (await listSavedBrands()).filter((brand) => brand.types.some((item) => sameType(item, key))).map((brand) => brand.name);
   } catch (err) {
     console.error("Brands error:", err);
     return [];
@@ -190,7 +191,7 @@ export async function getProductsByCategoryAndSubcategory(categoryId: string, su
   if (!map) return base;
   const label = map[subcategorySlug.toLowerCase()];
   if (!label) return base;
-  return base.filter((product) => product.subcategory?.toLowerCase() === label.toLowerCase());
+  return base.filter((product) => sameType(product.subcategory, label));
 }
 
 export async function getProductsByCategoryNew(categoryId: string) {

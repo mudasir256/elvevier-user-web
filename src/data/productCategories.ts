@@ -1,30 +1,32 @@
 import type { CategoryId } from "@/types";
 
+// Every clothing category offers the same types. The store's style pages (/trousers, /jeans,
+// /sweatshirts, /hoodies, /jackets) look for "Trouser", "Jeans", "Sweatshirt", "Hoodie" and "Jacket".
+const clothingTypes = [
+  "Tops",
+  "Shirts",
+  "T-Shirts",
+  "Polo",
+  "Dresses",
+  "Bottoms",
+  "Trouser",
+  "Jeans",
+  "Sweatshirt",
+  "Hoodie",
+  "Sweaters",
+  "Jacket",
+  "Blazers",
+];
+
 export const productCategories: {
   id: CategoryId;
   name: string;
   subcategories: string[];
 }[] = [
-  {
-    id: "women",
-    name: "Woman",
-    subcategories: ["Tops", "Dresses", "T-Shirts", "Bottoms", "Trouser", "Jeans", "Blazers", "Sweaters", "Jackets"],
-  },
-  {
-    id: "men",
-    name: "Men",
-    subcategories: ["Shirts", "T-Shirts", "Polo", "Bottoms", "Trouser", "Jeans", "Blazers", "Sweaters", "Jackets"],
-  },
-  {
-    id: "unisex",
-    name: "Unisex",
-    subcategories: ["Trouser", "Jeans", "Sweatshirt", "Hoodie", "Jacket", "T-Shirts"],
-  },
-  {
-    id: "kids",
-    name: "Kids",
-    subcategories: ["Tops", "Bottoms", "Dresses"],
-  },
+  { id: "women", name: "Woman", subcategories: clothingTypes },
+  { id: "men", name: "Men", subcategories: clothingTypes },
+  { id: "unisex", name: "Unisex", subcategories: clothingTypes },
+  { id: "kids", name: "Kids", subcategories: clothingTypes },
   { id: "shoes", name: "Shoes", subcategories: ["Woman", "Men", "Kids"] },
   { id: "accessories", name: "Accessories", subcategories: ["Eyewear"] },
   { id: "belts", name: "Belts", subcategories: [] },
