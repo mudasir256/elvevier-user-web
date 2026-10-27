@@ -52,6 +52,7 @@ export function HeroMedia({ banners }: { banners: Banner[] }) {
               src={slide.mobileImage || slide.image}
               alt={slide.alt}
               fill
+              unoptimized
               priority={slideIndex === 0}
               className="object-cover object-center md:hidden"
               sizes="100vw"
@@ -61,6 +62,7 @@ export function HeroMedia({ banners }: { banners: Banner[] }) {
               src={slide.image}
               alt={slide.alt}
               fill
+              unoptimized
               priority={slideIndex === 0}
               className="hidden object-cover object-center md:block"
               sizes="100vw"

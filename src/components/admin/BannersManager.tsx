@@ -217,7 +217,7 @@ function Preview({ label, url, wide }: { label: string; url: string; wide: boole
     <div>
       <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400">{label}</p>
       <div className={`relative overflow-hidden rounded-xl bg-gray-100 ${wide ? "h-24 w-40 sm:w-56" : "h-24 w-16"}`}>
-        {url ? <Image src={url} alt="" fill className="object-cover" sizes="224px" /> : <span className="absolute inset-0 flex items-center justify-center px-1 text-center text-[10px] text-gray-400">Not set</span>}
+        {url ? <Image src={url} alt="" fill unoptimized className="object-cover" sizes="224px" /> : <span className="absolute inset-0 flex items-center justify-center px-1 text-center text-[10px] text-gray-400">Not set</span>}
       </div>
     </div>
   );
@@ -245,7 +245,7 @@ function ImageField({
       <p className="text-sm font-medium text-gray-700">{label}</p>
       <p className="text-xs text-gray-500">{hint}</p>
       <div className={`relative mt-2 overflow-hidden rounded-xl bg-gray-100 ${wide ? "aspect-[2029/775]" : "mx-auto aspect-[1122/1402] w-28"}`}>
-        {url ? <Image src={url} alt="" fill className="object-cover" sizes="320px" /> : <span className="absolute inset-0 flex items-center justify-center px-3 text-center text-xs text-gray-400">No picture yet</span>}
+        {url ? <Image src={url} alt="" fill unoptimized className="object-cover" sizes="320px" /> : <span className="absolute inset-0 flex items-center justify-center px-3 text-center text-xs text-gray-400">No picture yet</span>}
       </div>
       <div className="mt-2 flex flex-wrap gap-2">
         <label className="inline-flex cursor-pointer rounded-lg border border-gray-200 px-3 py-2 text-xs font-medium text-gray-700">
