@@ -1,9 +1,10 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { AdminAuthProvider } from "@/context/AdminAuthContext";
+import { AdminAuthProvider, useAdminAuth } from "@/context/AdminAuthContext";
 import { AdminAuthGuard } from "./AuthGuard";
 import { AdminSidebar } from "./Sidebar";
+import { NewOrderAlert } from "./NewOrderAlert";
 import { ADMIN_PAUSED, PAUSED_NOTICE } from "@/lib/storeStatus";
 
 function AdminPausedNotice() {
@@ -24,6 +25,11 @@ function AdminPausedNotice() {
   );
 }
 
+function OrderAlerts() {
+  const { token } = useAdminAuth();
+  return <NewOrderAlert enabled={Boolean(token) && !ADMIN_PAUSED} />;
+}
+
 export function AdminAppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isLoginPage = pathname === "/admin/login";
@@ -36,6 +42,7 @@ export function AdminAppShell({ children }: { children: React.ReactNode }) {
         ) : (
           <>
             <AdminSidebar />
+            <OrderAlerts />
             <main className="ml-64 min-h-screen">{ADMIN_PAUSED ? <AdminPausedNotice /> : children}</main>
           </>
         )}

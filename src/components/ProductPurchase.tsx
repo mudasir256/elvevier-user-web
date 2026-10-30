@@ -100,7 +100,6 @@ export function ProductPurchase({
                   } ${unavailable ? "line-through opacity-50" : ""}`}
                 >
                   {item}
-                  <span className="ml-1.5 text-[11px] opacity-70">({option?.stock ?? 0})</span>
                 </button>
               );
             })}
@@ -108,9 +107,10 @@ export function ProductPurchase({
         </div>
       ) : null}
 
-      {tracked ? (
-        <p className={`${compact ? "mt-2" : "mt-4"} text-sm ${out || atLimit ? "text-red-700" : "text-[var(--muted)]"}`}>
-          {out ? "Out of stock" : atLimit ? `Only ${stock} available` : `${stock} in stock`}
+      {/* Customers see whether an option is available, never how many are left. */}
+      {out || atLimit ? (
+        <p className={`${compact ? "mt-2" : "mt-4"} text-sm text-red-700`}>
+          {out ? "Out of stock" : "No more available in this option"}
         </p>
       ) : null}
       {message ? <p className="mt-2 text-sm text-red-700">{message}</p> : null}
@@ -136,7 +136,7 @@ export function ProductPurchase({
         }}
         className={`${compact ? "mt-2 py-3" : "mt-4 py-4"} w-full rounded-lg bg-[#4a142a] px-10 font-medium text-white transition hover:bg-[#350e1e] disabled:cursor-not-allowed disabled:opacity-50 md:w-auto`}
       >
-        {out ? "Out of stock" : atLimit ? `Only ${stock} available` : "Add to cart"}
+        {out ? "Out of stock" : atLimit ? "Already in your cart" : "Add to cart"}
       </button>
     </div>
   );

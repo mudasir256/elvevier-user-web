@@ -19,6 +19,8 @@ interface CartState {
   isOpen: boolean;
 }
 
+const OPEN_AFTER_ADD_MS = 800;
+
 type CartAction =
   | { type: "ADD"; product: Product; quantity?: number; size?: string; color?: string }
   | { type: "REMOVE"; productId: string; size?: string; color?: string }
@@ -213,6 +215,8 @@ export function CartProvider({
   const addToCart = useCallback(
     (product: Product, quantity = 1, size?: string, color?: string) => {
       dispatch({ type: "ADD", product, quantity, size, color });
+      // Slide the cart open once the fly-to-cart picture has landed on the cart icon.
+      window.setTimeout(() => dispatch({ type: "OPEN_CART" }), OPEN_AFTER_ADD_MS);
       run(async (current) => {
         try {
           const data = await sendCart(

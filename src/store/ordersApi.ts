@@ -70,6 +70,14 @@ export interface CustomerDetail {
   orders: Order[];
 }
 
+export interface LatestOrder {
+  _id: string;
+  name: string;
+  city: string;
+  total: number;
+  createdAt: string;
+}
+
 export interface AnalyticsData {
   daily: { _id: string; revenue: number; orders: number }[];
   topProducts: { _id: string; totalQty: number; totalRevenue: number }[];
@@ -96,6 +104,9 @@ export const ordersApi = createApi({
     getOrder: builder.query<Order, string>({
       query: (id) => `/orders/${id}`,
       providesTags: (_result, _err, id) => [{ type: "Order", id }],
+    }),
+    getLatestOrders: builder.query<LatestOrder[], void>({
+      query: () => "/orders/latest",
     }),
     getStats: builder.query<OrderStats, void>({
       query: () => "/orders/stats",
@@ -186,6 +197,7 @@ export const {
   useGetOrdersQuery,
   useGetOrderQuery,
   useGetStatsQuery,
+  useGetLatestOrdersQuery,
   useUpdateOrderStatusMutation,
   useDeleteOrderMutation,
   useAddOrderNoteMutation,

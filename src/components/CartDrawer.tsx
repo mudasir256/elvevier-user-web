@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import { galleryFor, lineStock } from "@/lib/variants";
+import { CartSuggestions } from "@/components/CartSuggestions";
 
 function formatPrice(price: number) {
   return `Rs. ${price.toLocaleString()}`;
@@ -32,7 +33,7 @@ export function CartDrawer() {
         aria-hidden={!isOpen}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-[var(--border)] shrink-0 pt-[env(safe-area-inset-top)]">
+        <div className="flex items-center justify-between p-5 border-b border-[var(--border)] shrink-0 pt-[max(1.25rem,env(safe-area-inset-top))]">
           <div>
             <h2 className="section-heading">Your Cart</h2>
             {itemCount > 0 && (
@@ -128,7 +129,7 @@ export function CartDrawer() {
                     {stock === 0 ? (
                       <p className="mt-1.5 text-xs text-red-700">Out of stock</p>
                     ) : atLimit ? (
-                      <p className="mt-1.5 text-xs text-[#4a142a]">Only {stock} available</p>
+                      <p className="mt-1.5 text-xs text-[#4a142a]">No more available</p>
                     ) : null}
                   </div>
                 </li>
@@ -136,11 +137,12 @@ export function CartDrawer() {
               })}
             </ul>
           )}
+          {items.length > 0 ? <CartSuggestions cart={items.map((item) => item.product)} onPick={closeCart} /> : null}
         </div>
 
         {/* Footer */}
         {items.length > 0 && (
-          <div className="p-5 pb-[env(safe-area-inset-bottom)] border-t border-[var(--border)] bg-[var(--cream)] shrink-0">
+          <div className="p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] border-t border-[var(--border)] bg-[var(--cream)] shrink-0">
             <div className="flex justify-between items-center mb-4">
               <span className="text-sm text-[var(--muted)]">Subtotal</span>
               <span className="text-lg font-semibold">{formatPrice(total)}</span>
