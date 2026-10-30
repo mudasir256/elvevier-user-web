@@ -93,6 +93,8 @@ export function ProductsManager() {
   const [editing, setEditing] = useState<Product | null>(null);
   const [creating, setCreating] = useState(false);
   const [draft, setDraft] = useState<Draft>(emptyDraft);
+  const [dragFrom, setDragFrom] = useState<number | null>(null);
+  const [dragOver, setDragOver] = useState<number | null>(null);
   const [formError, setFormError] = useState("");
   const [customSize, setCustomSize] = useState("");
   const [colorInput, setColorInput] = useState("");
@@ -347,6 +349,24 @@ export function ProductsManager() {
     if (!next) return;
     setDraft((current) => {
       const images = [...current.images, next].slice(0, 8);
+      return { ...current, images, image: images[0] ?? "" };
+    });
+  }
+
+  // The first image is the cover, so moving a photo to the front makes it the cover.
+  function moveImage(from: number, to: number) {
+    if (from === to) return;
+    setDraft((current) => {
+      const images = [...current.images];
+      const [moved] = images.splice(from, 1);
+      images.splice(to, 0, moved);
+      return { ...current, images, image: images[0] ?? "" };
+    });
+  }
+
+  function removeImage(index: number) {
+    setDraft((current) => {
+      const images = current.images.filter((_, itemIndex) => itemIndex !== index);
       return { ...current, images, image: images[0] ?? "" };
     });
   }
@@ -941,39 +961,60 @@ export function ProductsManager() {
               <Field label="Description">
                 <textarea value={draft.description} onChange={(event) => setDraft({ ...draft, description: event.target.value })} rows={3} className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm" />
               </Field>
-              <Field label="Images">
-                <p className="mb-2 text-xs text-gray-500">Backup photos, used when a color does not have its own pictures. Add up to 8.</p>
+              {/* A div, not Field: inside a <label> any click on a photo would press its first button. */}
+              <div>
+                <span className="mb-1.5 block text-sm font-medium text-gray-700">Images</span>
+                <p className="mb-2 text-xs text-gray-500">
+                  Backup photos, used when a color does not have its own pictures. Add up to 8. Drag a photo to change the order; the first one is the cover.
+                </p>
                 <div className="grid grid-cols-3 gap-2">
                   {draft.images.map((url, index) => (
-                    <div key={`${url}-${index}`} className="relative">
+                    <div
+                      key={`${url}-${index}`}
+                      draggable
+                      onDragStart={(event) => {
+                        setDragFrom(index);
+                        event.dataTransfer.effectAllowed = "move";
+                      }}
+                      onDragOver={(event) => {
+                        if (dragFrom === null) return;
+                        event.preventDefault();
+                        if (dragOver !== index) setDragOver(index);
+                      }}
+                      onDrop={(event) => {
+                        event.preventDefault();
+                        if (dragFrom !== null) moveImage(dragFrom, index);
+                        setDragFrom(null);
+                        setDragOver(null);
+                      }}
+                      onDragEnd={() => {
+                        setDragFrom(null);
+                        setDragOver(null);
+                      }}
+                      className={`relative cursor-grab rounded-lg transition active:cursor-grabbing ${
+                        dragFrom === index ? "opacity-40" : ""
+                      } ${dragOver === index && dragFrom !== index ? "ring-2 ring-[#4a142a] ring-offset-2" : ""}`}
+                    >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={url} alt="" className="h-24 w-full rounded-lg object-cover bg-gray-100" />
+                      <img src={url} alt="" draggable={false} className="h-24 w-full rounded-lg object-cover bg-gray-100" />
                       <span className="absolute left-1 top-1 rounded bg-white/90 px-1.5 py-0.5 text-[10px] font-semibold text-[#4a142a]">
                         {index === 0 ? "Cover" : index + 1}
                       </span>
                       <button
                         type="button"
-                        onClick={() =>
-                          setDraft((current) => {
-                            const images = current.images.filter((_, itemIndex) => itemIndex !== index);
-                            return { ...current, images, image: images[0] ?? "" };
-                          })
-                        }
-                        className="absolute right-1 top-1 rounded bg-white/90 px-1.5 py-0.5 text-[10px] font-semibold text-red-700"
+                        onClick={() => removeImage(index)}
+                        className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-white/95 text-red-700 shadow hover:bg-red-50"
+                        aria-label={`Remove image ${index + 1}`}
+                        title="Remove"
                       >
-                        Remove
+                        <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.4} d="M6 6l12 12M18 6L6 18" />
+                        </svg>
                       </button>
                       {index > 0 ? (
                         <button
                           type="button"
-                          onClick={() =>
-                            setDraft((current) => {
-                              const images = [...current.images];
-                              const [chosen] = images.splice(index, 1);
-                              images.unshift(chosen);
-                              return { ...current, images, image: images[0] };
-                            })
-                          }
+                          onClick={() => moveImage(index, 0)}
                           className="absolute bottom-1 left-1 rounded bg-white/90 px-1.5 py-0.5 text-[10px] font-semibold text-[#4a142a]"
                         >
                           Make cover
@@ -1008,7 +1049,7 @@ export function ProductsManager() {
                     input.value = "";
                   }}
                 />
-              </Field>
+              </div>
               <div className="flex flex-wrap gap-4 text-sm">
                 <label className="flex items-center gap-2"><input type="checkbox" checked={draft.active} onChange={(event) => setDraft({ ...draft, active: event.target.checked })} /> Visible in store</label>
                 <label className="flex items-center gap-2"><input type="checkbox" checked={draft.new} onChange={(event) => setDraft({ ...draft, new: event.target.checked })} /> New arrival</label>

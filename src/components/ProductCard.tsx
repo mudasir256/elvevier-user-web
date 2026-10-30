@@ -11,34 +11,10 @@ import { galleryFor, isSold } from "@/lib/variants";
 import { SoldBadge } from "@/components/SoldBadge";
 import { SaleTag } from "@/components/SaleTag";
 import { trackAddToCart } from "@/lib/metaPixel";
+import { backgroundFromImage } from "@/lib/imageBackground";
 
 function formatPrice(price: number) {
   return `Rs. ${price.toLocaleString()}`;
-}
-
-function backgroundFromImage(image: HTMLImageElement) {
-  if (!image.naturalWidth) return "";
-  const canvas = document.createElement("canvas");
-  canvas.width = 4;
-  canvas.height = 4;
-  const context = canvas.getContext("2d", { willReadFrequently: true });
-  if (!context) return "";
-  try {
-    context.drawImage(image, 0, 0, 16, 16, 0, 0, 4, 4);
-    const { data } = context.getImageData(0, 0, 4, 4);
-    let red = 0;
-    let green = 0;
-    let blue = 0;
-    const count = data.length / 4;
-    for (let index = 0; index < data.length; index += 4) {
-      red += data[index];
-      green += data[index + 1];
-      blue += data[index + 2];
-    }
-    return `rgb(${Math.round(red / count)}, ${Math.round(green / count)}, ${Math.round(blue / count)})`;
-  } catch {
-    return "";
-  }
 }
 
 interface ProductCardProps {
@@ -231,6 +207,8 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
                 alt={photoIndex === 0 ? product.name : ""}
                 fill
                 draggable={false}
+                // Photos load straight from Supabase; CORS lets matchFrame read their edge colour.
+                crossOrigin="anonymous"
                 className={`object-contain will-change-[opacity,transform] [transition:opacity_800ms_cubic-bezier(0.4,0,0.2,1),transform_1600ms_cubic-bezier(0.25,0.1,0.25,1)] ${
                   preview.active === photoIndex ? "opacity-100" : "opacity-0"
                 } ${preview.playing && preview.active === photoIndex ? "motion-safe:scale-[1.025]" : "scale-100"}`}

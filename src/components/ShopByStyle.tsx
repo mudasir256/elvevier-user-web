@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { backgroundFromImage } from "@/lib/imageBackground";
 
 export type StyleCategory = {
   name: string;
@@ -169,6 +170,13 @@ export function ShopByStyle({ categories }: { categories: StyleCategory[] }) {
                   }
                   sizes="250px"
                   loading="eager"
+                  crossOrigin="anonymous"
+                  onLoad={(event) => {
+                    // Paint the frame in the photo's own background so contained shoes have no band.
+                    const color = backgroundFromImage(event.currentTarget);
+                    const frame = event.currentTarget.parentElement;
+                    if (color && frame) frame.style.backgroundColor = color;
+                  }}
                 />
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#2c2825]/80 via-[#2c2825]/25 to-transparent px-4 pb-4 pt-20">
                   <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-white/70">
