@@ -1,16 +1,7 @@
 import Image from "next/image";
-
-const partners = [
-  { name: "Nike", src: "/kairo/brand/nikelogo.webp", width: 333, height: 188 },
-  { name: "Adidas", src: "/kairo/brand/adidaslogo.webp", width: 297, height: 196 },
-  { name: "Loro Piana", src: "/kairo/brand/loralogo.webp", width: 336, height: 93 },
-  { name: "Vans", src: "/kairo/brand/vanslogo.webp", width: 334, height: 132 },
-  { name: "On", src: "/kairo/brand/onlcoudelogo.webp", width: 110, height: 191 },
-  { name: "Lacoste", src: "/kairo/brand/lacostelogo.webp", width: 337, height: 173 },
-  { name: "GANT", src: "/kairo/brand/gantlogo.webp", width: 274, height: 193 },
-  { name: "Calvin Klein", src: "/kairo/brand/calvinkleinlogo.webp", width: 333, height: 75 },
-  { name: "Ralph Lauren", src: "/kairo/brand/ralphlogo.webp", width: 336, height: 134 },
-];
+import Link from "next/link";
+import { partners } from "@/data/partners";
+import { brandHref } from "@/lib/brands";
 
 export function BrandPartners() {
   return (
@@ -20,15 +11,23 @@ export function BrandPartners() {
           {[0, 1].map((copy) => (
             <ul key={copy} className="flex items-center">
               {partners.map((partner) => (
-                <li key={`${copy}-${partner.name}`} className="flex h-24 w-44 shrink-0 items-center justify-center px-5">
-                  <Image
-                    src={partner.src}
-                    alt={partner.name}
-                    width={partner.width}
-                    height={partner.height}
-                    className="partner-logo h-11 w-auto max-w-[9.5rem] object-contain"
-                    unoptimized
-                  />
+                <li key={`${copy}-${partner.name}`} className="shrink-0">
+                  <Link
+                    href={brandHref(partner.name)}
+                    aria-label={`Shop ${partner.name}`}
+                    aria-hidden={copy === 1 || undefined}
+                    tabIndex={copy === 1 ? -1 : undefined}
+                    className="flex h-24 w-44 items-center justify-center px-5"
+                  >
+                    <Image
+                      src={partner.src}
+                      alt={partner.name}
+                      width={partner.width}
+                      height={partner.height}
+                      className="partner-logo h-11 w-auto max-w-[9.5rem] object-contain"
+                      unoptimized
+                    />
+                  </Link>
                 </li>
               ))}
             </ul>

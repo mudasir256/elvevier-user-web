@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { styleHref } from "@/lib/styles";
 
 const types = [
   { id: "all", label: "All" },
@@ -16,7 +17,7 @@ export type GenderShopType = (typeof types)[number]["id"];
 function hrefFor(gender: GenderShop, type: GenderShopType) {
   if (type === "all") return `/${gender}`;
   if (type === "shoes") return `/shoes/${gender}`;
-  return `/${gender}?type=${type}`;
+  return styleHref(type, gender);
 }
 
 export function GenderShopNav({

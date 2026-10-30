@@ -36,11 +36,11 @@ export function SearchView({
   const products = data ?? initialProducts;
   const q = query.trim().toLowerCase();
   const genderType: Record<string, string> = {
-    trouser: "trouser",
-    sweatshirt: "sweatshirt",
-    jeans: "jeans",
-    hoodie: "hoodie",
-    jacket: "jacket",
+    trouser: "/trousers",
+    sweatshirt: "/sweatshirts",
+    jeans: "/jeans",
+    hoodie: "/hoodies",
+    jacket: "/jackets",
   };
   const splitType = genderType[q];
   const results =
@@ -79,10 +79,10 @@ export function SearchView({
       />
       {splitType && (
         <div className="mt-4 flex flex-wrap gap-2">
-          <Link href={`/men?type=${splitType}`} className="rounded-full bg-[#4a142a] px-5 py-2 text-sm font-medium text-white hover:bg-[#350e1e]">
+          <Link href={splitType} className="rounded-full bg-[#4a142a] px-5 py-2 text-sm font-medium text-white hover:bg-[#350e1e]">
             Men
           </Link>
-          <Link href={`/women?type=${splitType}`} className="rounded-full border border-[var(--border)] bg-[var(--card)] px-5 py-2 text-sm font-medium hover:border-[#4a142a] hover:text-[#4a142a]">
+          <Link href={`${splitType}?gender=women`} className="rounded-full border border-[var(--border)] bg-[var(--card)] px-5 py-2 text-sm font-medium hover:border-[#4a142a] hover:text-[#4a142a]">
             Women
           </Link>
         </div>

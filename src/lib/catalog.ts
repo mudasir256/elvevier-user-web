@@ -143,17 +143,6 @@ export async function listSavedBrands() {
   }));
 }
 
-// Brands set up for a product type (e.g. "trouser") that may not have products yet.
-export async function getBrandNamesForType(type: string) {
-  const key = type.toLowerCase();
-  try {
-    return (await listSavedBrands()).filter((brand) => brand.types.some((item) => sameType(item, key))).map((brand) => brand.name);
-  } catch (err) {
-    console.error("Brands error:", err);
-    return [];
-  }
-}
-
 export async function saveBrand(name: string) {
   const clean = name.trim();
   const slug = brandSlug(clean);

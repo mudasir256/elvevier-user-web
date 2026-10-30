@@ -13,7 +13,6 @@ import { pageMeta } from "@/lib/site";
 
 type Props = {
   params: Promise<{ category: string; subcategory: string }>;
-  searchParams: Promise<{ brand?: string }>;
 };
 
 const categorySlugs = ["women", "men", "kids", "shoes", "accessories"] as const;
@@ -81,9 +80,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   });
 }
 
-export default async function SubcategoryPage({ params, searchParams }: Props) {
+export default async function SubcategoryPage({ params }: Props) {
   const { category: categorySlug, subcategory: subcategorySlug } = await params;
-  const { brand } = await searchParams;
   const cat = categorySlug.toLowerCase();
   const sub = subcategorySlug.toLowerCase();
 
@@ -151,7 +149,7 @@ export default async function SubcategoryPage({ params, searchParams }: Props) {
       {list.length === 0 ? (
         <ComingSoon {...emptyState} />
       ) : (
-        <BrandSections products={list} basePath={`/${cat}/${sub}`} brand={brand} heading={title} />
+        <BrandSections products={list} heading={title} />
       )}
     </div>
   );

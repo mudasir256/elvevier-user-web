@@ -16,6 +16,12 @@ const BUILT_IN = [
   { key: "jeans", name: "Jeans", href: "/jeans" },
 ];
 
+// A style page for one gender; men is the default view, women is /sweatshirts?gender=women.
+export function styleHref(typeKey: string, gender?: "men" | "women") {
+  const path = BUILT_IN.find((style) => sameType(style.key, typeKey))?.href ?? `/${slugify(typeKey)}`;
+  return gender === "women" ? `${path}?gender=women` : path;
+}
+
 function clothingType(product: Product) {
   return CLOTHING.has(product.categoryId) ? product.subcategory?.trim() ?? "" : "";
 }

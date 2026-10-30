@@ -18,6 +18,16 @@ export function ShopByStyle({ categories }: { categories: StyleCategory[] }) {
   const holdUntil = useRef(0);
   const hovering = useRef(false);
   const [looping, setLooping] = useState(false);
+  const [mobile, setMobile] = useState(false);
+
+  // Auto-scroll only on mobile widths; desktop stays still and uses the arrows.
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 767px)");
+    const update = () => setMobile(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
 
   // Loop only when one set of cards is wider than the row.
   useEffect(() => {
@@ -37,7 +47,7 @@ export function ShopByStyle({ categories }: { categories: StyleCategory[] }) {
 
   useEffect(() => {
     const el = scroller.current;
-    if (!el || !looping) return;
+    if (!el || !looping || !mobile) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const loopWidth = () => {
@@ -66,7 +76,7 @@ export function ShopByStyle({ categories }: { categories: StyleCategory[] }) {
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [looping, categories.length]);
+  }, [looping, mobile, categories.length]);
 
   const pause = (ms: number) => {
     holdUntil.current = performance.now() + ms;

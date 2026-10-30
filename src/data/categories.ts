@@ -38,8 +38,8 @@ export const navCategories = [
     name: "Trouser",
     slug: "trousers",
     children: [
-      { name: "Men", slug: "men?type=trouser" },
-      { name: "Women", slug: "women?type=trouser" },
+      { name: "Men", slug: "trousers" },
+      { name: "Women", slug: "trousers?gender=women" },
     ],
   },
   {
@@ -47,8 +47,8 @@ export const navCategories = [
     name: "Sweatshirt",
     slug: "sweatshirts",
     children: [
-      { name: "Men", slug: "men?type=sweatshirt" },
-      { name: "Women", slug: "women?type=sweatshirt" },
+      { name: "Men", slug: "sweatshirts" },
+      { name: "Women", slug: "sweatshirts?gender=women" },
     ],
   },
   {
@@ -56,8 +56,8 @@ export const navCategories = [
     name: "Jeans",
     slug: "jeans",
     children: [
-      { name: "Men", slug: "men?type=jeans" },
-      { name: "Women", slug: "women?type=jeans" },
+      { name: "Men", slug: "jeans" },
+      { name: "Women", slug: "jeans?gender=women" },
     ],
   },
   {
@@ -65,8 +65,8 @@ export const navCategories = [
     name: "Hoodies",
     slug: "hoodies",
     children: [
-      { name: "Men", slug: "men?type=hoodie" },
-      { name: "Women", slug: "women?type=hoodie" },
+      { name: "Men", slug: "hoodies" },
+      { name: "Women", slug: "hoodies?gender=women" },
     ],
   },
   {
@@ -74,8 +74,8 @@ export const navCategories = [
     name: "Jackets",
     slug: "jackets",
     children: [
-      { name: "Men", slug: "men?type=jacket" },
-      { name: "Women", slug: "women?type=jacket" },
+      { name: "Men", slug: "jackets" },
+      { name: "Women", slug: "jackets?gender=women" },
     ],
   },
 ];

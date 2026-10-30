@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import { navCategories } from "@/data/categories";
 import { assets } from "@/data/assets";
+import { OfferTicker } from "@/components/OfferTicker";
 import { useEffect, useRef, useState } from "react";
 import { clearCustomerSession, readCustomerSession, type CustomerSession } from "@/lib/customerSession";
 
@@ -16,6 +17,23 @@ const helpLinks = [
   { name: "Contact Us", href: "/contact" },
   { name: "Privacy Policy", href: "/privacy" },
 ];
+
+const genderNav = [
+  { id: "men", name: "Men" },
+  { id: "women", name: "Women" },
+] as const;
+
+function categoryHref(categoryId: string, gender: (typeof genderNav)[number]["id"]) {
+  const category = navCategories.find((item) => item.id === categoryId);
+  const child = category?.children.find((item) => item.name.toLowerCase() === gender);
+  return child ? `/${child.slug}` : `/${gender}`;
+}
+
+function categoryLabel(name: string) {
+  if (name === "Trouser") return "Trousers";
+  if (name === "Sweatshirt") return "Sweatshirts";
+  return name;
+}
 
 export function Header() {
   const { itemCount, openCart } = useCart();
@@ -91,31 +109,8 @@ export function Header() {
           onClick={() => setMenuOpen(false)}
         />
       )}
-      <div className="relative z-50 bg-[#161616] text-white">
-        <p className="mx-auto hidden h-9 max-w-7xl items-center justify-center gap-x-2.5 px-6 text-[11px] font-medium uppercase tracking-[0.16em] md:flex">
-          <span>Free shipping across Pakistan</span>
-          <span className="text-[#c989a3]" aria-hidden="true">•</span>
-          <span>7 days return</span>
-          <span className="text-[#c989a3]" aria-hidden="true">•</span>
-          <span>First check then pay</span>
-        </p>
-        <div className="overflow-hidden md:hidden">
-        <div className="ticker-scroll-ltr flex w-max py-2">
-          {[0, 1].map((copy) => (
-            <p
-              key={copy}
-              className="flex items-center px-4 text-[11px] font-medium uppercase tracking-[0.16em] whitespace-nowrap"
-            >
-              <span>Free shipping across Pakistan</span>
-              <span className="mx-2.5 text-[#c989a3]" aria-hidden="true">•</span>
-              <span>7 days return</span>
-              <span className="mx-2.5 text-[#c989a3]" aria-hidden="true">•</span>
-              <span>First check then pay</span>
-              <span className="mx-2.5 text-[#c989a3]" aria-hidden="true">•</span>
-            </p>
-          ))}
-        </div>
-        </div>
+      <div className="relative z-50">
+        <OfferTicker />
       </div>
       <div className="relative z-50 px-3 sm:px-4 md:px-6 pt-3 md:pt-4">
       <div
@@ -152,37 +147,49 @@ export function Header() {
 
           {/* Desktop nav */}
           <nav className="@container hidden min-w-0 items-center min-[1100px]:flex">
-            {navCategories.map((cat) => (
+            {genderNav.map((gender) => (
               <div
-                key={cat.id}
+                key={gender.id}
                 className="relative"
-                onMouseEnter={() => setOpenNavId(cat.id)}
                 onMouseLeave={() => setOpenNavId(null)}
               >
-                <Link
-                  href={`/${cat.slug}`}
-                  className={`inline-flex items-center gap-0.5 whitespace-nowrap rounded-lg px-1 py-2 text-[12px] font-medium transition-all duration-200 @[460px]:px-1.5 @[460px]:text-[13px] @[560px]:gap-1 @[560px]:px-2.5 @[560px]:text-[14px] ${itemHover}`}
+                <button
+                  type="button"
+                  onClick={() => setOpenNavId((id) => (id === gender.id ? null : gender.id))}
+                  aria-expanded={openNavId === gender.id}
+                  aria-haspopup="true"
+                  className={`inline-flex items-center gap-1 whitespace-nowrap rounded-lg px-2 py-2 text-sm font-semibold transition-all duration-200 @[560px]:px-3 ${itemHover}`}
                 >
-                  {cat.name}
-                  {cat.children.length > 0 && (
-                    <svg className="h-3 w-3 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  )}
-                </Link>
-                {openNavId === cat.id && cat.children.length > 0 && (
-                  <div className="absolute left-0 top-full z-50 pt-2 animate-scale-in">
-                    <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-lg shadow-[var(--shadow-warm)] py-2 min-w-[220px]">
-                      {cat.children.map((child) => (
-                        <Link
-                          key={child.slug}
-                          href={`/${child.slug}`}
-                          className="flex items-center px-4 py-2.5 text-sm text-[var(--foreground)] hover:bg-[#f4e6ec] hover:text-[#4a142a] transition-colors rounded-lg mx-1"
-                          onClick={() => setOpenNavId(null)}
-                        >
-                          {child.name}
+                  {gender.name}
+                  <svg className={`h-3.5 w-3.5 opacity-70 transition-transform ${openNavId === gender.id ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {openNavId === gender.id && (
+                  <div className="absolute left-0 top-full z-50 w-[min(34rem,calc(100vw-2rem))] pt-3 animate-scale-in">
+                    <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-xl shadow-[var(--shadow-warm)]">
+                      <div className="mb-4 flex items-end justify-between border-b border-[var(--border)] pb-3">
+                        <div>
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">Explore</p>
+                          <p className="mt-1 text-lg font-semibold text-[var(--foreground)]">{gender.name}&apos;s collection</p>
+                        </div>
+                        <Link href={`/${gender.id}`} onClick={() => setOpenNavId(null)} className="text-xs font-semibold text-[#4a142a] hover:underline">
+                          Shop all {gender.name.toLowerCase()} →
                         </Link>
-                      ))}
+                      </div>
+                      <div className="grid grid-cols-2 gap-1">
+                        {navCategories.map((category) => (
+                          <Link
+                            key={category.id}
+                            href={categoryHref(category.id, gender.id)}
+                            className="group flex items-center justify-between rounded-xl px-3 py-3 text-sm text-[var(--foreground)] transition-colors hover:bg-[#f4e6ec] hover:text-[#4a142a]"
+                            onClick={() => setOpenNavId(null)}
+                          >
+                            {categoryLabel(category.name)}
+                            <span className="translate-x-[-4px] opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" aria-hidden="true">→</span>
+                          </Link>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
@@ -244,12 +251,6 @@ export function Header() {
                 </span>
               )}
             </button>
-            <Link
-              href="/women"
-              className="ml-1 inline-flex items-center px-4 py-2.5 rounded-lg bg-[var(--accent)] text-white text-sm font-semibold hover:bg-[var(--accent-hover)] hover:!text-white transition-colors"
-            >
-              Shop now
-            </Link>
           </div>
 
           {/* Mobile profile */}
@@ -274,55 +275,44 @@ export function Header() {
         {menuOpen && (
             <div className={`relative z-50 min-[1100px]:hidden max-h-[70vh] overflow-y-auto border-t animate-fade-down ${scrolled ? "border-white/10 bg-black/75 backdrop-blur-md" : "border-[var(--border)] bg-white"}`}>
               <nav className="py-3 px-4 space-y-0.5">
-                {navCategories.map((cat) => {
-                  const isSubOpen = openMobileSubId === cat.id;
-                  const hasChildren = cat.children.length > 0;
+                {genderNav.map((gender) => {
+                  const isSubOpen = openMobileSubId === gender.id;
                   return (
-                    <div key={cat.id}>
-                      {hasChildren ? (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() => setOpenMobileSubId((id) => (id === cat.id ? null : cat.id))}
-                            className={`flex items-center justify-between w-full py-3 px-2 font-medium text-left rounded-lg transition-colors ${itemHover}`}
-                            aria-expanded={isSubOpen}
-                          >
-                            {cat.name}
-                            <svg
-                              className={`w-4 h-4 text-[#4a142a] transition-transform duration-200 ${isSubOpen ? "rotate-180" : ""}`}
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
+                    <div key={gender.id}>
+                      <button
+                        type="button"
+                        onClick={() => setOpenMobileSubId((id) => (id === gender.id ? null : gender.id))}
+                        className={`flex w-full items-center justify-between rounded-lg px-2 py-3 text-left font-semibold transition-colors ${itemHover}`}
+                        aria-expanded={isSubOpen}
+                      >
+                        {gender.name}
+                        <svg className={`h-4 w-4 text-[#4a142a] transition-transform duration-200 ${isSubOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                      <div className={`grid transition-[grid-template-rows] duration-200 ease-out ${isSubOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
+                        <div className="overflow-hidden">
+                          <div className="space-y-0.5 pb-3 pl-3 pt-1">
+                            <Link
+                              href={`/${gender.id}`}
+                              className={`block rounded-lg px-3 py-2.5 text-sm font-medium text-[#4a142a] transition-colors hover:bg-[#f4e6ec] ${scrolled ? "text-white hover:bg-white/10" : ""}`}
+                              onClick={() => setMenuOpen(false)}
                             >
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
-                            </svg>
-                          </button>
-                          <div className={`grid transition-[grid-template-rows] duration-200 ease-out ${isSubOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
-                            <div className="overflow-hidden">
-                              <div className="pl-4 space-y-0.5 pt-1 pb-2">
-                                {cat.children.map((child) => (
-                                  <Link
-                                    key={child.slug}
-                                    href={`/${child.slug}`}
-                                    className={`block py-2 px-3 text-sm rounded-lg transition-colors ${itemHover}`}
-                                    onClick={() => setMenuOpen(false)}
-                                  >
-                                    {child.name}
-                                  </Link>
-                                ))}
-                              </div>
-                            </div>
+                              Shop all {gender.name.toLowerCase()}
+                            </Link>
+                            {navCategories.map((category) => (
+                              <Link
+                                key={category.id}
+                                href={categoryHref(category.id, gender.id)}
+                                className={`block rounded-lg px-3 py-2.5 text-sm transition-colors ${itemHover}`}
+                                onClick={() => setMenuOpen(false)}
+                              >
+                                {categoryLabel(category.name)}
+                              </Link>
+                            ))}
                           </div>
-                        </>
-                      ) : (
-                        <Link
-                          href={`/${cat.slug}`}
-                          className={`block py-3 px-2 font-medium rounded-lg transition-colors ${itemHover}`}
-                          onClick={() => setMenuOpen(false)}
-                        >
-                          {cat.name}
-                        </Link>
-                      )}
+                        </div>
+                      </div>
                     </div>
                   );
                 })}

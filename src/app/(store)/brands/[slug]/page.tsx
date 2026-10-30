@@ -5,6 +5,8 @@ import { ProductCard } from "@/components/ProductCard";
 import { getBrand, getProductsByBrand } from "@/lib/catalog";
 import { ComingSoon } from "@/components/ComingSoon";
 import { categories } from "@/data/categories";
+import { partners } from "@/data/partners";
+import { brandSlug } from "@/lib/brands";
 import { MetaCatalogView } from "@/components/MetaPixel";
 import { JsonLd } from "@/components/JsonLd";
 import { breadcrumbJsonLd, collectionJsonLd } from "@/lib/seo";
@@ -22,13 +24,21 @@ function typeLabel(product: Product) {
   return categories.find((item) => item.id === product.categoryId)?.name ?? "More";
 }
 
+// Saved brands, plus logo-strip brands that have no products yet.
+async function findBrand(slug: string) {
+  const brand = await getBrand(slug);
+  if (brand) return brand;
+  const partner = partners.find((item) => brandSlug(item.name) === slug.toLowerCase());
+  return partner ? { name: partner.name, count: 0 } : undefined;
+}
+
 function typeSlug(label: string) {
   return label.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const brand = await getBrand(slug);
+  const brand = await findBrand(slug);
   if (!brand) return { title: "Brand" };
   const name = brand.name;
   return pageMeta({
@@ -43,7 +53,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function BrandPage({ params, searchParams }: Props) {
   const { slug } = await params;
   const { type } = await searchParams;
-  const [brand, products] = await Promise.all([getBrand(slug), getProductsByBrand(slug)]);
+  const [brand, products] = await Promise.all([findBrand(slug), getProductsByBrand(slug)]);
   if (!brand) notFound();
   const name = brand.name;
 

@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { BrandSections } from "@/components/BrandSections";
 import { ComingSoon, whoLabel } from "@/components/ComingSoon";
 import { GenderShopNav, type GenderShop, type GenderShopType } from "@/components/GenderShopNav";
 import {
   getActiveProducts,
-  getBrandNamesForType,
   getProductsByCategory,
   getProductsByCategoryNew,
 } from "@/lib/catalog";
@@ -17,25 +16,25 @@ import { JsonLd } from "@/components/JsonLd";
 import { breadcrumbJsonLd, collectionJsonLd } from "@/lib/seo";
 import { pageMeta } from "@/lib/site";
 import { sameType } from "@/lib/productTypes";
-import { productsOfType, typeLabel } from "@/lib/styles";
+import { productsOfType, styleHref, typeLabel } from "@/lib/styles";
 
 type Props = {
   params: Promise<{ category: string }>;
-  searchParams: Promise<{ filter?: string; type?: string; brand?: string }>;
+  searchParams: Promise<{ filter?: string; type?: string; gender?: string }>;
 };
 
 const categorySlugs = categories.map((c) => c.slug);
 
-const stylePages: Record<string, { heading: string; subcategory: string; men: string; women: string }> = {
-  jackets: { heading: "Jackets", subcategory: "jacket", men: "/men?type=jacket", women: "/women?type=jacket" },
-  jacket: { heading: "Jackets", subcategory: "jacket", men: "/men?type=jacket", women: "/women?type=jacket" },
-  hoodies: { heading: "Hoodies", subcategory: "hoodie", men: "/men?type=hoodie", women: "/women?type=hoodie" },
-  hoodie: { heading: "Hoodies", subcategory: "hoodie", men: "/men?type=hoodie", women: "/women?type=hoodie" },
-  sweatshirts: { heading: "Sweatshirts", subcategory: "sweatshirt", men: "/men?type=sweatshirt", women: "/women?type=sweatshirt" },
-  sweatshirt: { heading: "Sweatshirts", subcategory: "sweatshirt", men: "/men?type=sweatshirt", women: "/women?type=sweatshirt" },
-  trousers: { heading: "Trousers", subcategory: "trouser", men: "/men?type=trouser", women: "/women?type=trouser" },
-  trouser: { heading: "Trousers", subcategory: "trouser", men: "/men?type=trouser", women: "/women?type=trouser" },
-  jeans: { heading: "Jeans", subcategory: "jeans", men: "/men?type=jeans", women: "/women?type=jeans" },
+const stylePages: Record<string, { heading: string; subcategory: string }> = {
+  jackets: { heading: "Jackets", subcategory: "jacket" },
+  jacket: { heading: "Jackets", subcategory: "jacket" },
+  hoodies: { heading: "Hoodies", subcategory: "hoodie" },
+  hoodie: { heading: "Hoodies", subcategory: "hoodie" },
+  sweatshirts: { heading: "Sweatshirts", subcategory: "sweatshirt" },
+  sweatshirt: { heading: "Sweatshirts", subcategory: "sweatshirt" },
+  trousers: { heading: "Trousers", subcategory: "trouser" },
+  trouser: { heading: "Trousers", subcategory: "trouser" },
+  jeans: { heading: "Jeans", subcategory: "jeans" },
 };
 
 const apparelTypes: Record<string, { label: string; heading: string }> = {
@@ -109,20 +108,20 @@ async function customType(typeKey: string | undefined) {
 function StylePage({
   heading,
   path,
-  typeKey,
   category,
   list,
-  upcoming,
-  brand,
+  gender = "men",
 }: {
   heading: string;
   path: string;
-  typeKey: string;
   category: string;
   list: Product[];
-  upcoming: string[];
-  brand?: string;
+  gender?: GenderShop;
 }) {
+  const shown = list.filter((product) => forGender(product, gender));
+  const other: GenderShop = gender === "men" ? "women" : "men";
+  // Men is the default view, so it lives at the plain path.
+  const genderHref = (item: GenderShop) => (item === "men" ? path : `${path}?gender=${item}`);
   return (
     <div className="max-w-[90rem] mx-auto px-4 sm:px-6 py-10">
       <JsonLd data={collectionJsonLd({ name: heading, path, products: list })} />
@@ -131,21 +130,36 @@ function StylePage({
       <div className="mb-8 animate-fade-up">
         <h1 className="section-heading">{heading}</h1>
         <div className="mt-6 flex flex-wrap gap-2">
-          <Link href={`/men?type=${typeKey}`} className="rounded-full border border-[var(--border)] bg-[var(--card)] px-5 py-2 text-sm font-medium hover:border-[#4a142a] hover:text-[#4a142a]">
-            Men
-          </Link>
-          <Link href={`/women?type=${typeKey}`} className="rounded-full border border-[var(--border)] bg-[var(--card)] px-5 py-2 text-sm font-medium hover:border-[#4a142a] hover:text-[#4a142a]">
-            Women
-          </Link>
+          {(["men", "women"] as const).map((item) => {
+            const selected = item === gender;
+            return (
+              <Link
+                key={item}
+                href={genderHref(item)}
+                scroll={false}
+                className={`rounded-full px-5 py-2 text-sm font-medium transition-colors ${
+                  selected
+                    ? "bg-[#4a142a] text-white"
+                    : "border border-[var(--border)] bg-[var(--card)] hover:border-[#4a142a] hover:text-[#4a142a]"
+                }`}
+              >
+                {item === "men" ? "Men" : "Women"}
+              </Link>
+            );
+          })}
         </div>
       </div>
-      {list.length === 0 && !upcoming.length ? (
+      {list.length === 0 ? (
         <ComingSoon
           title={`${heading} are on their way`}
           text={`We're putting together a new range of ${heading.toLowerCase()} for men and women. Check back soon.`}
         />
       ) : (
-        <BrandSections products={list} basePath={path} brand={brand} heading={heading} upcoming={upcoming} />
+        <BrandSections
+          products={shown}
+          heading={`${whoLabel(gender)} ${heading.toLowerCase()}`}
+          empty={{ href: genderHref(other), cta: `Shop ${whoLabel(other)} ${heading}` }}
+        />
       )}
     </div>
   );
@@ -161,21 +175,20 @@ function forGender(product: Product, gender: GenderShop) {
 
 export default async function CategoryPage({ params, searchParams }: Props) {
   const { category: categorySlug } = await params;
-  const { filter, type, brand } = await searchParams;
+  const { filter, type, gender: genderParam } = await searchParams;
+  const genderFilter = genderParam === "men" || genderParam === "women" ? genderParam : undefined;
 
   const slug = categorySlug.toLowerCase();
   const style = stylePages[slug];
   if (style) {
-    const [products, upcoming] = await Promise.all([getActiveProducts(), getBrandNamesForType(style.subcategory)]);
+    const products = await getActiveProducts();
     return (
       <StylePage
         heading={style.heading}
         path={styleCanonical[slug] ?? `/${slug}`}
-        typeKey={style.subcategory}
         category={style.subcategory}
         list={products.filter((product) => sameType(product.subcategory, style.subcategory))}
-        upcoming={upcoming}
-        brand={brand}
+        gender={genderFilter}
       />
     );
   }
@@ -191,11 +204,9 @@ export default async function CategoryPage({ params, searchParams }: Props) {
       <StylePage
         heading={label}
         path={`/${slug}`}
-        typeKey={slug}
         category={label.toLowerCase()}
         list={list}
-        upcoming={await getBrandNamesForType(label)}
-        brand={brand}
+        gender={genderFilter}
       />
     );
   }
@@ -204,6 +215,8 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const typeKey = type?.toLowerCase();
   const typeInfo = gender && typeKey ? apparelTypes[typeKey] ?? (await customType(typeKey)) : undefined;
   const isNewFilter = filter === "new";
+  // Men's/women's styles live on the style page itself, e.g. /sweatshirts?gender=women.
+  if (gender && typeKey && typeInfo && !isNewFilter) redirect(styleHref(typeKey, gender));
 
   let list: Product[];
   let otherList: Product[] = [];
@@ -235,7 +248,6 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         : category.name;
 
   const seo = categorySeo(categorySlug, filter, type);
-  const upcoming = gender && typeInfo ? await getBrandNamesForType(typeInfo.label) : [];
   const thing = typeInfo ? typeInfo.heading.toLowerCase() : "styles";
   const otherWho = gender === "men" ? "Women" : "Men";
   const emptyState = isNewFilter
@@ -293,17 +305,10 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           </div>
         )}
       </div>
-      {list.length === 0 && !upcoming.length ? (
+      {list.length === 0 ? (
         <ComingSoon {...emptyState} />
       ) : (
-        <BrandSections
-          products={list}
-          basePath={seo?.path ?? `/${category.slug}`}
-          brand={brand}
-          heading={typeInfo?.heading ?? category.name}
-          upcoming={upcoming}
-          empty={emptyState}
-        />
+        <BrandSections products={list} heading={typeInfo?.heading ?? category.name} empty={emptyState} />
       )}
     </div>
   );
