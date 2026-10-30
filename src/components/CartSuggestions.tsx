@@ -39,26 +39,26 @@ export function CartSuggestions({ cart, onPick }: { cart: Product[]; onPick: () 
   return (
     <section className="mt-8 border-t border-[var(--border)] pt-6" aria-label="You may also like">
       <h3 className="eyebrow">You may also like</h3>
-      <ul className="-mx-5 mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <ul className="-mx-5 mt-4 flex snap-x snap-mandatory gap-2 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {picks.map((product) => (
-          <li key={product.id} className="w-36 shrink-0 snap-start">
+          <li key={product.id} className="w-24 shrink-0 snap-start">
             <Link href={`/product/${product.slug}`} onClick={onPick} className="group block">
-              <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-[var(--cream)]">
+              <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-[var(--cream)]">
                 <Image
                   src={product.image}
                   alt={product.name}
                   fill
-                  sizes="144px"
+                  sizes="96px"
                   className="object-cover transition duration-500 group-hover:scale-105"
                 />
               </div>
               {product.brand ? (
-                <p className="mt-2 truncate text-[10px] font-semibold uppercase tracking-wider text-[var(--muted)]">{product.brand}</p>
+                <p className="mt-1.5 truncate text-[9px] font-semibold uppercase tracking-wider text-[var(--muted)]">{product.brand}</p>
               ) : null}
-              <p className="mt-0.5 line-clamp-2 text-xs font-medium leading-snug text-[var(--foreground)] group-hover:text-[#4a142a]">
+              <p className="mt-0.5 line-clamp-2 text-[10px] font-medium leading-snug text-[var(--foreground)] group-hover:text-[#4a142a]">
                 {product.name}
               </p>
-              <p className="mt-1 text-xs font-semibold text-[#4a142a]">{formatPrice(product.price)}</p>
+              <p className="mt-1 text-[10px] font-semibold text-[#4a142a]">{formatPrice(product.price)}</p>
             </Link>
           </li>
         ))}

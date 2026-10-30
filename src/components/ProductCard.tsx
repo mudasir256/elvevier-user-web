@@ -7,7 +7,7 @@ import type { Product } from "@/types";
 import { useCart } from "@/context/CartContext";
 import { flyProductToCart } from "@/lib/flyToCart";
 import { ProductQuickView } from "@/components/ProductQuickView";
-import { galleryFor, isSold } from "@/lib/variants";
+import { galleryFor, isSold, uniqueValues } from "@/lib/variants";
 import { SoldBadge } from "@/components/SoldBadge";
 import { SaleTag } from "@/components/SaleTag";
 import { trackAddToCart } from "@/lib/metaPixel";
@@ -150,6 +150,70 @@ function CardActions({
   );
 }
 
+// Opened by the bag icon on products with sizes, so shoppers can add to cart without the quick view.
+function QuickSizePicker({
+  sizes,
+  onPick,
+  onClose,
+}: {
+  sizes: { size: string; available: boolean }[];
+  onPick: (size: string) => void;
+  onClose: () => void;
+}) {
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const closeOutside = (event: PointerEvent) => {
+      if (!panelRef.current?.contains(event.target as Node)) onClose();
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    document.addEventListener("pointerdown", closeOutside);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOutside);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      ref={panelRef}
+      className="animate-fade-up absolute inset-x-2 bottom-2 z-30 rounded-2xl bg-white/95 p-3 shadow-[0_12px_30px_rgba(44,40,37,0.18)] backdrop-blur-sm"
+      role="dialog"
+      aria-label="Choose a size"
+    >
+      <div className="flex items-center justify-between">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-[#4a142a]">Choose size</p>
+        <button
+          type="button"
+          onClick={onClose}
+          className="-mr-1 rounded-full p-1 text-[var(--muted)] hover:bg-[#f4e6ec] hover:text-[#4a142a]"
+          aria-label="Close size picker"
+        >
+          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        </button>
+      </div>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {sizes.map(({ size, available }) => (
+          <button
+            key={size}
+            type="button"
+            disabled={!available}
+            onClick={() => onPick(size)}
+            className="min-w-9 rounded-lg border border-[var(--border)] bg-white px-2 py-1.5 text-xs font-medium text-[var(--foreground)] transition hover:border-[#4a142a] hover:bg-[#4a142a] hover:text-white disabled:cursor-not-allowed disabled:line-through disabled:opacity-40 disabled:hover:border-[var(--border)] disabled:hover:bg-white disabled:hover:text-[var(--foreground)]"
+          >
+            {size}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const { addToCart } = useCart();
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -169,6 +233,18 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const tracked = Boolean(product.variants?.length);
   const soldOut = isSold(product);
   const firstColor = product.variants?.find((variant) => variant.color)?.color;
+  const [pickingSize, setPickingSize] = useState(false);
+  const closePicker = useCallback(() => setPickingSize(false), []);
+  // Sizes in the card's own color, falling back to the first color the product has.
+  const cardColor =
+    product.variants?.find((variant) => variant.color && variant.color.toLowerCase() === product.color?.toLowerCase())?.color ??
+    firstColor ??
+    "";
+  const colorVariants = (product.variants ?? []).filter((variant) => (variant.color ?? "") === cardColor);
+  const sizeOptions = uniqueValues(colorVariants, "size").map((size) => ({
+    size,
+    available: colorVariants.some((variant) => variant.size === size && variant.stock > 0),
+  }));
   const photos = [...new Set([product.image, ...galleryFor(product, firstColor)].filter(Boolean))].slice(0, 6);
   const preview = usePhotoPreview(photos.length);
 
@@ -182,6 +258,17 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
     const image = frameRef.current?.querySelector("img");
     if (image?.complete && image.naturalWidth > 0) matchFrame(image);
   }, [matchFrame, product.image]);
+
+  const addCard = (from: HTMLElement | null, size?: string) => {
+    addToCart(product, 1, size, tracked ? cardColor : undefined);
+    trackAddToCart({
+      id: product.id,
+      name: product.name,
+      category: product.categoryId,
+      price: product.price,
+    });
+    if (from) flyProductToCart(frameRef.current ?? from, galleryFor(product, cardColor)[0] || product.image);
+  };
 
   return (
     <article className={`group flex h-full flex-col animate-fade-up ${delayClass}`}>
@@ -229,23 +316,30 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
           <CardActions
             product={product}
             onAdd={(event) => {
-              if (tracked) {
+              const inStock = sizeOptions.filter((option) => option.available);
+              if (tracked && (soldOut || !inStock.length)) {
                 setDetailsOpen(true);
                 return;
               }
-              addToCart(product);
-              trackAddToCart({
-                id: product.id,
-                name: product.name,
-                category: product.categoryId,
-                price: product.price,
-              });
-              const photo = frameRef.current ?? event.currentTarget;
-              flyProductToCart(photo, product.image);
+              if (tracked && inStock.length > 1) {
+                setPickingSize(true);
+                return;
+              }
+              addCard(event.currentTarget, inStock[0]?.size);
             }}
             onView={() => setDetailsOpen(true)}
           />
         </div>
+        {pickingSize ? (
+          <QuickSizePicker
+            sizes={sizeOptions}
+            onClose={closePicker}
+            onPick={(size) => {
+              setPickingSize(false);
+              addCard(frameRef.current, size);
+            }}
+          />
+        ) : null}
       </div>
       {detailsOpen ? <ProductQuickView product={product} onClose={closeDetails} /> : null}
       <Link href={`/product/${product.slug}`} className="mt-3 flex flex-1 flex-col">
