@@ -1,7 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { getCustomer } from "@/lib/customerAuth";
 import { reserveStock, restoreStock } from "@/lib/stock";
 import { getSupabase } from "@/lib/supabase";
+import { sendOrderConfirmation } from "@/lib/email";
 import { PAUSED_NOTICE, PRODUCTS_PAUSED } from "@/lib/storeStatus";
 
 export async function POST(request: Request) {
@@ -65,6 +66,25 @@ export async function POST(request: Request) {
       await restoreStock(stock.applied);
       throw error;
     }
+
+    // Email the customer once the response has gone out, so checkout stays fast.
+    after(() =>
+      sendOrderConfirmation({
+        id: data.id,
+        email: email.toLowerCase().trim(),
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        address: address.trim(),
+        apartment: (apartment || "").trim(),
+        city: city.trim(),
+        phone: phone.trim(),
+        items: orderItems,
+        subtotal: Number(subtotal),
+        shipping: shipping || "Free",
+        total: Number(total),
+        paymentMethod: paymentMethod || "cod",
+      })
+    );
 
     return NextResponse.json(
       { message: "Order placed successfully!", orderId: data.id },
