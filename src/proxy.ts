@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { hasLaunched } from "@/lib/launch";
 
 // Only these hosts get the coming-soon page. The vercel.app URL shows the full store.
 const COMING_SOON_HOSTS = new Set(["empulse.store", "www.empulse.store"]);
@@ -10,7 +11,7 @@ function hostname(request: NextRequest) {
 }
 
 export function proxy(request: NextRequest) {
-  if (!COMING_SOON_HOSTS.has(hostname(request))) return NextResponse.next();
+  if (!COMING_SOON_HOSTS.has(hostname(request)) || hasLaunched()) return NextResponse.next();
 
   const { pathname } = request.nextUrl;
   if (
