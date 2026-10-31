@@ -25,7 +25,8 @@ type Props = {
 
 const categorySlugs = categories.map((c) => c.slug);
 
-const stylePages: Record<string, { heading: string; subcategory: string }> = {
+// genders: who the page is for; the first one is the default view. Most styles are for both.
+const stylePages: Record<string, { heading: string; subcategory: string; genders?: GenderShop[] }> = {
   jackets: { heading: "Jackets", subcategory: "jacket" },
   jacket: { heading: "Jackets", subcategory: "jacket" },
   hoodies: { heading: "Hoodies", subcategory: "hoodie" },
@@ -35,6 +36,7 @@ const stylePages: Record<string, { heading: string; subcategory: string }> = {
   trousers: { heading: "Trousers", subcategory: "trouser" },
   trouser: { heading: "Trousers", subcategory: "trouser" },
   jeans: { heading: "Jeans", subcategory: "jeans" },
+  "polos-and-tees": { heading: "Polo's & Tees", subcategory: "Polos & Tees", genders: ["women"] },
 };
 
 const apparelTypes: Record<string, { label: string; heading: string }> = {
@@ -110,18 +112,21 @@ function StylePage({
   path,
   category,
   list,
-  gender = "men",
+  gender: requested,
+  genders = ["men", "women"],
 }: {
   heading: string;
   path: string;
   category: string;
   list: Product[];
   gender?: GenderShop;
+  genders?: GenderShop[];
 }) {
+  const gender = requested && genders.includes(requested) ? requested : genders[0];
   const shown = list.filter((product) => forGender(product, gender));
-  const other: GenderShop = gender === "men" ? "women" : "men";
-  // Men is the default view, so it lives at the plain path.
-  const genderHref = (item: GenderShop) => (item === "men" ? path : `${path}?gender=${item}`);
+  const other = genders.find((item) => item !== gender);
+  // The default gender lives at the plain path.
+  const genderHref = (item: GenderShop) => (item === genders[0] ? path : `${path}?gender=${item}`);
   return (
     <div className="max-w-[90rem] mx-auto px-4 sm:px-6 py-10">
       <JsonLd data={collectionJsonLd({ name: heading, path, products: list })} />
@@ -129,8 +134,8 @@ function StylePage({
       <MetaCatalogView name={heading} category={category} ids={list.map((product) => product.id)} />
       <div className="mb-8 animate-fade-up">
         <h1 className="section-heading">{heading}</h1>
-        <div className="mt-6 flex flex-wrap gap-2">
-          {(["men", "women"] as const).map((item) => {
+        <div className={`mt-6 flex flex-wrap gap-2 ${genders.length < 2 ? "hidden" : ""}`}>
+          {genders.map((item) => {
             const selected = item === gender;
             return (
               <Link
@@ -152,13 +157,13 @@ function StylePage({
       {list.length === 0 ? (
         <ComingSoon
           title={`${heading} are on their way`}
-          text={`We're putting together a new range of ${heading.toLowerCase()} for men and women. Check back soon.`}
+          text={`We're putting together a new range of ${heading.toLowerCase()}. Check back soon.`}
         />
       ) : (
         <BrandSections
           products={shown}
           heading={`${whoLabel(gender)} ${heading.toLowerCase()}`}
-          empty={{ href: genderHref(other), cta: `Shop ${whoLabel(other)} ${heading}` }}
+          empty={other ? { href: genderHref(other), cta: `Shop ${whoLabel(other)} ${heading}` } : undefined}
         />
       )}
     </div>
@@ -189,6 +194,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         category={style.subcategory}
         list={products.filter((product) => sameType(product.subcategory, style.subcategory))}
         gender={genderFilter}
+        genders={style.genders}
       />
     );
   }

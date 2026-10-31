@@ -9,7 +9,11 @@ const types = [
   { id: "jeans", label: "Jeans" },
   { id: "hoodie", label: "Hoodies" },
   { id: "jacket", label: "Jackets" },
+  { id: "polos-and-tees", label: "Polo's & Tees" },
 ] as const;
+
+// Tabs that only exist for one gender.
+const ONLY_FOR: Partial<Record<(typeof types)[number]["id"], GenderShop>> = { "polos-and-tees": "women" };
 
 export type GenderShop = "men" | "women";
 export type GenderShopType = (typeof types)[number]["id"];
@@ -48,7 +52,7 @@ export function GenderShopNav({
         })}
       </div>
       <div className="flex flex-wrap gap-2">
-        {types.map((type) => {
+        {types.filter((type) => !ONLY_FOR[type.id] || ONLY_FOR[type.id] === gender).map((type) => {
           const selected = type.id === active;
           return (
             <Link

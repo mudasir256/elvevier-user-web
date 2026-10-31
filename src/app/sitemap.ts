@@ -8,7 +8,7 @@ import type { Product } from "@/types";
 
 export const revalidate = 3600;
 
-const stylePaths = ["/jackets", "/hoodies", "/sweatshirts", "/trousers", "/jeans"];
+const stylePaths = ["/jackets", "/hoodies", "/sweatshirts", "/trousers", "/jeans", "/polos-and-tees"];
 const subcategoryPaths = [
   ...["tops", "dresses", "tshirts", "bottoms", "blazers", "sweaters", "jackets"].map((slug) => `/women/${slug}`),
   ...["shirts", "tshirts", "polo", "bottoms", "blazers", "sweaters", "jackets"].map((slug) => `/men/${slug}`),

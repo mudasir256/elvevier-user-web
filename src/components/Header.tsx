@@ -29,6 +29,11 @@ function categoryHref(categoryId: string, gender: (typeof genderNav)[number]["id
   return child ? `/${child.slug}` : `/${gender}`;
 }
 
+// Women-only styles such as Polo's & Tees list just a Women link, so they stay out of the Men menu.
+function forGender(category: (typeof navCategories)[number], gender: (typeof genderNav)[number]["id"]) {
+  return category.children.some((item) => item.name.toLowerCase() === gender);
+}
+
 function categoryLabel(name: string) {
   if (name === "Trouser") return "Trousers";
   if (name === "Sweatshirt") return "Sweatshirts";
@@ -178,7 +183,7 @@ export function Header() {
                         </Link>
                       </div>
                       <div className="grid grid-cols-2 gap-1">
-                        {navCategories.map((category) => (
+                        {navCategories.filter((category) => forGender(category, gender.id)).map((category) => (
                           <Link
                             key={category.id}
                             href={categoryHref(category.id, gender.id)}
@@ -300,7 +305,7 @@ export function Header() {
                             >
                               Shop all {gender.name.toLowerCase()}
                             </Link>
-                            {navCategories.map((category) => (
+                            {navCategories.filter((category) => forGender(category, gender.id)).map((category) => (
                               <Link
                                 key={category.id}
                                 href={categoryHref(category.id, gender.id)}
