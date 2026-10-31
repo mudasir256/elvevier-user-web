@@ -63,9 +63,9 @@ export default function AboutPage() {
         </div>
 
         {/* Leadership */}
-        <section className="card-warm p-8 md:p-10 animate-fade-up">
-          <p className="eyebrow mb-8">Leadership</p>
-          <div className="grid grid-cols-1 gap-10 md:grid-cols-2 md:gap-8">
+        <section className="card-warm p-5 sm:p-8 md:p-10 animate-fade-up">
+          <p className="eyebrow mb-6 sm:mb-8">Leadership</p>
+          <div className="grid grid-cols-2 gap-4 sm:gap-8">
             <article className="flex flex-col">
               <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-[var(--cream)] shadow-md shadow-[var(--shadow-warm)]">
                 <Image
@@ -73,22 +73,17 @@ export default function AboutPage() {
                   alt="Arsal Ali – CEO, Empulse"
                   fill
                   className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 400px"
+                  sizes="(max-width: 768px) 50vw, 400px"
                   priority
                   unoptimized
                 />
               </div>
-              <h3 className="section-heading mt-6 text-[var(--foreground)]">Arsal Ali</h3>
-              <p className="eyebrow mt-2">Chief Executive Officer</p>
-              <p className="type-copy mt-4 text-[var(--muted)]">
+              <h3 className="section-heading mt-4 whitespace-nowrap !text-[17px] text-[var(--foreground)] sm:mt-6 sm:!text-xl md:!text-2xl">Arsal Ali</h3>
+              <p className="eyebrow mt-1.5 !text-[9px] !tracking-[0.18em] sm:mt-2 sm:!text-xs sm:!tracking-[0.28em]">Chief Executive Officer</p>
+              <p className="mt-3 text-[13px] leading-relaxed text-[var(--muted)] sm:mt-4 sm:text-base sm:leading-7">
                 Arsal Ali leads Empulse from Lahore, bringing a clear vision for
-                accessible, quality fashion. Under his leadership, Empulse has grown
-                around the idea of cozy, always — offering thoughtful clothing,
-                shoes and accessories for men, women and kids.
-              </p>
-              <p className="type-copy mt-3 text-[var(--muted)]">
-                From Lahore to the rest of Pakistan, Arsal is focused on making
-                everyday style easy and enjoyable for everyone.
+                accessible, quality fashion. Arsal is focused on making everyday
+                style easy and enjoyable for everyone across Pakistan.
               </p>
             </article>
 
@@ -99,13 +94,13 @@ export default function AboutPage() {
                   alt="Ashnar Abbas – Director, Empulse"
                   fill
                   className="object-cover object-[55%_20%]"
-                  sizes="(max-width: 768px) 100vw, 400px"
+                  sizes="(max-width: 768px) 50vw, 400px"
                   unoptimized
                 />
               </div>
-              <h3 className="section-heading mt-6 text-[var(--foreground)]">Ashnar Abbas</h3>
-              <p className="eyebrow mt-2">Director</p>
-              <p className="type-copy mt-4 text-[var(--muted)]">
+              <h3 className="section-heading mt-4 whitespace-nowrap !text-[17px] text-[var(--foreground)] sm:mt-6 sm:!text-xl md:!text-2xl">Ashnar Abbas</h3>
+              <p className="eyebrow mt-1.5 !text-[9px] !tracking-[0.18em] sm:mt-2 sm:!text-xs sm:!tracking-[0.28em]">Director</p>
+              <p className="mt-3 text-[13px] leading-relaxed text-[var(--muted)] sm:mt-4 sm:text-base sm:leading-7">
                 Ashnar Abbas is a Director of Empulse. Working alongside our CEO,
                 Ashnar helps guide the company and its promise of original
                 products, honest prices and careful delivery across Pakistan.
