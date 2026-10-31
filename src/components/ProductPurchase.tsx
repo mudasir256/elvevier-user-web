@@ -6,6 +6,7 @@ import { useCart } from "@/context/CartContext";
 import { flyProductToCart } from "@/lib/flyToCart";
 import { findVariant, galleryFor, uniqueValues } from "@/lib/variants";
 import { trackAddToCart } from "@/lib/metaPixel";
+import { SizeChartButton } from "@/components/SizeChart";
 
 export function ProductPurchase({
   product,
@@ -30,6 +31,7 @@ export function ProductPurchase({
     () => uniqueValues(variants.filter((variant) => !color || variant.color === color), "size"),
     [variants, color]
   );
+  const allSizes = useMemo(() => uniqueValues(variants, "size"), [variants]);
   const [size, setSize] = useState(sizes[0] ?? "");
   const activeSize = sizes.includes(size) ? size : (sizes[0] ?? "");
   const activeColor = colors.includes(color) ? color : (colors[0] ?? "");
@@ -80,7 +82,10 @@ export function ProductPurchase({
 
       {sizes.length > 0 ? (
         <div className={compact ? "mt-3" : "mt-5"}>
-          <p className="text-sm font-medium text-[var(--foreground)]">Size</p>
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm font-medium text-[var(--foreground)]">Size</p>
+            <SizeChartButton product={product} sizes={allSizes} />
+          </div>
           <div className="mt-2 flex flex-wrap gap-2">
             {sizes.map((item) => {
               const option = findVariant(variants, item, activeColor);
@@ -105,7 +110,11 @@ export function ProductPurchase({
             })}
           </div>
         </div>
-      ) : null}
+      ) : (
+        <div className={compact ? "mt-3" : "mt-5"}>
+          <SizeChartButton product={product} sizes={allSizes} />
+        </div>
+      )}
 
       {/* Customers see whether an option is available, never how many are left. */}
       {out || atLimit ? (
