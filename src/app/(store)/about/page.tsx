@@ -94,6 +94,32 @@ export default function AboutPage() {
               </p>
             </div>
           </div>
+
+          <div className="my-10 h-px bg-[var(--border)]" aria-hidden="true" />
+
+          <div className="flex flex-col sm:flex-row gap-8 items-start">
+            <div className="relative w-full sm:w-52 aspect-square rounded-2xl overflow-hidden bg-[var(--cream)] shrink-0 shadow-md shadow-[var(--shadow-warm)]">
+              <Image
+                src={assets.director}
+                alt="Ashnar Abbas – Director, Empulse"
+                fill
+                className="object-cover object-[55%_20%]"
+                sizes="(max-width: 640px) 100vw, 208px"
+                unoptimized
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="section-heading text-[var(--foreground)]">
+                Ashnar Abbas
+              </h3>
+              <p className="eyebrow mt-2">Director</p>
+              <p className="type-copy mt-5 text-[var(--muted)]">
+                Ashnar Abbas is a Director of Empulse. Working alongside our CEO,
+                Ashnar helps guide the company and its promise of original products,
+                honest prices and careful delivery across Pakistan.
+              </p>
+            </div>
+          </div>
         </section>
 
         <div className="mt-12 text-center animate-fade-up">
