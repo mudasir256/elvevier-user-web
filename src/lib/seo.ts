@@ -95,6 +95,11 @@ function productInStock(product: Product) {
   return product.variants.some((variant) => variant.stock > 0);
 }
 
+// Matches the checkout (Rs. 300 below Rs. 5,000, free above) and the returns page (14 days).
+const SHIPPING_THRESHOLD = 5000;
+const SHIPPING_FEE = 300;
+const RETURN_DAYS = 14;
+
 export function productJsonLd(product: Product) {
   const description =
     product.description?.trim() ||
@@ -107,8 +112,9 @@ export function productJsonLd(product: Product) {
     image: productImages(product),
     description,
     color: product.color || undefined,
-    category: product.categoryId,
-    brand: { "@type": "Brand", name: SITE_NAME },
+    category: product.subcategory || product.categoryId,
+    url: absoluteUrl(`/product/${product.slug}`),
+    brand: { "@type": "Brand", name: product.brand?.trim() || SITE_NAME },
     offers: {
       "@type": "Offer",
       url: absoluteUrl(`/product/${product.slug}`),
@@ -117,6 +123,22 @@ export function productJsonLd(product: Product) {
       availability: productInStock(product) ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
       itemCondition: "https://schema.org/NewCondition",
       seller: { "@id": `${SITE_URL}/#organization` },
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingDestination: { "@type": "DefinedRegion", addressCountry: "PK" },
+        shippingRate: {
+          "@type": "MonetaryAmount",
+          value: product.price >= SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE,
+          currency: "PKR",
+        },
+      },
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        applicableCountry: "PK",
+        returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+        merchantReturnDays: RETURN_DAYS,
+        returnMethod: "https://schema.org/ReturnByMail",
+      },
     },
   };
 }
@@ -138,8 +160,10 @@ export function articleJsonLd(post: {
   title: string;
   excerpt: string;
   date: string;
+  updated?: string;
   image: string;
   category: string;
+  keywords?: string[];
 }) {
   return {
     "@context": "https://schema.org",
@@ -147,6 +171,9 @@ export function articleJsonLd(post: {
     headline: post.title,
     description: post.excerpt,
     datePublished: post.date,
+    dateModified: post.updated ?? post.date,
+    keywords: post.keywords?.join(", "),
+    inLanguage: "en-PK",
     image: absoluteUrl(post.image),
     articleSection: post.category,
     mainEntityOfPage: absoluteUrl(`/blog/${post.slug}`),

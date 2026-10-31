@@ -5,8 +5,9 @@ import { blogs } from "@/data/blogs";
 import { pageMeta } from "@/lib/site";
 
 export const metadata: Metadata = pageMeta({
-  title: "Blogs",
-  description: "Style notes from Empulse on hoodies, trousers, jeans and shoes, and how to wear them.",
+  title: "Fashion Blog: Style Guides, Size Charts & Shopping Tips",
+  description:
+    "Empulse style guides for Pakistan: how to spot original branded clothes, shoe and jeans size charts, cash on delivery tips and outfit ideas for men and women.",
   path: "/blog",
 });
 
@@ -17,7 +18,7 @@ export default function BlogsPage() {
         <p className="eyebrow mb-2">The journal</p>
         <h1 className="section-heading">Blogs</h1>
         <p className="type-copy mt-3 text-[var(--muted)]">
-          Short notes on how to wear the clothes already in the shop.
+          Style guides, size charts and shopping tips for buying original fashion in Pakistan.
         </p>
       </div>
       <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">

@@ -16,7 +16,7 @@ const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
 });
 
-const defaultTitle = "Empulse | Premium   By Origin";
+const defaultTitle = "Empulse | Original Branded Clothing & Shoes in Pakistan";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

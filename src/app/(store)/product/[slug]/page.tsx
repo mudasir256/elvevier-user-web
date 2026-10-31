@@ -7,7 +7,7 @@ import { PRODUCTS_PAUSED } from "@/lib/storeStatus";
 import { ProductsPausedNotice } from "@/components/ComingSoon";
 import { JsonLd } from "@/components/JsonLd";
 import { breadcrumbJsonLd, productJsonLd } from "@/lib/seo";
-import { pageMeta } from "@/lib/site";
+import { pageMeta, snippet } from "@/lib/site";
 import { ProductDetail } from "./ProductDetail";
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ color?: string }> };
@@ -20,19 +20,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product) return { title: "Product" };
-  const description =
+  const description = snippet(
     product.description?.trim() ||
-    `${product.name}${product.color ? ` in ${product.color}` : ""}. Shop original ${product.categoryId} at Empulse with delivery across Pakistan.`;
+      `${product.name}${product.color ? ` in ${product.color}` : ""}. Shop original ${product.brand || product.categoryId} at Empulse with delivery across Pakistan.`
+  );
   const images = (product.images?.length ? product.images : [product.image]).filter(Boolean);
+  // "Lacoste Harrington Jacket Black – Price in Pakistan" matches how shoppers search.
+  const title = `${product.name} – Price in Pakistan`;
   return {
     ...pageMeta({
-      title: product.name,
-      description: description.slice(0, 160),
+      title,
+      description,
       path: `/product/${product.slug}`,
+      image: images[0],
     }),
     openGraph: {
-      title: product.name,
-      description: description.slice(0, 160),
+      title,
+      description,
       url: `/product/${product.slug}`,
       type: "website",
       images: images.slice(0, 4).map((url) => ({ url, alt: product.name })),

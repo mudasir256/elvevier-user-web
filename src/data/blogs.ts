@@ -1,14 +1,26 @@
+import { guides } from "@/data/blogGuides";
+
+// Paragraph and bullet text may hold internal links written as [label](/path).
+export type BlogSection = { heading: string; paragraphs?: string[]; bullets?: string[] };
+
 export type BlogPost = {
   slug: string;
   title: string;
+  // Shorter title for search results when the on-page title is long.
+  seoTitle?: string;
   excerpt: string;
   date: string;
+  updated?: string;
   image: string;
   category: string;
+  keywords?: string[];
   paragraphs: string[];
+  sections?: BlogSection[];
+  faq?: { q: string; a: string }[];
+  shop?: { label: string; href: string }[];
 };
 
-export const blogs: BlogPost[] = [
+const styleNotes: BlogPost[] = [
   {
     slug: "hoodies-that-still-look-dressed",
     title: "Hoodies that still look dressed",
@@ -62,6 +74,21 @@ export const blogs: BlogPost[] = [
     ],
   },
 ];
+
+// Newest first.
+export const blogs: BlogPost[] = [...guides, ...styleNotes].sort((a, b) => b.date.localeCompare(a.date));
+
+export function blogText(post: BlogPost) {
+  return [
+    ...post.paragraphs,
+    ...(post.sections ?? []).flatMap((section) => [section.heading, ...(section.paragraphs ?? []), ...(section.bullets ?? [])]),
+    ...(post.faq ?? []).flatMap((item) => [item.q, item.a]),
+  ].join(" ");
+}
+
+export function readingMinutes(post: BlogPost) {
+  return Math.max(1, Math.round(blogText(post).split(/\s+/).length / 200));
+}
 
 export function getBlog(slug: string) {
   return blogs.find((post) => post.slug === slug);

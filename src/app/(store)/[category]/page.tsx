@@ -54,13 +54,19 @@ const styleCanonical: Record<string, string> = {
   sweatshirt: "/sweatshirts",
 };
 
+// One line under a style page heading, also used as its meta description.
+function styleIntro(heading: string, genders: GenderShop[] = ["men", "women"]) {
+  const who = genders.length > 1 ? "men and women" : genders[0];
+  return `Shop 100% original ${heading.toLowerCase()} for ${who} in Pakistan from brands you trust. Cash on delivery, check before you pay, and free shipping over Rs. 5,000.`;
+}
+
 function categorySeo(categorySlug: string, filter?: string, type?: string) {
   const slug = categorySlug.toLowerCase();
   const style = stylePages[slug];
   if (style) {
     return {
       title: style.heading,
-      description: `Shop original ${style.heading.toLowerCase()} for men and women at Empulse. Delivery across Pakistan and free shipping over Rs. 5,000.`,
+      description: styleIntro(style.heading, style.genders),
       path: styleCanonical[slug] ?? `/${slug}`,
     };
   }
@@ -95,7 +101,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   if (!label) return { title: "Shop" };
   return pageMeta({
     title: label,
-    description: `Shop original ${label.toLowerCase()} for men and women at Empulse. Delivery across Pakistan and free shipping over Rs. 5,000.`,
+    description: styleIntro(label),
     path: `/${categorySlug.toLowerCase()}`,
   });
 }
@@ -134,6 +140,7 @@ function StylePage({
       <MetaCatalogView name={heading} category={category} ids={list.map((product) => product.id)} />
       <div className="mb-8 animate-fade-up">
         <h1 className="section-heading">{heading}</h1>
+        <p className="type-copy mt-2 max-w-2xl text-[var(--muted)]">{styleIntro(heading, genders)}</p>
         <div className={`mt-6 flex flex-wrap gap-2 ${genders.length < 2 ? "hidden" : ""}`}>
           {genders.map((item) => {
             const selected = item === gender;
