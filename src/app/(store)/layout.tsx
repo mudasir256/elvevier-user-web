@@ -2,6 +2,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { CartDrawer } from "@/components/CartDrawer";
 import { BottomTab } from "@/components/BottomTab";
+import { LaunchCelebration } from "@/components/LaunchCelebration";
 
 export default function StoreLayout({
   children,
@@ -15,6 +16,7 @@ export default function StoreLayout({
       <Footer />
       <BottomTab />
       <CartDrawer />
+      <LaunchCelebration />
     </div>
   );
 }

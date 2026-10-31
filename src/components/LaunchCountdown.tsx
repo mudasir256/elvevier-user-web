@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { assets } from "@/data/assets";
 import { LAUNCH_AT } from "@/lib/launch";
+import { Confetti } from "@/components/Confetti";
 
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -59,7 +60,7 @@ export function LaunchCountdown() {
   // At launch the proxy stops showing this page, so a reload opens the store.
   useEffect(() => {
     if (!live) return;
-    const timer = setTimeout(() => window.location.replace("/"), 2500);
+    const timer = setTimeout(() => window.location.replace("/"), 4500);
     return () => clearTimeout(timer);
   }, [live]);
 
@@ -72,6 +73,7 @@ export function LaunchCountdown() {
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#faf8f5] px-4 py-16 text-center">
+      {live ? <Confetti duration={4500} pieces={240} /> : null}
       <div
         className="countdown-glow pointer-events-none absolute -left-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-[#c989a3]/25 blur-3xl"
         aria-hidden="true"
