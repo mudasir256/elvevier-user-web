@@ -13,6 +13,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { siteGraphJsonLd } from "@/lib/seo";
 import { SITE_DESCRIPTION, pageMeta } from "@/lib/site";
 import { styleCards } from "@/lib/styles";
+import { onePerArticle } from "@/lib/articles";
 import { PRODUCTS_PAUSED } from "@/lib/storeStatus";
 import { ProductsPausedNotice } from "@/components/ComingSoon";
 
@@ -28,7 +29,11 @@ export const metadata: Metadata = {
 
 export default async function HomePage() {
   const catalog = await getActiveProducts();
-  const newProducts = catalog.filter((product) => product.new);
+  // One colour per item, so New Arrivals shows five different pieces.
+  const newProducts = onePerArticle(catalog.filter((product) => product.new));
+  // The Overrun Co. tee closes the row instead of opening it.
+  const closing = newProducts.filter((product) => product.brand === "The Overrun Co.").slice(0, 1);
+  const newRow = [...newProducts.filter((product) => !closing.includes(product)).slice(0, 5 - closing.length), ...closing];
   const saleProducts = catalog.filter((product) => product.salePercent);
   const styles = styleCards(catalog);
 
@@ -85,7 +90,7 @@ export default async function HomePage() {
           </Link>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 md:gap-7">
-          {newProducts.slice(0, 5).map((product, i) => (
+          {newRow.map((product, i) => (
             <ProductCard key={product.id} product={product} index={i} />
           ))}
         </div>
