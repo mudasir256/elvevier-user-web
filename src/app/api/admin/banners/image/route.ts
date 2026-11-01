@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { verifyAdmin, unauthorizedResponse } from "@/lib/auth";
 import { getSupabase } from "@/lib/supabase";
+import { compressImage, IMAGE_CACHE_SECONDS } from "@/lib/compressImage";
 
 const TYPES: Record<string, string> = {
   "image/jpeg": "jpg",
@@ -30,9 +31,11 @@ export async function POST(request: Request) {
     }
 
     const supabase = getSupabase();
-    const path = `banners/${crypto.randomUUID()}.${ext}`;
-    const uploaded = await supabase.storage.from("product-images").upload(path, Buffer.from(await file.arrayBuffer()), {
-      contentType: file.type,
+    const path = `banners/${crypto.randomUUID()}.webp`;
+    const image = await compressImage(Buffer.from(await file.arrayBuffer()), 2000);
+    const uploaded = await supabase.storage.from("product-images").upload(path, image, {
+      contentType: "image/webp",
+      cacheControl: IMAGE_CACHE_SECONDS,
       upsert: false,
     });
     if (uploaded.error) throw uploaded.error;

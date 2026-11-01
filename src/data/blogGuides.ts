@@ -11,7 +11,7 @@ export const guides: BlogPost[] = [
     excerpt:
       "Fake branded clothing is everywhere online. Here is a simple checklist to tell an original Lacoste, Polo Ralph Lauren or Levi's piece from a copy before you pay.",
     date: "2026-11-01",
-    image: `${IMG}/562adedd-678a-41b6-8811-6c84a6f1f960.jpg`,
+    image: `${IMG}/af5c2d53-1b4e-4a05-86d3-f746a1115bba.webp`,
     category: "Buying guide",
     keywords: [
       "original branded clothes Pakistan",
@@ -91,7 +91,7 @@ export const guides: BlogPost[] = [
     excerpt:
       "On running shoes fit a little differently from other brands. Use this EU, UK and US size chart and a few simple tips to choose the right On Cloud size the first time.",
     date: "2026-10-30",
-    image: `${IMG}/c69e177f-22d3-4787-93f1-de8e2870994a.jpg`,
+    image: `${IMG}/e28fa1fe-8aa3-44ab-a881-5cd4c677d8a1.webp`,
     category: "Shoes",
     keywords: [
       "On Cloud shoes Pakistan",
@@ -177,7 +177,7 @@ export const guides: BlogPost[] = [
     excerpt:
       "Worried about ordering clothes online? With cash on delivery and our first check, then pay promise, you see the product before you hand over any money. Here is how it works.",
     date: "2026-10-28",
-    image: `${IMG}/537142ba-f091-4d6c-b57a-02655b8b864f.jpg`,
+    image: `${IMG}/fc2e88b7-8a0f-419c-b0f1-4bdbcf4f292f.webp`,
     category: "Shopping help",
     keywords: [
       "cash on delivery Pakistan",
@@ -254,7 +254,7 @@ export const guides: BlogPost[] = [
     excerpt:
       "Pakistani winters are short but cold mornings and evenings need the right layers. These are the hoodies, sweatshirts, jackets and trousers that cover the whole season.",
     date: "2026-10-25",
-    image: `${IMG}/c5a1c865-cfd1-4b7f-8025-fc1ffa664bf6.jpg`,
+    image: `${IMG}/a71b01bb-23c9-4389-86ff-d9b56274677f.webp`,
     category: "Menswear",
     keywords: [
       "men winter clothes Pakistan",
@@ -322,7 +322,7 @@ export const guides: BlogPost[] = [
     excerpt:
       "An oversized T-shirt is the easiest piece in a woman's wardrobe. Here are six simple ways to wear one, from jeans and sneakers to a matching set.",
     date: "2026-10-22",
-    image: `${IMG}/c6d0153a-a795-4422-a48b-5ea69f5f3d01.jpg`,
+    image: `${IMG}/dbfbc102-b59e-4f45-b58b-6f41c322a02a.webp`,
     category: "Womenswear",
     keywords: [
       "oversized t-shirt women Pakistan",
@@ -401,7 +401,7 @@ export const guides: BlogPost[] = [
     excerpt:
       "Not sure if you are a 32 or a 34? This jeans size guide explains waist sizes in inches and centimetres, how to measure yourself, and which fit suits you.",
     date: "2026-10-18",
-    image: `${IMG}/ce3ff153-443e-45e4-9065-69774c0c32a4.jpg`,
+    image: `${IMG}/e5b2e1b7-a477-4127-8699-7d9a484af512.webp`,
     category: "Jeans",
     keywords: [
       "jeans size chart",
