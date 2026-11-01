@@ -26,9 +26,13 @@ type Props = {
 const categorySlugs = categories.map((c) => c.slug);
 
 // genders: who the page is for; the first one is the default view. Most styles are for both.
-const stylePages: Record<string, { heading: string; subcategory: string; genders?: GenderShop[] }> = {
-  jackets: { heading: "Jackets", subcategory: "jacket" },
-  jacket: { heading: "Jackets", subcategory: "jacket" },
+// brandOrder: these brands lead the grid in this order; the rest follow, newest first.
+const stylePages: Record<
+  string,
+  { heading: string; subcategory: string; genders?: GenderShop[]; brandOrder?: string[] }
+> = {
+  jackets: { heading: "Jackets", subcategory: "jacket", brandOrder: ["Lacoste", "NovaMen"] },
+  jacket: { heading: "Jackets", subcategory: "jacket", brandOrder: ["Lacoste", "NovaMen"] },
   hoodies: { heading: "Hoodies", subcategory: "hoodie" },
   hoodie: { heading: "Hoodies", subcategory: "hoodie" },
   sweatshirts: { heading: "Sweatshirts", subcategory: "sweatshirt" },
@@ -177,6 +181,16 @@ function StylePage({
   );
 }
 
+function byBrandOrder(products: Product[], brandOrder?: string[]) {
+  if (!brandOrder?.length) return products;
+  const rank = (product: Product) => {
+    const index = brandOrder.findIndex((brand) => brand.toLowerCase() === product.brand?.trim().toLowerCase());
+    return index === -1 ? brandOrder.length : index;
+  };
+  // sort is stable, so each brand keeps its newest-first order.
+  return [...products].sort((a, b) => rank(a) - rank(b));
+}
+
 function forGender(product: Product, gender: GenderShop) {
   if (gender === "men") {
     const shoeType = product.subcategory?.toLowerCase();
@@ -199,7 +213,10 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         heading={style.heading}
         path={styleCanonical[slug] ?? `/${slug}`}
         category={style.subcategory}
-        list={products.filter((product) => sameType(product.subcategory, style.subcategory))}
+        list={byBrandOrder(
+          products.filter((product) => sameType(product.subcategory, style.subcategory)),
+          style.brandOrder,
+        )}
         gender={genderFilter}
         genders={style.genders}
       />
