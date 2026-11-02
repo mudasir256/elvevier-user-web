@@ -12,6 +12,7 @@ import {
   useDeleteOrderNoteMutation,
 } from "@/store/ordersApi";
 import { StatusBadge } from "@/components/admin/StatusBadge";
+import { downloadShippingLabel } from "@/lib/shippingLabel";
 
 function formatPrice(price: number) {
   return `Rs. ${price.toLocaleString()}`;
@@ -60,6 +61,7 @@ export default function OrderDetailPage({
   const [deleteNote] = useDeleteOrderNoteMutation();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [noteText, setNoteText] = useState("");
+  const [isLabelling, setIsLabelling] = useState(false);
 
   if (isLoading) {
     return (
@@ -126,6 +128,24 @@ export default function OrderDetailPage({
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            onClick={async () => {
+              setIsLabelling(true);
+              try {
+                await downloadShippingLabel(order);
+              } finally {
+                setIsLabelling(false);
+              }
+            }}
+            disabled={isLabelling}
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#4a142a] rounded-lg hover:bg-[#350e1e] disabled:opacity-50 transition-colors"
+            title="Download a printable label for the courier flyer"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16" />
+            </svg>
+            {isLabelling ? "Preparing…" : "Download label"}
+          </button>
           {showDeleteConfirm ? (
             <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
               <span className="text-sm text-red-700">Delete this order?</span>

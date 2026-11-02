@@ -33,6 +33,7 @@ export interface Order {
   subtotal: number;
   shipping: string;
   total: number;
+  paymentMethod?: string;
   status: string;
   notes?: OrderNote[];
   createdAt: string;
