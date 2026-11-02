@@ -82,10 +82,7 @@ export function ProductPurchase({
 
       {sizes.length > 0 ? (
         <div className={compact ? "mt-3" : "mt-5"}>
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-sm font-medium text-[var(--foreground)]">Size</p>
-            <SizeChartButton product={product} sizes={allSizes} />
-          </div>
+          <p className="text-sm font-medium text-[var(--foreground)]">Size</p>
           <div className="mt-2 flex flex-wrap gap-2">
             {sizes.map((item) => {
               const option = findVariant(variants, item, activeColor);
@@ -108,6 +105,9 @@ export function ProductPurchase({
                 </button>
               );
             })}
+          </div>
+          <div className={compact ? "mt-2.5" : "mt-3.5"}>
+            <SizeChartButton product={product} sizes={allSizes} />
           </div>
         </div>
       ) : (

@@ -261,12 +261,18 @@ export function SizeChartButton({ product, sizes }: { product: Product; sizes: s
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-[#4a142a] underline-offset-4 hover:underline"
+        className="group inline-flex items-center gap-2.5 rounded-full border border-[#eadfe4] bg-[#faf6f8] py-1.5 pl-1.5 pr-4 text-sm text-[#4a142a] transition hover:border-[#4a142a]/30 hover:bg-[#f4e6ec] hover:shadow-[0_6px_18px_rgba(74,20,42,0.10)]"
       >
-        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M3 8.5h18v7H3v-7Zm4 0v3m3.5-3v2m3.5-2v3m3.5-3v2" />
+        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#4a142a] text-white">
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M3 8.5h18v7H3v-7Zm4 0v3m3.5-3v2m3.5-2v3m3.5-3v2" />
+          </svg>
+        </span>
+        <span className="font-semibold">Size chart</span>
+        <span className="hidden text-[var(--muted)] min-[380px]:inline">· Find your perfect fit</span>
+        <svg className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 6l6 6-6 6" />
         </svg>
-        Size chart
       </button>
       {open ? <SizeChartModal chart={chart} sizes={sizes} initialTab={defaultTab(product)} onClose={close} /> : null}
     </>
