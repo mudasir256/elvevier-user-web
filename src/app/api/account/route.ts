@@ -33,6 +33,8 @@ export async function GET(request: Request) {
         subtotal: order.subtotal,
         shipping: order.shipping,
         total: order.total,
+        discount: order.discount,
+        promoCode: order.promoCode,
         createdAt: order.createdAt,
         orderItems: order.orderItems,
       };

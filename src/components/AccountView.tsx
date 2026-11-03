@@ -281,6 +281,12 @@ export function AccountView() {
                     <span>Subtotal</span>
                     <span>{formatPrice(order.subtotal)}</span>
                   </div>
+                  {order.discount ? (
+                    <div className="flex justify-between text-[var(--muted)]">
+                      <span>Discount{order.promoCode ? ` (${order.promoCode})` : ""}</span>
+                      <span>- {formatPrice(order.discount)}</span>
+                    </div>
+                  ) : null}
                   <div className="flex justify-between text-[var(--muted)]">
                     <span>Shipping</span>
                     <span>{order.shipping}</span>

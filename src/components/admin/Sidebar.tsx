@@ -42,6 +42,15 @@ const nav = [
     ),
   },
   {
+    label: "Promo Codes",
+    href: "/admin/promos",
+    icon: (
+      <svg className="w-5 h-5 shrink-0 text-[#4a142a] bg-white rounded-md p-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 7h.01M3 11.2V5a2 2 0 012-2h6.2a2 2 0 011.4.6l8.2 8.2a2 2 0 010 2.8l-6.2 6.2a2 2 0 01-2.8 0l-8.2-8.2a2 2 0 01-.6-1.4z" />
+      </svg>
+    ),
+  },
+  {
     label: "Customers",
     href: "/admin/customers",
     icon: (

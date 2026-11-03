@@ -18,6 +18,8 @@ export type OrderEmail = {
   subtotal: number;
   shipping: string;
   total: number;
+  discount?: number;
+  promoCode?: string;
   paymentMethod: string;
 };
 
@@ -83,6 +85,7 @@ function confirmationHtml(order: OrderEmail) {
             <table role="presentation" width="100%" cellspacing="0" cellpadding="0">${rows}</table>
             <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-top:12px;font-size:14px;color:#6b6560">
               <tr><td style="padding:4px 0">Subtotal</td><td style="padding:4px 0;text-align:right">${money(order.subtotal)}</td></tr>
+              ${order.discount ? `<tr><td style="padding:4px 0">Discount${order.promoCode ? ` (${escape(order.promoCode)})` : ""}</td><td style="padding:4px 0;text-align:right;color:#4a142a">- ${money(order.discount)}</td></tr>` : ""}
               <tr><td style="padding:4px 0">Shipping</td><td style="padding:4px 0;text-align:right">${escape(order.shipping)}</td></tr>
               <tr><td style="padding:10px 0 0;font-size:16px;font-weight:700;color:#2c2825">Total</td><td style="padding:10px 0 0;text-align:right;font-size:16px;font-weight:700;color:#4a142a">${money(order.total)}</td></tr>
             </table>

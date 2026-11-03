@@ -240,6 +240,12 @@ export default function OrderDetailPage({
             <span className="text-[var(--muted)]">Subtotal</span>
             <span>{formatPrice(order.subtotal)}</span>
           </div>
+          {order.discount ? (
+            <div className="flex justify-between text-sm">
+              <span className="text-[var(--muted)]">Discount{order.promoCode ? ` (${order.promoCode})` : ""}</span>
+              <span className="text-[#4a142a]">- {formatPrice(order.discount)}</span>
+            </div>
+          ) : null}
           <div className="flex justify-between text-sm">
             <span className="text-[var(--muted)]">Shipping</span>
             <span>{order.shipping}</span>

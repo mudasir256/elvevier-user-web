@@ -5,7 +5,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import { galleryFor } from "@/lib/variants";
-import { usePlaceOrderMutation } from "@/store/checkoutApi";
+import { useApplyPromoMutation, usePlaceOrderMutation, type AppliedPromo } from "@/store/checkoutApi";
+import { promoDiscount } from "@/lib/sale";
+import { SHIPPING_THRESHOLD, shippingFor } from "@/lib/shipping";
 import { readCustomerSession } from "@/lib/customerSession";
 import { useGetAccountQuery, useUpdateAccountMutation } from "@/store/accountApi";
 import { identifyMetaUser, trackAddPaymentInfo, trackInitiateCheckout, trackPurchase, type MetaContent } from "@/lib/metaPixel";
@@ -13,8 +15,6 @@ import { identifyMetaUser, trackAddPaymentInfo, trackInitiateCheckout, trackPurc
 function formatPrice(price: number) {
   return `Rs. ${price.toLocaleString()}`;
 }
-
-const SHIPPING_THRESHOLD = 5000;
 
 type PaymentMethod = "card" | "cod";
 
@@ -34,8 +34,12 @@ export default function CheckoutPage() {
   const [stateName, setStateName] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [phone, setPhone] = useState("");
+  const [promoInput, setPromoInput] = useState("");
+  const [promo, setPromo] = useState<AppliedPromo | null>(null);
+  const [promoError, setPromoError] = useState("");
 
   const [placeOrder, { isLoading: loading }] = usePlaceOrderMutation();
+  const [applyPromo, { isLoading: applyingPromo }] = useApplyPromoMutation();
   const [updateAccount] = useUpdateAccountMutation();
   const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [sessionChecked, setSessionChecked] = useState(false);
@@ -67,8 +71,9 @@ export default function CheckoutPage() {
     if (user.phone) setPhone(user.phone);
   }, [account]);
 
-  const shippingCost = total >= SHIPPING_THRESHOLD ? 0 : 300;
-  const orderTotal = total + shippingCost;
+  const shippingCost = shippingFor(total);
+  const discount = promo ? promoDiscount(promo, total) : 0;
+  const orderTotal = total - discount + shippingCost;
   const checkoutStarted = useRef(false);
   const paymentTracked = useRef(false);
   const metaContents = useMemo<MetaContent[]>(
@@ -101,6 +106,25 @@ export default function CheckoutPage() {
     });
   }, [email, phone, firstName, lastName, city, stateName, postalCode, account?.user?.id]);
 
+  const handleApplyPromo = async () => {
+    const code = promoInput.trim();
+    if (!code) return;
+    setPromoError("");
+    try {
+      const result = await applyPromo({
+        code,
+        email,
+        phone,
+        orderItems: items.map((item) => ({ productId: item.product.id, quantity: item.quantity })),
+      }).unwrap();
+      setPromo(result);
+      setPromoInput("");
+    } catch (err: unknown) {
+      const error = err as { data?: { error?: string } };
+      setPromoError(error?.data?.error || "Could not apply this code. Please try again.");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setApiError(null);
@@ -129,6 +153,7 @@ export default function CheckoutPage() {
       shipping: shippingCost === 0 ? "Free" : `Rs. ${shippingCost}`,
       total: orderTotal,
       paymentMethod,
+      promoCode: promo?.code,
     };
 
     try {
@@ -137,7 +162,7 @@ export default function CheckoutPage() {
         trackAddPaymentInfo(metaContents, orderTotal);
       }
       const result = await placeOrder(orderData).unwrap();
-      trackPurchase(result.orderId, metaContents, orderTotal);
+      trackPurchase(result.orderId, metaContents, result.total ?? orderTotal);
       if (sessionToken) {
         await updateAccount({
           firstName,
@@ -452,11 +477,69 @@ export default function CheckoutPage() {
                   </li>
                 ))}
               </ul>
+              <div className="mt-4 pt-4 border-t border-[var(--border)]">
+                {promo ? (
+                  <div className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-[#4a142a]/40 bg-[#f4e6ec]/60 px-3 py-2.5">
+                    <div className="flex min-w-0 items-center gap-2 text-sm">
+                      <svg className="h-4 w-4 shrink-0 text-[#4a142a]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M7 7h.01M3 11.2V5a2 2 0 0 1 2-2h6.2a2 2 0 0 1 1.4.6l8.2 8.2a2 2 0 0 1 0 2.8l-6.2 6.2a2 2 0 0 1-2.8 0l-8.2-8.2a2 2 0 0 1-.6-1.4Z" />
+                      </svg>
+                      <span className="font-mono font-semibold text-[#4a142a]">{promo.code}</span>
+                      <span className="truncate text-[var(--muted)]">
+                        {promo.type === "percent" ? `${promo.value}% off applied` : `${formatPrice(promo.value)} off applied`}
+                      </span>
+                    </div>
+                    <button type="button" onClick={() => setPromo(null)} className="shrink-0 text-xs font-medium text-[#4a142a] hover:underline">
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <div>
+                    <label htmlFor="promoCode" className="block text-sm font-medium text-[var(--foreground)] mb-1">Promo code</label>
+                    <div className="flex gap-2">
+                      <input
+                        id="promoCode"
+                        type="text"
+                        autoComplete="off"
+                        autoCapitalize="characters"
+                        value={promoInput}
+                        onChange={(event) => {
+                          setPromoInput(event.target.value.toUpperCase());
+                          setPromoError("");
+                        }}
+                        onKeyDown={(event) => {
+                          // Enter applies the code instead of placing the order.
+                          if (event.key === "Enter") {
+                            event.preventDefault();
+                            handleApplyPromo();
+                          }
+                        }}
+                        className="min-w-0 flex-1 px-4 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--background)] font-mono uppercase tracking-wider text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleApplyPromo}
+                        disabled={!promoInput.trim() || applyingPromo}
+                        className="shrink-0 rounded-lg bg-[#4a142a] px-5 text-sm font-medium text-white transition hover:bg-[#350e1e] disabled:opacity-50"
+                      >
+                        {applyingPromo ? "Checking…" : "Apply"}
+                      </button>
+                    </div>
+                    {promoError ? <p className="mt-2 text-xs text-red-700">{promoError}</p> : null}
+                  </div>
+                )}
+              </div>
               <div className="mt-4 pt-4 border-t border-[var(--border)] space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-[var(--muted)]">Subtotal ({itemCount} items)</span>
                   <span>{formatPrice(total)}</span>
                 </div>
+                {discount > 0 ? (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-[var(--muted)]">Discount ({promo?.code})</span>
+                    <span className="font-medium text-[#4a142a]">- {formatPrice(discount)}</span>
+                  </div>
+                ) : null}
                 <div className="flex justify-between text-sm">
                   <span className="text-[var(--muted)]">Shipping</span>
                   <span>{shippingCost === 0 ? "Free" : formatPrice(shippingCost)}</span>

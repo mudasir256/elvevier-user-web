@@ -33,6 +33,8 @@ export interface Order {
   subtotal: number;
   shipping: string;
   total: number;
+  discount?: number;
+  promoCode?: string;
   paymentMethod?: string;
   status: string;
   notes?: OrderNote[];

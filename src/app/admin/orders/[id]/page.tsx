@@ -318,6 +318,17 @@ export default function OrderDetailPage({
             <span className="text-gray-500">Subtotal</span>
             <span>{formatPrice(order.subtotal)}</span>
           </div>
+          {order.discount ? (
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-500">
+                Discount
+                {order.promoCode ? (
+                  <span className="ml-2 rounded-md bg-[#f4e6ec] px-2 py-0.5 font-mono text-xs font-semibold text-[#4a142a]">{order.promoCode}</span>
+                ) : null}
+              </span>
+              <span className="text-[#4a142a]">- {formatPrice(order.discount)}</span>
+            </div>
+          ) : null}
           <div className="flex justify-between text-sm">
             <span className="text-gray-500">Shipping</span>
             <span>{order.shipping}</span>
