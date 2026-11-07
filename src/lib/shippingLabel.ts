@@ -7,10 +7,10 @@ import { contact } from "@/data/contact";
 const W = 297;
 const H = 105;
 const M = 8;
-// Three columns: ship to, items, and what the rider collects.
+// Ship to on the left; items with the payment box under them on the right.
 const ITEMS_X = 150;
-const PAY_X = 226;
 const GAP = 6;
+const PAY_HEIGHT = 20;
 
 async function logoDataUrl() {
   try {
@@ -66,9 +66,10 @@ export async function downloadShippingLabel(order: Order) {
   y += 8.5;
   doc.setFontSize(17).text(`Phone: ${a.phone}`, M, y);
 
-  // Items (middle column), so the parcel can be checked before sealing.
+  // Items (right column), so the parcel can be checked before sealing.
   doc.setLineWidth(0.2).line(ITEMS_X - GAP / 2, top - 1, ITEMS_X - GAP / 2, footerTop - 3);
-  const itemsWidth = PAY_X - GAP - ITEMS_X;
+  const itemsWidth = W - M - ITEMS_X;
+  const boxTop = footerTop - 3 - PAY_HEIGHT;
   let iy = top;
   const count = order.orderItems.reduce((sum, item) => sum + item.quantity, 0);
   doc.setFont("helvetica", "bold").setFontSize(9).text(`ITEMS (${count})`, ITEMS_X, iy);
@@ -77,7 +78,7 @@ export async function downloadShippingLabel(order: Order) {
   for (const [index, item] of order.orderItems.entries()) {
     const detail = [item.variant, item.size && `Size ${item.size}`].filter(Boolean).join(" · ");
     const text = doc.splitTextToSize(`${item.quantity} × ${item.name}${detail ? ` (${detail})` : ""}`, itemsWidth) as string[];
-    if (iy + text.length * 4.3 > footerTop - 7) {
+    if (iy + text.length * 4.3 > boxTop - 5) {
       doc.text(`+ ${order.orderItems.length - index} more item(s)`, ITEMS_X, iy);
       break;
     }
@@ -85,20 +86,12 @@ export async function downloadShippingLabel(order: Order) {
     iy += text.length * 4.3 + 1.8;
   }
 
-  // Payment box (right column): what the rider collects.
-  const boxWidth = W - M - PAY_X;
-  const boxTop = top - 1;
-  const boxHeight = footerTop - 3 - boxTop;
-  const centre = PAY_X + boxWidth / 2;
-  doc.setLineWidth(0.8).rect(PAY_X, boxTop, boxWidth, boxHeight);
-  doc.setFont("helvetica", "bold").setFontSize(12).text(cod ? "CASH ON DELIVERY" : "PREPAID (CARD)", centre, boxTop + 10, { align: "center" });
-  doc.setFont("helvetica", "normal").setFontSize(9.5).text(cod ? "Collect from customer" : "Do not collect cash", centre, boxTop + 16, { align: "center" });
-  // Shrink a very large amount until it fits the box.
-  const amount = cod ? money(order.total) : "Rs. 0";
-  let size = 26;
-  doc.setFont("helvetica", "bold");
-  while (size > 14 && doc.setFontSize(size).getTextWidth(amount) > boxWidth - 6) size -= 1;
-  doc.text(amount, centre, boxTop + boxHeight / 2 + 12, { align: "center" });
+  // Payment box under the items: what the rider collects.
+  const boxRight = W - M;
+  doc.setLineWidth(0.8).rect(ITEMS_X, boxTop, boxRight - ITEMS_X, PAY_HEIGHT);
+  doc.setFont("helvetica", "bold").setFontSize(12).text(cod ? "CASH ON DELIVERY" : "PREPAID (CARD)", ITEMS_X + 4, boxTop + 8.5);
+  doc.setFont("helvetica", "normal").setFontSize(9.5).text(cod ? "Collect from customer" : "Do not collect cash", ITEMS_X + 4, boxTop + 14.5);
+  doc.setFont("helvetica", "bold").setFontSize(24).text(cod ? money(order.total) : "Rs. 0", boxRight - 4, boxTop + 13, { align: "right" });
 
   // From: where the courier returns it.
   doc.setLineWidth(0.2).line(M, footerTop, W - M, footerTop);
