@@ -4,7 +4,8 @@ import { reserveStock, restoreStock } from "@/lib/stock";
 import { getSupabase } from "@/lib/supabase";
 import { sendNewOrderAlert, sendOrderConfirmation, type OrderEmail } from "@/lib/email";
 import { PAUSED_NOTICE, PRODUCTS_PAUSED } from "@/lib/storeStatus";
-import { checkPromo, cleanCode, serverSubtotal } from "@/lib/promo";
+import { checkPromo, cleanCode, serverPricedLines } from "@/lib/promo";
+import type { OrderItem } from "@/lib/orders";
 import { shippingFor } from "@/lib/shipping";
 
 export async function POST(request: Request) {
@@ -16,7 +17,7 @@ export async function POST(request: Request) {
     const {
       email, firstName, lastName, address, apartment,
       city, state, postalCode, phone, orderItems,
-      subtotal, shipping, total, paymentMethod, promoCode,
+      subtotal, paymentMethod, promoCode,
     } = await request.json();
 
     if (!email || !firstName || !lastName || !address || !city || !phone) {
@@ -27,24 +28,35 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Cart is empty." }, { status: 400 });
     }
 
-    // A promo order is priced entirely on the server, so the discount cannot be faked.
-    let priced = { subtotal: Number(subtotal), shipping: shipping || "Free", total: Number(total) };
+    // Every order is priced on the server from the database prices, including product sales and
+    // the store-wide sale, so a discount can neither be faked nor missed.
+    const server = await serverPricedLines(orderItems as (OrderItem & { productId?: string })[]);
+    if (server === null) {
+      return NextResponse.json({ error: "Your cart has changed. Please refresh the page." }, { status: 400 });
+    }
+    // The shopper must see the price they pay. If a sale started or ended while the page was open,
+    // ask them to look again instead of charging a different amount.
+    if (Number.isFinite(Number(subtotal)) && Number(subtotal) !== server.subtotal) {
+      return NextResponse.json(
+        { error: "Prices in your cart have just been updated. Please refresh the page to see the latest prices.", code: "PRICES_CHANGED" },
+        { status: 409 }
+      );
+    }
+    const pricedItems = server.lines;
+    let discount = 0;
     let promo: { promo_code: string; discount: number } | null = null;
     if (cleanCode(promoCode)) {
-      const realSubtotal = await serverSubtotal(orderItems);
-      if (realSubtotal === null) {
-        return NextResponse.json({ error: "Your cart has changed. Please refresh the page." }, { status: 400 });
-      }
-      const result = await checkPromo({ code: promoCode, subtotal: realSubtotal, email, phone });
+      const result = await checkPromo({ code: promoCode, subtotal: server.subtotal, email, phone });
       if ("error" in result) return NextResponse.json({ error: result.error }, { status: 400 });
-      const fee = shippingFor(realSubtotal);
-      priced = {
-        subtotal: realSubtotal,
-        shipping: fee === 0 ? "Free" : `Rs. ${fee}`,
-        total: realSubtotal - result.discount + fee,
-      };
-      promo = { promo_code: result.promo.code, discount: result.discount };
+      discount = result.discount;
+      promo = { promo_code: result.promo.code, discount };
     }
+    const fee = shippingFor(server.subtotal);
+    const priced = {
+      subtotal: server.subtotal,
+      shipping: fee === 0 ? "Free" : `Rs. ${fee}`,
+      total: server.subtotal - discount + fee,
+    };
 
     const stock = await reserveStock(
       orderItems.map((item: { productId?: string; size?: string; color?: string; variant?: string; quantity?: number }) => ({
@@ -73,7 +85,7 @@ export async function POST(request: Request) {
         postal_code: (postalCode || "").trim(),
         phone: phone.trim(),
         user_id: customer?.id ?? null,
-        order_items: orderItems,
+        order_items: pricedItems,
         subtotal: priced.subtotal,
         shipping: priced.shipping,
         total: priced.total,
@@ -99,7 +111,7 @@ export async function POST(request: Request) {
       apartment: (apartment || "").trim(),
       city: city.trim(),
       phone: phone.trim(),
-      items: orderItems,
+      items: pricedItems,
       subtotal: priced.subtotal,
       shipping: priced.shipping,
       total: priced.total,

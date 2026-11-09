@@ -6,6 +6,7 @@ import { GUEST_KEY, readCartSnapshot, rememberGuestToken, writeCartSnapshot } fr
 import { store } from "@/store/store";
 import { cartApi } from "@/store/cartApi";
 import { lineStock } from "@/lib/variants";
+import { savingsFor } from "@/lib/sale";
 
 export interface CartItem {
   product: Product;
@@ -116,7 +117,13 @@ interface CartContextValue extends CartState {
   openCart: () => void;
   closeCart: () => void;
   toggleCart: () => void;
+  // Loads the cart again from the server, e.g. after prices changed when a sale started or ended.
+  refreshCart: () => void;
   itemCount: number;
+  // What the shopper saves on sale items, compared with the original prices.
+  savings: number;
+  // The store-wide sale behind those savings, e.g. "11.11 Sale", if any item is in it.
+  saleName?: string;
   total: number;
 }
 
@@ -299,6 +306,8 @@ export function CartProvider({
 
   const itemCount = state.items.reduce((sum, item) => sum + item.quantity, 0);
   const total = state.items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const savings = savingsFor(state.items);
+  const saleName = state.items.find((item) => item.product.saleName)?.product.saleName;
 
   const value: CartContextValue = {
     ...state,
@@ -310,7 +319,10 @@ export function CartProvider({
     openCart,
     closeCart,
     toggleCart,
+    refreshCart: loadCart,
     itemCount,
+    savings,
+    saleName,
     total,
   };
 

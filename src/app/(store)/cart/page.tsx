@@ -16,6 +16,8 @@ export default function CartPage() {
     updateQuantity,
     itemCount,
     total,
+    savings,
+    saleName,
     ready,
   } = useCart();
 
@@ -80,6 +82,9 @@ export default function CartPage() {
                   </p>
                   <p className="mt-2 font-medium">
                     {formatPrice(item.product.price)}
+                    {item.product.salePercent && item.product.compareAtPrice ? (
+                      <span className="ml-2 text-xs font-normal text-[var(--muted)] line-through">{formatPrice(item.product.compareAtPrice)}</span>
+                    ) : null}
                   </p>
                   <div className="flex items-center gap-2 mt-3">
                     <button
@@ -135,6 +140,11 @@ export default function CartPage() {
                 <span className="text-[var(--muted)]">Subtotal ({itemCount} items)</span>
                 <span>{formatPrice(total)}</span>
               </div>
+              {savings > 0 ? (
+                <p className="text-sm font-medium text-red-600">
+                  You save {formatPrice(savings)}{saleName ? ` with the ${saleName}` : " on sale items"}
+                </p>
+              ) : null}
               <p className="text-xs text-[var(--muted)] pt-2">
                 Shipping and taxes calculated at checkout.
               </p>

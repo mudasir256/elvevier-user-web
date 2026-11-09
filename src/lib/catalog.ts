@@ -114,15 +114,17 @@ const PRODUCTS_TAG = "products";
 // Store pages read the catalog from a server cache instead of Supabase on every request.
 // Anything that changes products or stock calls refreshCatalog(); the 5 minute expiry is a fallback.
 // Store pages get sale prices applied. Admin uses listProducts() and sees the original price.
+// Sale prices are applied after the cache, on every request, so a timed sale starts and ends on the minute.
 const cachedActiveProducts = unstable_cache(
-  async () => (await listProducts({ activeOnly: true })).map(withSale),
+  async () => listProducts({ activeOnly: true }),
   ["active-products"],
   { tags: [PRODUCTS_TAG], revalidate: 300 }
 );
 
 export async function getActiveProducts() {
   if (PRODUCTS_PAUSED) return [];
-  return cachedActiveProducts();
+  const now = Date.now();
+  return (await cachedActiveProducts()).map((product) => withSale(product, now));
 }
 
 export function refreshCatalog() {

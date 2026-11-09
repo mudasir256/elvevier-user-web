@@ -144,7 +144,7 @@ export function ProductQuickView({ product, onClose }: { product: Product; onClo
                 New
               </span>
             ) : null}
-            {product.salePercent ? <SaleTag percent={product.salePercent} large /> : null}
+            {product.salePercent ? <SaleTag percent={product.salePercent} name={product.saleName} large /> : null}
             {isSold(product) ? <SoldBadge large /> : null}
           </SwipeGallery>
           {photos.length > 1 ? (

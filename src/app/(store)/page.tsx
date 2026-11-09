@@ -9,6 +9,7 @@ import { WhyChooseUs } from "@/components/WhyChooseUs";
 import { AboutUs } from "@/components/AboutUs";
 import { blogs } from "@/data/blogs";
 import { getActiveProducts } from "@/lib/catalog";
+import { STORE_SALE, salePhase } from "@/lib/campaign";
 import { JsonLd } from "@/components/JsonLd";
 import { siteGraphJsonLd } from "@/lib/seo";
 import { SITE_DESCRIPTION, pageMeta } from "@/lib/site";
@@ -34,7 +35,12 @@ export default async function HomePage() {
   // The Overrun Co. tee closes the row instead of opening it.
   const closing = newProducts.filter((product) => product.brand === "The Overrun Co.").slice(0, 1);
   const newRow = [...newProducts.filter((product) => !closing.includes(product)).slice(0, 5 - closing.length), ...closing];
-  const saleProducts = catalog.filter((product) => product.salePercent);
+  // During the store-wide sale everything is discounted, so show the deepest discounts first, one row's worth.
+  const storeSaleLive = salePhase() === "live";
+  const onSale = catalog.filter((product) => product.salePercent);
+  const saleProducts = storeSaleLive
+    ? onePerArticle([...onSale].sort((a, b) => (b.salePercent ?? 0) - (a.salePercent ?? 0))).slice(0, 10)
+    : onSale;
   const styles = styleCards(catalog);
 
   return (
@@ -61,8 +67,8 @@ export default async function HomePage() {
       {saleProducts.length ? (
         <section className="max-w-[90rem] mx-auto px-4 sm:px-6 pt-4 pb-16 md:pb-20">
           <div className="mb-10 animate-fade-up">
-            <p className="eyebrow mb-2">Limited time</p>
-            <h2 className="section-heading">Sale</h2>
+            <p className="eyebrow mb-2">{storeSaleLive ? `${STORE_SALE.percent}% off everything · no code needed` : "Limited time"}</p>
+            <h2 className="section-heading">{storeSaleLive ? STORE_SALE.name : "Sale"}</h2>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 md:gap-7">
             {saleProducts.map((product, i) => (

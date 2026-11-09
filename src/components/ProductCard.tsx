@@ -310,7 +310,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
             New
           </span>
         )}
-        {product.salePercent ? <SaleTag percent={product.salePercent} /> : null}
+        {product.salePercent ? <SaleTag percent={product.salePercent} name={product.saleName} /> : null}
         {soldOut ? <SoldBadge /> : null}
         <div className="absolute bottom-3 right-3 z-20">
           <CardActions

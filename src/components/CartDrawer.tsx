@@ -19,6 +19,8 @@ export function CartDrawer() {
     updateQuantity,
     itemCount,
     total,
+    savings,
+    saleName,
   } = useCart();
 
   return (
@@ -93,6 +95,9 @@ export function CartDrawer() {
                     </p>
                     <p className="text-sm font-semibold mt-1.5">
                       {formatPrice(item.product.price)}
+                      {item.product.salePercent && item.product.compareAtPrice ? (
+                      <span className="ml-2 text-xs font-normal text-[var(--muted)] line-through">{formatPrice(item.product.compareAtPrice)}</span>
+                    ) : null}
                     </p>
                     <div className="flex items-center gap-2 mt-2.5">
                       <button
@@ -147,6 +152,11 @@ export function CartDrawer() {
               <span className="text-sm text-[var(--muted)]">Subtotal</span>
               <span className="text-lg font-semibold">{formatPrice(total)}</span>
             </div>
+            {savings > 0 ? (
+              <p className="-mt-3 mb-4 text-right text-xs font-medium text-red-600">
+                You save {formatPrice(savings)}{saleName ? ` · ${saleName}` : ""}
+              </p>
+            ) : null}
             <Link
               href="/checkout"
               onClick={closeCart}

@@ -6,6 +6,7 @@ import { useCart } from "@/context/CartContext";
 import { navCategories } from "@/data/categories";
 import { assets } from "@/data/assets";
 import { OfferTicker } from "@/components/OfferTicker";
+import { SaleBar } from "@/components/SaleBar";
 import { useEffect, useRef, useState } from "react";
 import { clearCustomerSession, readCustomerSession, type CustomerSession } from "@/lib/customerSession";
 
@@ -115,7 +116,7 @@ export function Header() {
         />
       )}
       <div className="relative z-50">
-        <OfferTicker />
+        <SaleBar fallback={<OfferTicker />} />
       </div>
       <div className="relative z-50 px-3 sm:px-4 md:px-6 pt-3 md:pt-4">
       <div

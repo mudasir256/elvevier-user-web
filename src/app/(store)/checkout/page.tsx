@@ -19,7 +19,7 @@ function formatPrice(price: number) {
 type PaymentMethod = "card" | "cod";
 
 export default function CheckoutPage() {
-  const { items, itemCount, total, clearCart, ready } = useCart();
+  const { items, itemCount, total, savings, saleName, clearCart, refreshCart, ready } = useCart();
   const [placed, setPlaced] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
@@ -181,7 +181,13 @@ export default function CheckoutPage() {
       await clearCart();
       setPlaced(true);
     } catch (err: unknown) {
-      const error = err as { data?: { error?: string } };
+      const error = err as { data?: { error?: string; code?: string } };
+      // A sale started or ended while checkout was open: show the new prices before ordering.
+      if (error?.data?.code === "PRICES_CHANGED") {
+        refreshCart();
+        setApiError("Prices have just been updated. Please check your new total and place the order again.");
+        return;
+      }
       setApiError(error?.data?.error || "Failed to place order. Please try again.");
     }
   };
@@ -472,7 +478,14 @@ export default function CheckoutPage() {
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm line-clamp-2">{item.product.name}</p>
                       <p className="text-xs text-[var(--muted)]">{item.color || item.product.color}{item.size && ` · ${item.size}`}</p>
-                      <p className="text-sm font-medium mt-0.5">{formatPrice(item.product.price * item.quantity)}</p>
+                      <p className="text-sm font-medium mt-0.5">
+                        {formatPrice(item.product.price * item.quantity)}
+                        {item.product.salePercent && item.product.compareAtPrice ? (
+                          <span className="ml-2 text-xs font-normal text-[var(--muted)] line-through">
+                            {formatPrice(item.product.compareAtPrice * item.quantity)}
+                          </span>
+                        ) : null}
+                      </p>
                     </div>
                   </li>
                 ))}
@@ -534,6 +547,11 @@ export default function CheckoutPage() {
                   <span className="text-[var(--muted)]">Subtotal ({itemCount} items)</span>
                   <span>{formatPrice(total)}</span>
                 </div>
+                {savings > 0 ? (
+                  <p className="text-xs font-medium text-red-600">
+                    Includes {formatPrice(savings)} off{saleName ? ` from the ${saleName}` : " on sale items"}
+                  </p>
+                ) : null}
                 {discount > 0 ? (
                   <div className="flex justify-between text-sm">
                     <span className="text-[var(--muted)]">Discount ({promo?.code})</span>

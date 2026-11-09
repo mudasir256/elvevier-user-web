@@ -1,5 +1,6 @@
 import { getSupabase } from "@/lib/supabase";
-import { promoDiscount, salePrice } from "@/lib/sale";
+import { currentPrice, promoDiscount } from "@/lib/sale";
+import { STORE_SALE, salePhase } from "@/lib/campaign";
 
 export type PromoType = "percent" | "fixed";
 
@@ -116,26 +117,37 @@ export async function listPromos(): Promise<PromoWithStats[]> {
 
 type PricedLine = { productId?: string; quantity?: number };
 
-// Promo discounts are worked out from the prices in the database, never the browser's.
-export async function serverSubtotal(lines: PricedLine[]) {
+// Orders and promo discounts are worked out from the prices in the database, never the browser's.
+// Each line gets the price it costs right now, including any product sale or store-wide sale.
+export async function serverPricedLines<T extends PricedLine>(lines: T[], now = Date.now()) {
   const ids = [...new Set(lines.map((line) => String(line.productId ?? "").trim()))];
   if (!lines.length || ids.includes("")) return null;
   const { data, error } = await getSupabase().from("products").select("id, price, sale_percent").in("id", ids);
   if (error) throw error;
-  const prices = new Map((data ?? []).map((row) => [row.id, salePrice(Number(row.price), Number(row.sale_percent) || 0)]));
+  const prices = new Map((data ?? []).map((row) => [row.id, currentPrice(Number(row.price), row.sale_percent, now)]));
   let subtotal = 0;
+  const priced: (T & { price: number; quantity: number })[] = [];
   for (const line of lines) {
     const price = prices.get(String(line.productId ?? "").trim());
     if (price === undefined) return null;
-    subtotal += price * Math.max(1, Math.floor(Number(line.quantity) || 1));
+    const quantity = Math.max(1, Math.floor(Number(line.quantity) || 1));
+    subtotal += price * quantity;
+    priced.push({ ...line, price, quantity });
   }
-  return subtotal;
+  return { lines: priced, subtotal };
+}
+
+export async function serverSubtotal(lines: PricedLine[]) {
+  return (await serverPricedLines(lines))?.subtotal ?? null;
 }
 
 export async function checkPromo(input: { code: unknown; subtotal: number; email?: string; phone?: string }) {
   const code = cleanCode(input.code);
   const invalid = { error: "This promo code is not valid." };
   if (!code) return invalid;
+  if (!STORE_SALE.allowPromoCodes && salePhase() === "live") {
+    return { error: `Promo codes can't be used during the ${STORE_SALE.name}. The sale price is already applied.` };
+  }
 
   const supabase = getSupabase();
   const { data, error } = await supabase.from("promo_codes").select("*").eq("code", code).maybeSingle();

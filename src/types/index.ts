@@ -37,6 +37,8 @@ export interface Product {
   price: number;
   compareAtPrice?: number;
   salePercent?: number;
+  // Set when the discount comes from the store-wide sale (e.g. "11.11 Sale"), not the product's own.
+  saleName?: string;
   categoryId: CategoryId;
   subcategory?: string;
   brand?: string;
