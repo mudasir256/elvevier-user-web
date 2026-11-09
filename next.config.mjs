@@ -1,6 +1,7 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+// Plain JS, not TypeScript: Hostinger's servers are too old for Next's native
+// compiler, and the WebAssembly fallback it uses there cannot load next.config.ts.
+/** @type {import("next").NextConfig} */
+const nextConfig = {
   devIndicators: false,
   images: {
     // Product photos come from Supabase Storage; serve them directly so a
