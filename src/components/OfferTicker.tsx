@@ -1,11 +1,23 @@
-const offers: { label: string; icon?: "shoe" | "truck" }[] = [
+import { STORE_SALE } from "@/lib/campaign";
+
+type Offer = { label: string; icon?: "shoe" | "truck"; sale?: boolean };
+
+const offers: Offer[] = [
   { label: "Nationwide delivery", icon: "truck" },
   { label: "100% original" },
   { label: "First check then pay", icon: "shoe" },
 ];
 
-export function OfferTicker() {
-  const loop = [...offers, ...offers, ...offers, ...offers];
+// Shown first while the store-wide sale is live.
+const saleOffers: Offer[] = [
+  { label: "Mega Sale is live", sale: true },
+  { label: `Flat ${STORE_SALE.percent}% off on everything`, sale: true },
+  { label: "Discount applied automatically", sale: true },
+];
+
+export function OfferTicker({ sale = false }: { sale?: boolean }) {
+  const items = sale ? [...saleOffers, ...offers] : offers;
+  const loop = [...items, ...items, ...items, ...items];
   return (
     <div className="overflow-hidden bg-[#161616] text-white">
       <div className="ticker-scroll flex w-max items-center py-2.5">
@@ -16,7 +28,16 @@ export function OfferTicker() {
                 <span className="mx-3 h-1 w-1 shrink-0 rounded-full bg-white/35" aria-hidden="true" />
                 {item.icon === "shoe" ? <ShoeIcon /> : null}
                 {item.icon === "truck" ? <TruckIcon /> : null}
-                <span className="text-[11px] font-medium uppercase tracking-[0.16em] sm:text-xs">
+                {item.sale ? (
+                  <span className="mr-2 rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-bold tracking-wide sm:text-[11px]">
+                    {STORE_SALE.short}
+                  </span>
+                ) : null}
+                <span
+                  className={`text-[11px] uppercase tracking-[0.16em] sm:text-xs ${
+                    item.sale ? "font-semibold text-white" : "font-medium"
+                  }`}
+                >
                   {item.label}
                 </span>
               </span>
