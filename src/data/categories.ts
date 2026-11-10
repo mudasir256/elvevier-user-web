@@ -43,12 +43,12 @@ export const navCategories = [
     ],
   },
   {
-    id: "sweatshirt",
-    name: "Sweatshirt",
-    slug: "sweatshirts",
+    id: "sweatshirts-hoodies",
+    name: "Sweatshirts & Hoodies",
+    slug: "sweatshirts-and-hoodies",
     children: [
-      { name: "Men", slug: "sweatshirts" },
-      { name: "Women", slug: "sweatshirts?gender=women" },
+      { name: "Men", slug: "sweatshirts-and-hoodies" },
+      { name: "Women", slug: "sweatshirts-and-hoodies?gender=women" },
     ],
   },
   {
@@ -58,15 +58,6 @@ export const navCategories = [
     children: [
       { name: "Men", slug: "jeans" },
       { name: "Women", slug: "jeans?gender=women" },
-    ],
-  },
-  {
-    id: "hoodies",
-    name: "Hoodies",
-    slug: "hoodies",
-    children: [
-      { name: "Men", slug: "hoodies" },
-      { name: "Women", slug: "hoodies?gender=women" },
     ],
   },
   {

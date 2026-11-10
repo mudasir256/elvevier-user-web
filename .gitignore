@@ -192,3 +192,6 @@ public/kairo/herobgvideo.mov
 credentials.json
 service-account.json
 .env*
+
+# Local Netlify folder
+.netlify

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { notFound, permanentRedirect, redirect } from "next/navigation";
 import Link from "next/link";
 import { BrandSections } from "@/components/BrandSections";
 import { ComingSoon, whoLabel } from "@/components/ComingSoon";
@@ -27,16 +27,14 @@ const categorySlugs = categories.map((c) => c.slug);
 
 // genders: who the page is for; the first one is the default view. Most styles are for both.
 // brandOrder: these brands lead the grid in this order; the rest follow, newest first.
+// alsoTypes: other product types shown on the same page.
 const stylePages: Record<
   string,
-  { heading: string; subcategory: string; genders?: GenderShop[]; brandOrder?: string[] }
+  { heading: string; subcategory: string; alsoTypes?: string[]; genders?: GenderShop[]; brandOrder?: string[] }
 > = {
   jackets: { heading: "Jackets", subcategory: "jacket", brandOrder: ["Lacoste", "NovaMen"] },
   jacket: { heading: "Jackets", subcategory: "jacket", brandOrder: ["Lacoste", "NovaMen"] },
-  hoodies: { heading: "Hoodies", subcategory: "hoodie" },
-  hoodie: { heading: "Hoodies", subcategory: "hoodie" },
-  sweatshirts: { heading: "Sweatshirts", subcategory: "sweatshirt" },
-  sweatshirt: { heading: "Sweatshirts", subcategory: "sweatshirt" },
+  "sweatshirts-and-hoodies": { heading: "Sweatshirts & Hoodies", subcategory: "sweatshirt", alsoTypes: ["hoodie"] },
   trousers: { heading: "Trousers", subcategory: "trouser" },
   trouser: { heading: "Trousers", subcategory: "trouser" },
   jeans: { heading: "Jeans", subcategory: "jeans" },
@@ -53,9 +51,15 @@ const apparelTypes: Record<string, { label: string; heading: string }> = {
 
 const styleCanonical: Record<string, string> = {
   jacket: "/jackets",
-  hoodie: "/hoodies",
   trouser: "/trousers",
-  sweatshirt: "/sweatshirts",
+};
+
+// Old style pages that now live on a combined page; their links and search results move there.
+const movedStyles: Record<string, string> = {
+  sweatshirts: "/sweatshirts-and-hoodies",
+  sweatshirt: "/sweatshirts-and-hoodies",
+  hoodies: "/sweatshirts-and-hoodies",
+  hoodie: "/sweatshirts-and-hoodies",
 };
 
 // One line under a style page heading, also used as its meta description.
@@ -205,16 +209,19 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const genderFilter = genderParam === "men" || genderParam === "women" ? genderParam : undefined;
 
   const slug = categorySlug.toLowerCase();
+  const moved = movedStyles[slug];
+  if (moved) permanentRedirect(genderFilter === "women" ? `${moved}?gender=women` : moved);
   const style = stylePages[slug];
   if (style) {
     const products = await getActiveProducts();
+    const types = [style.subcategory, ...(style.alsoTypes ?? [])];
     return (
       <StylePage
         heading={style.heading}
         path={styleCanonical[slug] ?? `/${slug}`}
         category={style.subcategory}
         list={byBrandOrder(
-          products.filter((product) => sameType(product.subcategory, style.subcategory)),
+          products.filter((product) => types.some((type) => sameType(product.subcategory, type))),
           style.brandOrder,
         )}
         gender={genderFilter}
@@ -245,7 +252,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const typeKey = type?.toLowerCase();
   const typeInfo = gender && typeKey ? apparelTypes[typeKey] ?? (await customType(typeKey)) : undefined;
   const isNewFilter = filter === "new";
-  // Men's/women's styles live on the style page itself, e.g. /sweatshirts?gender=women.
+  // Men's/women's styles live on the style page itself, e.g. /sweatshirts-and-hoodies?gender=women.
   if (gender && typeKey && typeInfo && !isNewFilter) redirect(styleHref(typeKey, gender));
 
   let list: Product[];

@@ -5,9 +5,8 @@ const types = [
   { id: "all", label: "All" },
   { id: "shoes", label: "Shoes" },
   { id: "trouser", label: "Trouser" },
-  { id: "sweatshirt", label: "Sweatshirt" },
+  { id: "sweatshirt", label: "Sweatshirts & Hoodies" },
   { id: "jeans", label: "Jeans" },
-  { id: "hoodie", label: "Hoodies" },
   { id: "jacket", label: "Jackets" },
   { id: "polos-and-tees", label: "Polo's & Tees" },
 ] as const;

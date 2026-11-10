@@ -37,7 +37,6 @@ function forGender(category: (typeof navCategories)[number], gender: (typeof gen
 
 function categoryLabel(name: string) {
   if (name === "Trouser") return "Trousers";
-  if (name === "Sweatshirt") return "Sweatshirts";
   return name;
 }
 

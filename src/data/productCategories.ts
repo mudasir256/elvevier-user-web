@@ -1,7 +1,7 @@
 import type { CategoryId } from "@/types";
 
 // Every clothing category offers the same types. The store's style pages (/trousers, /jeans,
-// /sweatshirts, /hoodies, /jackets) look for "Trouser", "Jeans", "Sweatshirt", "Hoodie" and "Jacket".
+// /sweatshirts-and-hoodies, /jackets) look for "Trouser", "Jeans", "Sweatshirt", "Hoodie" and "Jacket".
 const clothingTypes = [
   "Tops",
   "Shirts",

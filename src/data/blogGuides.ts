@@ -79,7 +79,7 @@ export const guides: BlogPost[] = [
     ],
     shop: [
       { label: "Lacoste", href: "/brands/lacoste" },
-      { label: "Sweatshirts", href: "/sweatshirts" },
+      { label: "Sweatshirts & Hoodies", href: "/sweatshirts-and-hoodies" },
       { label: "Jackets", href: "/jackets" },
       { label: "Jeans", href: "/jeans" },
     ],
@@ -270,13 +270,13 @@ export const guides: BlogPost[] = [
       {
         heading: "1. A hoodie you can wear outside the house",
         paragraphs: [
-          "A good hoodie is the most useful piece of the season. Choose a clean design with a small logo in navy, cream or brown so it works with jeans and smarter trousers alike. The [Polo Ralph Lauren Palm Hoodie](/product/polo-ralph-lauren-palm-hoodie-navy) is a good example. Browse all [hoodies](/hoodies).",
+          "A good hoodie is the most useful piece of the season. Choose a clean design with a small logo in navy, cream or brown so it works with jeans and smarter trousers alike. The [Polo Ralph Lauren Palm Hoodie](/product/polo-ralph-lauren-palm-hoodie-navy) is a good example. Browse all [hoodies](/sweatshirts-and-hoodies).",
         ],
       },
       {
         heading: "2. Two crew-neck sweatshirts",
         paragraphs: [
-          "Sweatshirts look neater than hoodies and layer easily under a jacket. One dark colour (black, navy, forest green) and one light colour (cream, stone) cover almost every outfit. The [Lacoste Croc Logo Sweatshirt](/product/lacoste-croc-logo-sweatshirt-forest-green) and Tommy Hilfiger crest styles are easy favourites. See all [sweatshirts](/sweatshirts).",
+          "Sweatshirts look neater than hoodies and layer easily under a jacket. One dark colour (black, navy, forest green) and one light colour (cream, stone) cover almost every outfit. The [Lacoste Croc Logo Sweatshirt](/product/lacoste-croc-logo-sweatshirt-forest-green) and Tommy Hilfiger crest styles are easy favourites. See all [sweatshirts](/sweatshirts-and-hoodies).",
         ],
       },
       {
@@ -309,8 +309,7 @@ export const guides: BlogPost[] = [
       },
     ],
     shop: [
-      { label: "Hoodies", href: "/hoodies" },
-      { label: "Sweatshirts", href: "/sweatshirts" },
+      { label: "Sweatshirts & Hoodies", href: "/sweatshirts-and-hoodies" },
       { label: "Jackets", href: "/jackets" },
       { label: "Trousers", href: "/trousers" },
     ],

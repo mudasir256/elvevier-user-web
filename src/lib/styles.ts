@@ -8,18 +8,21 @@ export type StyleCard = { name: string; href: string; image: string };
 const CLOTHING = new Set(["women", "men", "unisex", "kids"]);
 
 // Built-in styles keep their order and their existing pages.
+// A style can cover several product types: sweatshirts and hoodies share one page.
 const BUILT_IN = [
-  { key: "jacket", name: "Jackets", href: "/jackets" },
-  { key: "hoodie", name: "Hoodies", href: "/hoodies" },
-  { key: "sweatshirt", name: "Sweatshirts", href: "/sweatshirts" },
-  { key: "trouser", name: "Trousers", href: "/trousers" },
-  { key: "jeans", name: "Jeans", href: "/jeans" },
-  { key: "Polos & Tees", name: "Polo's & Tees", href: "/polos-and-tees" },
+  { keys: ["jacket"], name: "Jackets", href: "/jackets" },
+  { keys: ["sweatshirt", "hoodie"], name: "Sweatshirts & Hoodies", href: "/sweatshirts-and-hoodies" },
+  { keys: ["trouser"], name: "Trousers", href: "/trousers" },
+  { keys: ["jeans"], name: "Jeans", href: "/jeans" },
+  { keys: ["Polos & Tees"], name: "Polo's & Tees", href: "/polos-and-tees" },
 ];
 
-// A style page for one gender; men is the default view, women is /sweatshirts?gender=women.
+const covers = (style: (typeof BUILT_IN)[number], type: string | undefined | null) =>
+  style.keys.some((key) => sameType(key, type));
+
+// A style page for one gender; men is the default view, women is /jackets?gender=women.
 export function styleHref(typeKey: string, gender?: "men" | "women") {
-  const path = BUILT_IN.find((style) => sameType(style.key, typeKey))?.href ?? `/${slugify(typeKey)}`;
+  const path = BUILT_IN.find((style) => covers(style, typeKey))?.href ?? `/${slugify(typeKey)}`;
   return gender === "women" ? `${path}?gender=women` : path;
 }
 
@@ -28,7 +31,7 @@ function clothingType(product: Product) {
 }
 
 export function isBuiltInStyle(label: string) {
-  return BUILT_IN.some((style) => sameType(style.key, label));
+  return BUILT_IN.some((style) => covers(style, label));
 }
 
 // Products whose type matches a page slug such as "shorts" or "t-shirts".
@@ -57,7 +60,7 @@ export function styleCards(products: Product[]): StyleCard[] {
   if (shoe) cards.push({ name: "Shoes", href: "/shoes", image: shoe.image });
 
   for (const style of BUILT_IN) {
-    const product = products.find((item) => sameType(clothingType(item), style.key));
+    const product = products.find((item) => covers(style, clothingType(item)));
     if (product) cards.push({ name: style.name, href: style.href, image: product.image });
   }
 

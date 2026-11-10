@@ -37,9 +37,9 @@ export function SearchView({
   const q = query.trim().toLowerCase();
   const genderType: Record<string, string> = {
     trouser: "/trousers",
-    sweatshirt: "/sweatshirts",
+    sweatshirt: "/sweatshirts-and-hoodies",
     jeans: "/jeans",
-    hoodie: "/hoodies",
+    hoodie: "/sweatshirts-and-hoodies",
     jacket: "/jackets",
   };
   const splitType = genderType[q];
