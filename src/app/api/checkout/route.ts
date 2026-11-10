@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     const {
       email, firstName, lastName, address, apartment,
       city, state, postalCode, phone, orderItems,
-      subtotal, paymentMethod, promoCode,
+      subtotal, promoCode,
     } = await request.json();
 
     if (!email || !firstName || !lastName || !address || !city || !phone) {
@@ -89,7 +89,7 @@ export async function POST(request: Request) {
         subtotal: priced.subtotal,
         shipping: priced.shipping,
         total: priced.total,
-        payment_method: paymentMethod || "cod",
+        payment_method: "cod", // No online payment gateway yet; never trust a "card" sent by an old page.
         status: "pending",
         ...promo,
       })
@@ -117,7 +117,7 @@ export async function POST(request: Request) {
       total: priced.total,
       discount: promo?.discount ?? 0,
       promoCode: promo?.promo_code,
-      paymentMethod: paymentMethod || "cod",
+      paymentMethod: "cod",
     };
     after(() => Promise.all([sendOrderConfirmation(placed), sendNewOrderAlert(placed)]));
 

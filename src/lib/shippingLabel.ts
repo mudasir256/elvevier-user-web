@@ -36,7 +36,10 @@ export async function downloadShippingLabel(order: Order) {
   const doc = new jsPDF({ unit: "mm", format: [W, H], orientation: "landscape" });
   const a = order.deliveryAddress;
   const orderNo = order._id.slice(-6).toUpperCase();
-  const cod = (order.paymentMethod ?? "cod") === "cod";
+  // The store has no online payment gateway: the "Card" option at checkout charges nothing,
+  // so every order, whichever method the customer picked, is paid in cash on delivery.
+  // Only print "prepaid" once a real gateway records that the money was received.
+  const cod = true;
   const date = new Date(order.createdAt).toLocaleDateString("en-PK", { day: "numeric", month: "short", year: "numeric" });
 
   // Header: logo, order number and date.

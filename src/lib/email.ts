@@ -46,7 +46,7 @@ function orderNumber(id: string) {
 }
 
 function confirmationHtml(order: OrderEmail) {
-  const cod = order.paymentMethod !== "card";
+  const cod = true; // No online payment gateway yet: every order is cash on delivery (see shippingLabel.ts).
   const rows = order.items
     .map((item) => {
       const details = [item.variant, item.size ? `Size ${item.size}` : "", `Qty ${item.quantity}`].filter(Boolean).join(" · ");
@@ -134,7 +134,7 @@ function whatsappNumber(phone: string) {
 
 // The message the team sends the customer on WhatsApp to confirm the order.
 export function whatsappConfirmMessage(order: OrderEmail) {
-  const cod = order.paymentMethod !== "card";
+  const cod = true; // No online payment gateway yet: every order is cash on delivery (see shippingLabel.ts).
   const items = order.items.map((item) => {
     const details = [item.variant, item.size ? `Size ${item.size}` : ""].filter(Boolean).join(", ");
     return `- ${item.quantity} x ${item.name}${details ? ` (${details})` : ""}: ${money(item.price * item.quantity)}`;
@@ -161,7 +161,7 @@ export function whatsappConfirmMessage(order: OrderEmail) {
 }
 
 function alertHtml(order: OrderEmail) {
-  const cod = order.paymentMethod !== "card";
+  const cod = true; // No online payment gateway yet: every order is cash on delivery (see shippingLabel.ts).
   const units = order.items.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
   const message = whatsappConfirmMessage(order);
   const whatsappLink = `https://wa.me/${whatsappNumber(order.phone)}?text=${encodeURIComponent(message)}`;
