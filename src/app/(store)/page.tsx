@@ -31,7 +31,8 @@ export const metadata: Metadata = {
 
 export default async function HomePage() {
   // The home page shows men's products only; women's appear once a shopper opens a women's page.
-  const catalog = (await getActiveProducts()).filter((product) => forGender(product, "men"));
+  const allProducts = await getActiveProducts();
+  const catalog = allProducts.filter((product) => forGender(product, "men"));
   // One colour per item, so New Arrivals shows five different pieces.
   const newRow = onePerArticle(catalog.filter((product) => product.new)).slice(0, 5);
   // During the store-wide sale everything is discounted, so show the deepest discounts first, one row's worth.
@@ -40,7 +41,8 @@ export default async function HomePage() {
   const saleProducts = storeSaleLive
     ? onePerArticle([...onSale].sort((a, b) => (b.salePercent ?? 0) - (a.salePercent ?? 0))).slice(0, 10)
     : onSale;
-  const styles = styleCards(catalog);
+  // Every style keeps its card (Polo's & Tees is women-only); a men's product is the card image wherever one exists.
+  const styles = styleCards([...catalog, ...allProducts.filter((product) => !catalog.includes(product))]);
 
   return (
     <div className="grain-overlay">
