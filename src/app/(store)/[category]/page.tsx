@@ -35,8 +35,8 @@ const stylePages: Record<
   jackets: { heading: "Jackets", subcategory: "jacket", brandOrder: ["Lacoste", "NovaMen"] },
   jacket: { heading: "Jackets", subcategory: "jacket", brandOrder: ["Lacoste", "NovaMen"] },
   "sweatshirts-and-hoodies": { heading: "Sweatshirts & Hoodies", subcategory: "sweatshirt", alsoTypes: ["hoodie"] },
-  trousers: { heading: "Trousers", subcategory: "trouser" },
-  trouser: { heading: "Trousers", subcategory: "trouser" },
+  trousers: { heading: "Trousers", subcategory: "trouser", brandOrder: ["Polo Ralph Lauren", "Zara", "Bershka"] },
+  trouser: { heading: "Trousers", subcategory: "trouser", brandOrder: ["Polo Ralph Lauren", "Zara", "Bershka"] },
   jeans: { heading: "Jeans", subcategory: "jeans" },
   "polos-and-tees": { heading: "Polo's & Tees", subcategory: "Polos & Tees", genders: ["women"] },
 };
