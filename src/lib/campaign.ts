@@ -4,7 +4,7 @@
 // A product with its own bigger sale keeps that one; the two are never added together.
 // To run another sale, change the values below. To switch it off, set enabled to false.
 export const STORE_SALE = {
-  enabled: true,
+  enabled: false,
   name: "11.11 Sale",
   short: "11.11",
   percent: 11,
