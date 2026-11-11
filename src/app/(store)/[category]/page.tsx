@@ -4,6 +4,7 @@ import Link from "next/link";
 import { BrandSections } from "@/components/BrandSections";
 import { ComingSoon, whoLabel } from "@/components/ComingSoon";
 import { GenderShopNav, type GenderShop, type GenderShopType } from "@/components/GenderShopNav";
+import { forGender } from "@/lib/gender";
 import {
   getActiveProducts,
   getProductsByCategory,
@@ -193,14 +194,6 @@ function byBrandOrder(products: Product[], brandOrder?: string[]) {
   };
   // sort is stable, so each brand keeps its newest-first order.
   return [...products].sort((a, b) => rank(a) - rank(b));
-}
-
-function forGender(product: Product, gender: GenderShop) {
-  if (gender === "men") {
-    const shoeType = product.subcategory?.toLowerCase();
-    return product.categoryId === "men" || product.categoryId === "unisex" || (product.categoryId === "shoes" && (shoeType === "men" || shoeType === "man"));
-  }
-  return product.categoryId === "women" || product.categoryId === "unisex" || (product.categoryId === "shoes" && product.subcategory?.toLowerCase() === "woman");
 }
 
 export default async function CategoryPage({ params, searchParams }: Props) {

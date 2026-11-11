@@ -9,6 +9,7 @@ import { WhyChooseUs } from "@/components/WhyChooseUs";
 import { AboutUs } from "@/components/AboutUs";
 import { blogs } from "@/data/blogs";
 import { getActiveProducts } from "@/lib/catalog";
+import { forGender } from "@/lib/gender";
 import { STORE_SALE, salePhase } from "@/lib/campaign";
 import { JsonLd } from "@/components/JsonLd";
 import { siteGraphJsonLd } from "@/lib/seo";
@@ -29,12 +30,10 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const catalog = await getActiveProducts();
+  // The home page shows men's products only; women's appear once a shopper opens a women's page.
+  const catalog = (await getActiveProducts()).filter((product) => forGender(product, "men"));
   // One colour per item, so New Arrivals shows five different pieces.
-  const newProducts = onePerArticle(catalog.filter((product) => product.new));
-  // The Overrun Co. tee closes the row instead of opening it.
-  const closing = newProducts.filter((product) => product.brand === "The Overrun Co.").slice(0, 1);
-  const newRow = [...newProducts.filter((product) => !closing.includes(product)).slice(0, 5 - closing.length), ...closing];
+  const newRow = onePerArticle(catalog.filter((product) => product.new)).slice(0, 5);
   // During the store-wide sale everything is discounted, so show the deepest discounts first, one row's worth.
   const storeSaleLive = salePhase() === "live";
   const onSale = catalog.filter((product) => product.salePercent);
@@ -86,7 +85,7 @@ export default async function HomePage() {
             <h2 className="section-heading">New Arrivals</h2>
           </div>
           <Link
-            href="/women?filter=new"
+            href="/men?filter=new"
             className="text-sm font-medium text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors duration-200 flex items-center gap-1 group"
           >
             View all
