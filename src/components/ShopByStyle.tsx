@@ -18,8 +18,8 @@ export function ShopByStyle({ categories }: { categories: StyleCategory[] }) {
   const position = useRef(0);
   const holdUntil = useRef(0);
   const hovering = useRef(false);
-  const [looping, setLooping] = useState(false);
   const [mobile, setMobile] = useState(false);
+  const [edges, setEdges] = useState({ start: true, end: true });
 
   // Auto-scroll only on mobile widths; desktop stays still and uses the arrows.
   useEffect(() => {
@@ -30,32 +30,28 @@ export function ShopByStyle({ categories }: { categories: StyleCategory[] }) {
     return () => query.removeEventListener("change", update);
   }, []);
 
-  // Loop only when one set of cards is wider than the row.
+  // Each style shows once, so the arrows dim at either end of the row.
   useEffect(() => {
     const el = scroller.current;
     if (!el) return;
-    const check = () => {
-      const cards = el.querySelectorAll<HTMLElement>("[data-style-card]");
-      const count = categories.length;
-      const last = cards[count - 1];
-      const oneSet = last ? last.offsetLeft + last.offsetWidth - (cards[0]?.offsetLeft ?? 0) : 0;
-      setLooping(oneSet > el.clientWidth + 8);
+    const update = () => {
+      const max = el.scrollWidth - el.clientWidth;
+      setEdges({ start: el.scrollLeft <= 4, end: el.scrollLeft >= max - 4 });
     };
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
+    update();
+    el.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      el.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
   }, [categories.length]);
 
+  // On mobile the row drifts to the end, rests, then glides back to the first style.
   useEffect(() => {
     const el = scroller.current;
-    if (!el || !looping || !mobile) return;
+    if (!el || !mobile) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    const loopWidth = () => {
-      const cards = el.querySelectorAll<HTMLElement>("[data-style-card]");
-      const copy = cards[categories.length];
-      return copy ? copy.offsetLeft - cards[0].offsetLeft : 0;
-    };
 
     position.current = el.scrollLeft;
     let frame = 0;
@@ -63,21 +59,24 @@ export function ShopByStyle({ categories }: { categories: StyleCategory[] }) {
     const tick = (now: number) => {
       const dt = Math.min(now - last, 100) / 1000;
       last = now;
-      const width = loopWidth();
+      const max = el.scrollWidth - el.clientWidth;
       if (Math.abs(el.scrollLeft - position.current) > 2) position.current = el.scrollLeft; // user scrolled
-      if (!hovering.current && now > holdUntil.current && width > 0) {
-        position.current += SPEED * dt;
-        if (position.current >= width) position.current -= width;
-        el.scrollLeft = position.current;
-      } else if (width > 0 && el.scrollLeft >= width) {
-        position.current = el.scrollLeft - width;
-        el.scrollLeft = position.current;
+      if (max > 8 && !hovering.current && now > holdUntil.current) {
+        if (position.current >= max - 1) {
+          position.current = 0;
+          holdUntil.current = now + 2500;
+          el.scrollTo({ left: 0, behavior: "smooth" });
+        } else {
+          position.current = Math.min(max, position.current + SPEED * dt);
+          el.scrollLeft = position.current;
+          if (position.current >= max - 1) holdUntil.current = now + 1500;
+        }
       }
       frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [looping, mobile, categories.length]);
+  }, [mobile, categories.length]);
 
   const pause = (ms: number) => {
     holdUntil.current = performance.now() + ms;
@@ -87,17 +86,10 @@ export function ShopByStyle({ categories }: { categories: StyleCategory[] }) {
     const el = scroller.current;
     if (!el) return;
     pause(1500);
-    const cards = el.querySelectorAll<HTMLElement>("[data-style-card]");
-    const card = cards[0];
+    const card = el.querySelector<HTMLElement>("[data-style-card]");
     const amount = card ? card.getBoundingClientRect().width + 20 : el.clientWidth * 0.8;
-    if (looping && direction < 0 && el.scrollLeft < amount) {
-      const copy = cards[categories.length];
-      if (copy) el.scrollLeft += copy.offsetLeft - cards[0].offsetLeft;
-    }
     el.scrollBy({ left: direction * amount, behavior: "smooth" });
   };
-
-  const items = looping ? [...categories, ...categories] : categories;
 
   if (!categories.length) return null;
 
@@ -114,6 +106,7 @@ export function ShopByStyle({ categories }: { categories: StyleCategory[] }) {
               type="button"
               aria-label="Previous styles"
               onClick={() => scrollByCard(-1)}
+              disabled={edges.start}
               className="flex h-11 w-11 items-center justify-center rounded-full border border-[#e4ddd2] bg-white text-[#4a142a] transition hover:border-[#4a142a] disabled:opacity-35"
             >
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -124,6 +117,7 @@ export function ShopByStyle({ categories }: { categories: StyleCategory[] }) {
               type="button"
               aria-label="Next styles"
               onClick={() => scrollByCard(1)}
+              disabled={edges.end}
               className="flex h-11 w-11 items-center justify-center rounded-full bg-[#4a142a] text-white shadow-[0_8px_20px_rgba(74,20,42,0.22)] transition hover:bg-[#350e1e] disabled:opacity-35"
             >
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -142,16 +136,11 @@ export function ShopByStyle({ categories }: { categories: StyleCategory[] }) {
           onWheel={() => pause(2500)}
           onFocus={() => pause(4000)}
         >
-          {items.map((category, i) => {
-            const index = i % categories.length;
-            const copy = i >= categories.length;
-            return (
+          {categories.map((category, index) => (
             <Link
-              key={`${category.name}-${i}`}
+              key={category.href}
               href={category.href}
               data-style-card
-              aria-hidden={copy || undefined}
-              tabIndex={copy ? -1 : undefined}
               className="group w-[72vw] shrink-0 sm:w-[230px] md:w-[250px]"
             >
               <div
@@ -186,8 +175,7 @@ export function ShopByStyle({ categories }: { categories: StyleCategory[] }) {
                 </div>
               </div>
             </Link>
-            );
-          })}
+          ))}
         </div>
       </div>
     </section>
