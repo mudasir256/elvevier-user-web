@@ -373,7 +373,7 @@ export const guides: BlogPost[] = [
       {
         heading: "Finding the right size",
         paragraphs: [
-          "Oversized styles are cut roomy on purpose, so most women take their usual size. Size down for a neater fit or size up for an extra-relaxed look. Check the size chart on each product page before ordering. Shop the full range of [women's Polo's & Tees](/polos-and-tees?gender=women), including The Overrun Co. T-shirts in seven colours.",
+          "Oversized styles are cut roomy on purpose, so most women take their usual size. Size down for a neater fit or size up for an extra-relaxed look. Check the size chart on each product page before ordering. Shop the full range of [women's Polo's & Tees](/polos-and-tees), including The Overrun Co. T-shirts in seven colours.",
         ],
       },
     ],
@@ -388,7 +388,7 @@ export const guides: BlogPost[] = [
       },
     ],
     shop: [
-      { label: "Women's Polo's & Tees", href: "/polos-and-tees?gender=women" },
+      { label: "Women's Polo's & Tees", href: "/polos-and-tees" },
       { label: "Women's jeans", href: "/jeans?gender=women" },
       { label: "Women's trousers", href: "/trousers?gender=women" },
     ],

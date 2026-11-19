@@ -70,10 +70,7 @@ export const navCategories = [
     id: "polos-tees",
     name: "Polo's & Tees",
     slug: "polos-and-tees",
-    children: [
-      { name: "Men", slug: "polos-and-tees" },
-      { name: "Women", slug: "polos-and-tees?gender=women" },
-    ],
+    children: [{ name: "Women", slug: "polos-and-tees" }],
   },
   {
     id: "jackets",

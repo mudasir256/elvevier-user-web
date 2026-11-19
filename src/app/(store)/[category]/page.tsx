@@ -29,17 +29,35 @@ const categorySlugs = categories.map((c) => c.slug);
 // genders: who the page is for; the first one is the default view. Most styles are for both.
 // brandOrder: these brands lead the grid in this order; the rest follow, newest first.
 // alsoTypes: other product types shown on the same page.
+// leadNames: products whose name starts with one of these come first, in this order (every colour).
 const stylePages: Record<
   string,
-  { heading: string; subcategory: string; alsoTypes?: string[]; genders?: GenderShop[]; brandOrder?: string[] }
+  {
+    heading: string;
+    subcategory: string;
+    alsoTypes?: string[];
+    genders?: GenderShop[];
+    brandOrder?: string[];
+    leadNames?: string[];
+  }
 > = {
   jackets: { heading: "Jackets", subcategory: "jacket", brandOrder: ["Lacoste", "NovaMen"] },
   jacket: { heading: "Jackets", subcategory: "jacket", brandOrder: ["Lacoste", "NovaMen"] },
-  "sweatshirts-and-hoodies": { heading: "Sweatshirts & Hoodies", subcategory: "sweatshirt", alsoTypes: ["hoodie"] },
+  // The collared sweatshirts lead the page.
+  "sweatshirts-and-hoodies": {
+    heading: "Sweatshirts & Hoodies",
+    subcategory: "sweatshirt",
+    alsoTypes: ["hoodie"],
+    leadNames: [
+      "Polo Ralph Lauren Relaxed-Fit Fleece Graphic Polo Sweatshirt",
+      "Tommy Hilfiger Quarter-Zip Rugby Sweatshirt",
+      "Lacoste French Made Accent Sweatshirt",
+    ],
+  },
   trousers: { heading: "Trousers", subcategory: "trouser", brandOrder: ["Polo Ralph Lauren", "Zara", "Bershka"] },
   trouser: { heading: "Trousers", subcategory: "trouser", brandOrder: ["Polo Ralph Lauren", "Zara", "Bershka"] },
   jeans: { heading: "Jeans", subcategory: "jeans" },
-  "polos-and-tees": { heading: "Polo's & Tees", subcategory: "Polos & Tees" },
+  "polos-and-tees": { heading: "Polo's & Tees", subcategory: "Polos & Tees", genders: ["women"] },
 };
 
 const apparelTypes: Record<string, { label: string; heading: string }> = {
@@ -186,14 +204,27 @@ function StylePage({
   );
 }
 
-function byBrandOrder(products: Product[], brandOrder?: string[]) {
-  if (!brandOrder?.length) return products;
-  const rank = (product: Product) => {
-    const index = brandOrder.findIndex((brand) => brand.toLowerCase() === product.brand?.trim().toLowerCase());
-    return index === -1 ? brandOrder.length : index;
+// The lead products first, then the listed brands, then the rest.
+function inPageOrder(products: Product[], brandOrder: string[] = [], leadNames: string[] = []) {
+  if (!brandOrder.length && !leadNames.length) return products;
+  const position = (list: string[], matches: (item: string) => boolean) => {
+    const index = list.findIndex(matches);
+    return index === -1 ? list.length : index;
   };
-  // sort is stable, so each brand keeps its newest-first order.
-  return [...products].sort((a, b) => rank(a) - rank(b));
+  const rank = (product: Product) => {
+    const name = product.name.trim().toLowerCase();
+    const brand = product.brand?.trim().toLowerCase();
+    return [
+      position(leadNames, (lead) => name.startsWith(lead.toLowerCase())),
+      position(brandOrder, (item) => item.toLowerCase() === brand),
+    ];
+  };
+  // sort is stable, so products of equal rank keep their newest-first order.
+  return [...products].sort((a, b) => {
+    const [leadA, brandA] = rank(a);
+    const [leadB, brandB] = rank(b);
+    return leadA - leadB || brandA - brandB;
+  });
 }
 
 export default async function CategoryPage({ params, searchParams }: Props) {
@@ -213,9 +244,10 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         heading={style.heading}
         path={styleCanonical[slug] ?? `/${slug}`}
         category={style.subcategory}
-        list={byBrandOrder(
+        list={inPageOrder(
           products.filter((product) => types.some((type) => sameType(product.subcategory, type))),
           style.brandOrder,
+          style.leadNames,
         )}
         gender={genderFilter}
         genders={style.genders}
