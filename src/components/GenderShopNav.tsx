@@ -1,21 +1,10 @@
 import Link from "next/link";
-import { styleHref } from "@/lib/styles";
-
-const types = [
-  { id: "all", label: "All" },
-  { id: "shoes", label: "Shoes" },
-  { id: "trouser", label: "Trouser" },
-  { id: "sweatshirt", label: "Sweatshirts & Hoodies" },
-  { id: "jeans", label: "Jeans" },
-  { id: "jacket", label: "Jackets" },
-  { id: "polos-and-tees", label: "Polo's & Tees" },
-] as const;
-
-// Tabs that only exist for one gender.
-const ONLY_FOR: Partial<Record<(typeof types)[number]["id"], GenderShop>> = { "polos-and-tees": "women" };
+import { getActiveProducts } from "@/lib/catalog";
+import { genderStyleTabs, styleHref } from "@/lib/styles";
 
 export type GenderShop = "men" | "women";
-export type GenderShopType = (typeof types)[number]["id"];
+// "all", "shoes", or a style such as "trouser" or "sweaters".
+export type GenderShopType = string;
 
 function hrefFor(gender: GenderShop, type: GenderShopType) {
   if (type === "all") return `/${gender}`;
@@ -23,13 +12,20 @@ function hrefFor(gender: GenderShop, type: GenderShopType) {
   return styleHref(type, gender);
 }
 
-export function GenderShopNav({
+// The tabs list every style that has products for this gender, so a new type
+// added in admin (e.g. "Sweaters") gets its tab without a code change.
+export async function GenderShopNav({
   gender,
   active,
 }: {
   gender: GenderShop;
   active: GenderShopType;
 }) {
+  const tabs = [
+    { id: "all", label: "All", href: hrefFor(gender, "all") },
+    { id: "shoes", label: "Shoes", href: hrefFor(gender, "shoes") },
+    ...genderStyleTabs(await getActiveProducts(), gender),
+  ];
   return (
     <div className="mt-6 space-y-3">
       <div className="flex flex-wrap gap-2">
@@ -51,19 +47,19 @@ export function GenderShopNav({
         })}
       </div>
       <div className="flex flex-wrap gap-2">
-        {types.filter((type) => !ONLY_FOR[type.id] || ONLY_FOR[type.id] === gender).map((type) => {
-          const selected = type.id === active;
+        {tabs.map((tab) => {
+          const selected = tab.id === active;
           return (
             <Link
-              key={type.id}
-              href={hrefFor(gender, type.id)}
+              key={tab.id}
+              href={tab.href}
               className={`rounded-full px-4 py-1.5 text-sm transition-colors ${
                 selected
                   ? "bg-[#f4e6ec] font-medium text-[#4a142a]"
                   : "text-[var(--muted)] hover:text-[#4a142a]"
               }`}
             >
-              {type.label}
+              {tab.label}
             </Link>
           );
         })}

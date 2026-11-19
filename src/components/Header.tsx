@@ -30,7 +30,7 @@ function categoryHref(categoryId: string, gender: (typeof genderNav)[number]["id
   return child ? `/${child.slug}` : `/${gender}`;
 }
 
-// Women-only styles such as Polo's & Tees list just a Women link, so they stay out of the Men menu.
+// A style that lists just one gender's link (e.g. Sweaters, men only) stays out of the other menu.
 function forGender(category: (typeof navCategories)[number], gender: (typeof genderNav)[number]["id"]) {
   return category.children.some((item) => item.name.toLowerCase() === gender);
 }

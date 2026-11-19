@@ -39,7 +39,7 @@ const stylePages: Record<
   trousers: { heading: "Trousers", subcategory: "trouser", brandOrder: ["Polo Ralph Lauren", "Zara", "Bershka"] },
   trouser: { heading: "Trousers", subcategory: "trouser", brandOrder: ["Polo Ralph Lauren", "Zara", "Bershka"] },
   jeans: { heading: "Jeans", subcategory: "jeans" },
-  "polos-and-tees": { heading: "Polo's & Tees", subcategory: "Polos & Tees", genders: ["women"] },
+  "polos-and-tees": { heading: "Polo's & Tees", subcategory: "Polos & Tees" },
 };
 
 const apparelTypes: Record<string, { label: string; heading: string }> = {

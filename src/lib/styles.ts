@@ -1,6 +1,7 @@
 import type { Product } from "@/types";
 import { slugify } from "@/lib/catalog";
 import { sameType } from "@/lib/productTypes";
+import { forGender } from "@/lib/gender";
 
 export type StyleCard = { name: string; href: string; image: string };
 
@@ -51,6 +52,31 @@ function displayName(type: string) {
 // The type's name as admins typed it, taken from the newest product that uses it.
 export function typeLabel(products: Product[], slug: string) {
   return displayName(productsOfType(products, slug)[0]?.subcategory?.trim() ?? "");
+}
+
+export type StyleTab = { id: string; label: string; href: string };
+
+// The order of the tabs on the men's and women's pages; other types follow, A to Z.
+const TAB_ORDER = ["trouser", "sweatshirt", "jeans", "jacket", "Polos & Tees"];
+
+// A tab for every style that has products for this gender, e.g. Trousers, Sweaters, Polo's & Tees.
+export function genderStyleTabs(products: Product[], gender: "men" | "women"): StyleTab[] {
+  const types = products.filter((product) => forGender(product, gender)).map(clothingType).filter(Boolean);
+  const href = (path: string) => (gender === "women" ? `${path}?gender=women` : path);
+
+  const tabs: StyleTab[] = TAB_ORDER.map((key) => BUILT_IN.find((style) => style.keys[0] === key)!)
+    .filter((style) => types.some((type) => covers(style, type)))
+    .map((style) => ({ id: slugify(style.keys[0]), label: style.name, href: href(style.href) }));
+
+  const extra: StyleTab[] = [];
+  const seen: string[] = [];
+  for (const type of types) {
+    if (isBuiltInStyle(type) || seen.some((item) => sameType(item, type))) continue;
+    seen.push(type);
+    const slug = slugify(type);
+    if (slug) extra.push({ id: slug, label: displayName(type), href: href(`/${slug}`) });
+  }
+  return [...tabs, ...extra.sort((a, b) => a.label.localeCompare(b.label))];
 }
 
 // Every style that has products: shoes, the built-in styles, then any other type in use.
