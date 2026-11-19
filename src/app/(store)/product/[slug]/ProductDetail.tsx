@@ -58,7 +58,7 @@ export function ProductDetail({ product, initialColor }: { product: Product; ini
             New
           </span>
         ) : null}
-        {product.salePercent ? <SaleTag percent={product.salePercent} name={product.saleName} large /> : null}
+        {product.salePercent && !isSold(product) ? <SaleTag percent={product.salePercent} name={product.saleName} large /> : null}
         {isSold(product) ? <SoldBadge large /> : null}
       </SwipeGallery>
 

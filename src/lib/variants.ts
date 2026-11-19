@@ -54,6 +54,11 @@ export function isSold(product: { variants?: ProductVariant[] }) {
   return Boolean(product.variants?.length) && totalStock(product.variants) < 1;
 }
 
+// Keep the existing merchandising order within each availability group.
+export function availableFirst<T extends { variants?: ProductVariant[] }>(products: readonly T[]): T[] {
+  return [...products].sort((a, b) => Number(isSold(a)) - Number(isSold(b)));
+}
+
 export function uniqueValues(variants: ProductVariant[], key: "size" | "color") {
   return [...new Set(variants.map((variant) => variant[key]).filter(Boolean))];
 }

@@ -18,6 +18,7 @@ import { styleCards } from "@/lib/styles";
 import { onePerArticle } from "@/lib/articles";
 import { PRODUCTS_PAUSED } from "@/lib/storeStatus";
 import { ProductsPausedNotice } from "@/components/ComingSoon";
+import { availableFirst } from "@/lib/variants";
 
 export const metadata: Metadata = {
   ...pageMeta({
@@ -39,7 +40,7 @@ export default async function HomePage() {
   const storeSaleLive = salePhase() === "live";
   const onSale = catalog.filter((product) => product.salePercent);
   const saleProducts = storeSaleLive
-    ? onePerArticle([...onSale].sort((a, b) => (b.salePercent ?? 0) - (a.salePercent ?? 0))).slice(0, 10)
+    ? onePerArticle(availableFirst([...onSale].sort((a, b) => (b.salePercent ?? 0) - (a.salePercent ?? 0)))).slice(0, 10)
     : onSale;
   // Every style keeps its card (Polo's & Tees is women-only); a men's product is the card image wherever one exists.
   const styles = styleCards([...catalog, ...allProducts.filter((product) => !catalog.includes(product))]);

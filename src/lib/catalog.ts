@@ -2,7 +2,7 @@ import { revalidateTag, unstable_cache } from "next/cache";
 import type { Product } from "@/types";
 import { getSupabase } from "@/lib/supabase";
 import { brandSlug, summarizeBrands } from "@/lib/brands";
-import { normalizeColorImages, normalizeVariants, type ColorGallery } from "@/lib/variants";
+import { availableFirst, normalizeColorImages, normalizeVariants, type ColorGallery } from "@/lib/variants";
 import { cleanSalePercent, withSale } from "@/lib/sale";
 import { sameType } from "@/lib/productTypes";
 import { PRODUCTS_PAUSED } from "@/lib/storeStatus";
@@ -124,7 +124,7 @@ const cachedActiveProducts = unstable_cache(
 export async function getActiveProducts() {
   if (PRODUCTS_PAUSED) return [];
   const now = Date.now();
-  return (await cachedActiveProducts()).map((product) => withSale(product, now));
+  return availableFirst((await cachedActiveProducts()).map((product) => withSale(product, now)));
 }
 
 export function refreshCatalog() {

@@ -2,6 +2,7 @@ import type { ComponentProps } from "react";
 import { ProductCard } from "@/components/ProductCard";
 import { ComingSoon } from "@/components/ComingSoon";
 import type { Product } from "@/types";
+import { availableFirst } from "@/lib/variants";
 
 export function BrandSections({
   products,
@@ -28,7 +29,7 @@ export function BrandSections({
         {products.length} product{products.length !== 1 ? "s" : ""}
       </p>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-        {products.map((product, i) => (
+        {availableFirst(products).map((product, i) => (
           <ProductCard key={product.id} product={product} index={i} />
         ))}
       </div>
