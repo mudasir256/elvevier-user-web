@@ -31,7 +31,9 @@ function categoryHref(categoryId: string, gender: (typeof genderNav)[number]["id
 }
 
 // A style that lists just one gender's link (e.g. Sweaters, men only) stays out of the other menu.
+// Women's clothing sells on Levish now, so the Women menu here offers shoes only.
 function forGender(category: (typeof navCategories)[number], gender: (typeof genderNav)[number]["id"]) {
+  if (gender === "women" && category.id !== "shoes") return false;
   return category.children.some((item) => item.name.toLowerCase() === gender);
 }
 
@@ -178,9 +180,11 @@ export function Header() {
                           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">Explore</p>
                           <p className="mt-1 text-lg font-semibold text-[var(--foreground)]">{gender.name}&apos;s collection</p>
                         </div>
-                        <Link href={`/${gender.id}`} onClick={() => setOpenNavId(null)} className="text-xs font-semibold text-[#4a142a] hover:underline">
-                          Shop all {gender.name.toLowerCase()} →
-                        </Link>
+                        {gender.id === "women" ? null : (
+                          <Link href={`/${gender.id}`} onClick={() => setOpenNavId(null)} className="text-xs font-semibold text-[#4a142a] hover:underline">
+                            Shop all {gender.name.toLowerCase()} →
+                          </Link>
+                        )}
                       </div>
                       <div className="grid grid-cols-2 gap-1">
                         {navCategories.filter((category) => forGender(category, gender.id)).map((category) => (
@@ -298,13 +302,15 @@ export function Header() {
                       <div className={`grid transition-[grid-template-rows] duration-200 ease-out ${isSubOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
                         <div className="overflow-hidden">
                           <div className="space-y-0.5 pb-3 pl-3 pt-1">
-                            <Link
-                              href={`/${gender.id}`}
-                              className={`block rounded-lg px-3 py-2.5 text-sm font-medium text-[#4a142a] transition-colors hover:bg-[#f4e6ec] ${scrolled ? "text-white hover:bg-white/10" : ""}`}
-                              onClick={() => setMenuOpen(false)}
-                            >
-                              Shop all {gender.name.toLowerCase()}
-                            </Link>
+                            {gender.id === "women" ? null : (
+                              <Link
+                                href={`/${gender.id}`}
+                                className={`block rounded-lg px-3 py-2.5 text-sm font-medium text-[#4a142a] transition-colors hover:bg-[#f4e6ec] ${scrolled ? "text-white hover:bg-white/10" : ""}`}
+                                onClick={() => setMenuOpen(false)}
+                              >
+                                Shop all {gender.name.toLowerCase()}
+                              </Link>
+                            )}
                             {navCategories.filter((category) => forGender(category, gender.id)).map((category) => (
                               <Link
                                 key={category.id}
