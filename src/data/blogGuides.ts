@@ -208,7 +208,7 @@ export const guides: BlogPost[] = [
       {
         heading: "Delivery charges",
         paragraphs: [
-          "We deliver nationwide across Pakistan. Shipping is free on orders above Rs. 5,000; smaller orders have a flat Rs. 300 delivery charge, shown at checkout before you place the order.",
+          "We deliver nationwide across Pakistan. Shipping is free on orders above Rs. 10,000; smaller orders have a flat Rs. 300 delivery charge, shown at checkout before you place the order.",
         ],
       },
       {
@@ -238,7 +238,7 @@ export const guides: BlogPost[] = [
       },
       {
         q: "How much is delivery?",
-        a: "Delivery is free on orders above Rs. 5,000. Below that there is a flat Rs. 300 delivery charge.",
+        a: "Delivery is free on orders above Rs. 10,000. Below that there is a flat Rs. 300 delivery charge.",
       },
     ],
     shop: [

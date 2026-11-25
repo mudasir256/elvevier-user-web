@@ -111,7 +111,7 @@ export function ProductDetail({ product, initialColor }: { product: Product; ini
         ) : null}
 
         <ProductPurchase compact product={product} onColorChange={onColorChange} initialColor={color} />
-        <p className="mt-3 text-sm leading-6 text-[var(--muted)]">Free shipping on orders above Rs. 5,000. Easy returns.</p>
+        <p className="mt-3 text-sm leading-6 text-[var(--muted)]">Free shipping on orders above Rs. 10,000. Easy returns.</p>
       </div>
     </div>
   );

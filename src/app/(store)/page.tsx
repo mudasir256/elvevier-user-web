@@ -54,7 +54,7 @@ export default async function HomePage() {
         <h1 className="section-heading">Original fashion, shoes and accessories</h1>
         <p className="type-copy mt-3 max-w-2xl text-[var(--muted)]">
           Empulse is a Pakistan store for men&apos;s, women&apos;s and kids&apos; clothing, shoes, belts, caps and bags.
-          Original brands, nationwide delivery, and free shipping on orders above Rs. 5,000.
+          Original brands, nationwide delivery, and free shipping on orders above Rs. 10,000.
         </p>
       </section>
 

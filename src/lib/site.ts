@@ -4,7 +4,7 @@ export const SITE_URL = "https://www.empulse.store";
 export const SITE_NAME = "Empulse";
 
 export const SITE_DESCRIPTION =
-  "Shop 100% original branded clothing and shoes in Pakistan at Empulse: Lacoste, On, Polo Ralph Lauren, Levi's and more. Cash on delivery, check before you pay, free shipping over Rs. 5,000.";
+  "Shop 100% original branded clothing and shoes in Pakistan at Empulse: Lacoste, On, Polo Ralph Lauren, Levi's and more. Cash on delivery, check before you pay, free shipping over Rs. 10,000.";
 
 export const DEFAULT_SHARE_IMAGE = "/og.png?v=4";
 

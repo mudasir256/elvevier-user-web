@@ -2,6 +2,7 @@ import type { Product } from "@/types";
 import { assets } from "@/data/assets";
 import { contact } from "@/data/contact";
 import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
+import { SHIPPING_FEE, SHIPPING_THRESHOLD } from "@/lib/shipping";
 
 export function siteGraphJsonLd() {
   return {
@@ -95,9 +96,7 @@ function productInStock(product: Product) {
   return product.variants.some((variant) => variant.stock > 0);
 }
 
-// Matches the checkout (Rs. 300 below Rs. 5,000, free above) and the returns page (14 days).
-const SHIPPING_THRESHOLD = 5000;
-const SHIPPING_FEE = 300;
+// Same numbers as the checkout (src/lib/shipping.ts); returns match the returns page (14 days).
 const RETURN_DAYS = 14;
 
 export function productJsonLd(product: Product) {

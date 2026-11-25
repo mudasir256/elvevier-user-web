@@ -87,7 +87,7 @@ const movedStyles: Record<string, string> = {
 // One line under a style page heading, also used as its meta description.
 function styleIntro(heading: string, genders: GenderShop[] = ["men", "women"]) {
   const who = genders.length > 1 ? "men and women" : genders[0];
-  return `Shop 100% original ${heading.toLowerCase()} for ${who} in Pakistan from brands you trust. Cash on delivery, check before you pay, and free shipping over Rs. 5,000.`;
+  return `Shop 100% original ${heading.toLowerCase()} for ${who} in Pakistan from brands you trust. Cash on delivery, check before you pay, and free shipping over Rs. 10,000.`;
 }
 
 function categorySeo(categorySlug: string, filter?: string, type?: string) {

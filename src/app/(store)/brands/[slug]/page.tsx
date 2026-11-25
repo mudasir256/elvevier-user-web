@@ -44,8 +44,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return pageMeta({
     title: name,
     description: brand.count
-      ? `Shop original ${name} at Empulse. ${brand.count} styles with delivery across Pakistan and free shipping over Rs. 5,000.`
-      : `Original ${name} is coming soon to Empulse. Delivery across Pakistan and free shipping over Rs. 5,000.`,
+      ? `Shop original ${name} at Empulse. ${brand.count} styles with delivery across Pakistan and free shipping over Rs. 10,000.`
+      : `Original ${name} is coming soon to Empulse. Delivery across Pakistan and free shipping over Rs. 10,000.`,
     path: `/brands/${slug}`,
   });
 }
