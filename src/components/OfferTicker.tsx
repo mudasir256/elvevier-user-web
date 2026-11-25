@@ -1,8 +1,11 @@
 import { STORE_SALE } from "@/lib/campaign";
 
-type Offer = { label: string; icon?: "shoe" | "truck"; sale?: boolean };
+type Offer = { label: string; icon?: "shoe" | "truck" | "gift" | "bolt"; sale?: boolean };
 
 const offers: Offer[] = [
+  { label: "Get free gifts with orders above Rs 50,000", icon: "gift" },
+  { label: "Free express shipping on orders above Rs 10,000", icon: "truck" },
+  { label: "90 min delivery on paid orders in Lahore", icon: "bolt" },
   { label: "Nationwide delivery", icon: "truck" },
   { label: "100% original" },
   { label: "First check then pay", icon: "shoe" },
@@ -17,10 +20,12 @@ const saleOffers: Offer[] = [
 
 export function OfferTicker({ sale = false }: { sale?: boolean }) {
   const items = sale ? [...saleOffers, ...offers] : offers;
-  const loop = [...items, ...items, ...items, ...items];
+  const loop = [...items, ...items];
+  // Longer lines take longer to scroll by, so the text moves at the same reading speed.
+  const seconds = Math.max(36, Math.round(loop.reduce((sum, item) => sum + item.label.length + 6, 0) * 0.17));
   return (
     <div className="overflow-hidden bg-[#161616] text-white">
-      <div className="ticker-scroll flex w-max items-center py-2.5">
+      <div className="ticker-scroll flex w-max items-center py-2.5" style={{ animationDuration: `${seconds}s` }}>
         {[0, 1].map((copy) => (
           <div key={copy} className="flex items-center">
             {loop.map((item, i) => (
@@ -28,6 +33,12 @@ export function OfferTicker({ sale = false }: { sale?: boolean }) {
                 <span className="mx-3 h-1 w-1 shrink-0 rounded-full bg-white/35" aria-hidden="true" />
                 {item.icon === "shoe" ? <ShoeIcon /> : null}
                 {item.icon === "truck" ? <TruckIcon /> : null}
+                {item.icon === "gift" ? <GiftIcon /> : null}
+                {item.icon === "bolt" ? (
+                  <span className="mr-1.5 text-sm" aria-hidden="true">
+                    ⚡️
+                  </span>
+                ) : null}
                 {item.sale ? (
                   <span className="mr-2 rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-bold tracking-wide sm:text-[11px]">
                     {STORE_SALE.short}
@@ -53,6 +64,14 @@ function ShoeIcon() {
   return (
     <svg className="mr-2 h-4 w-4 text-[#c989a3]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M3 16.5c0-.4.2-.8.6-1l4.2-2.2c.5-.3 1.1-.2 1.5.2l1.2 1.3c.3.3.7.5 1.1.5h7.1c.7 0 1.3.6 1.3 1.3v.4c0 .8-.7 1.5-1.5 1.5H4.5A1.5 1.5 0 0 1 3 17v-.5Zm5.2-4.4 1.6-3.2c.3-.6.9-1 1.6-1h2.1c.4 0 .7.2.9.5l2.4 4.2" />
+    </svg>
+  );
+}
+
+function GiftIcon() {
+  return (
+    <svg className="mr-2 h-4 w-4 text-[#c989a3]" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M4 11h16v9H4v-9Zm-1-4h18v4H3V7Zm9 0v13M12 7c-1.5-3-5-3.5-5-1.25C7 7 9.5 7 12 7Zm0 0c1.5-3 5-3.5 5-1.25C17 7 14.5 7 12 7Z" />
     </svg>
   );
 }
