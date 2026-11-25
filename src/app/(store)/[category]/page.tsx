@@ -39,6 +39,8 @@ const stylePages: Record<
     genders?: GenderShop[];
     brandOrder?: string[];
     leadNames?: string[];
+    /** Alternate whole rows of these types, e.g. a row of sweatshirts, then a row of hoodies. */
+    rowTypes?: string[];
   }
 > = {
   jackets: { heading: "Jackets", subcategory: "jacket", brandOrder: ["Lacoste", "NovaMen"] },
@@ -48,6 +50,7 @@ const stylePages: Record<
     heading: "Sweatshirts & Hoodies",
     subcategory: "sweatshirt",
     alsoTypes: ["hoodie"],
+    rowTypes: ["sweatshirt", "hoodie"],
     leadNames: [
       "Polo Ralph Lauren Relaxed-Fit Fleece Graphic Polo Sweatshirt",
       "Tommy Hilfiger Quarter-Zip Rugby Sweatshirt",
@@ -147,6 +150,7 @@ function StylePage({
   list,
   gender: requested,
   genders = ["men", "women"],
+  rowTypes,
 }: {
   heading: string;
   path: string;
@@ -154,6 +158,7 @@ function StylePage({
   list: Product[];
   gender?: GenderShop;
   genders?: GenderShop[];
+  rowTypes?: string[];
 }) {
   const gender = requested && genders.includes(requested) ? requested : genders[0];
   const shown = list.filter((product) => forGender(product, gender));
@@ -197,6 +202,7 @@ function StylePage({
         <BrandSections
           products={shown}
           heading={`${whoLabel(gender)} ${heading.toLowerCase()}`}
+          rowTypes={rowTypes}
           empty={other ? { href: genderHref(other), cta: `Shop ${whoLabel(other)} ${heading}` } : undefined}
         />
       )}
@@ -251,6 +257,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         )}
         gender={genderFilter}
         genders={style.genders}
+        rowTypes={style.rowTypes}
       />
     );
   }
