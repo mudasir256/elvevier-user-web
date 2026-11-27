@@ -32,8 +32,11 @@ export function ProductPurchase({
     [variants, color]
   );
   const allSizes = useMemo(() => uniqueValues(variants, "size"), [variants]);
-  const [size, setSize] = useState(sizes[0] ?? "");
-  const activeSize = sizes.includes(size) ? size : (sizes[0] ?? "");
+  // Preselect a size that is in stock in this color; only fall back to the first size when none is.
+  const firstInStock = (options: string[], forColor: string) =>
+    options.find((option) => (findVariant(variants, option, forColor)?.stock ?? 0) > 0) ?? options[0] ?? "";
+  const [size, setSize] = useState(() => firstInStock(sizes, color));
+  const activeSize = sizes.includes(size) ? size : firstInStock(sizes, color);
   const activeColor = colors.includes(color) ? color : (colors[0] ?? "");
   const selected = variants.length ? findVariant(variants, activeSize, activeColor) : undefined;
   const stock = selected?.stock ?? 0;
@@ -49,7 +52,9 @@ export function ProductPurchase({
     setColor(next);
     setMessage("");
     const nextSizes = uniqueValues(variants.filter((variant) => variant.color === next), "size");
-    if (!nextSizes.includes(activeSize)) setSize(nextSizes[0] ?? "");
+    // Keep the chosen size if it exists and is in stock in the new color; otherwise move to one that is.
+    const keep = nextSizes.includes(activeSize) && (findVariant(variants, activeSize, next)?.stock ?? 0) > 0;
+    if (!keep) setSize(firstInStock(nextSizes, next));
   }
 
   useEffect(() => {
