@@ -3,8 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 
 const reels = [
-  { src: "/kairo/reel-1.mp4", label: "Empulse reel 1" },
-  { src: "/kairo/reel-2.mp4", label: "Empulse reel 2" },
+  { src: "/kairo/reel-3.mp4", label: "Empulse reel 1" },
+  { src: "/kairo/reel-4.mp4", label: "Empulse reel 2" },
+  { src: "/kairo/reel-5.mp4", label: "Empulse reel 3" },
+  { src: "/kairo/reel-6.mp4", label: "Empulse reel 4" },
+  { src: "/kairo/reel-2.mp4", label: "Empulse reel 5" },
 ];
 
 export function Reels() {
